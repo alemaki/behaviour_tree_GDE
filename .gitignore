@@ -1,0 +1,10 @@
+# Godot 4+ specific ignores
+.godot/
+.gdextension/godot-cpp/
+.vs
+*.dll
+*.os
+
+
+# Godot 4+ specific ignores
+.godot/
