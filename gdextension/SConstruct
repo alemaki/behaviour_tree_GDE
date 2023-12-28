@@ -11,6 +11,13 @@ env.Append(CPPPATH="src/")
 
 #src = Glob("src/**/*.cpp")
 
+def collect_cpp_files(root):
+    cpp_files = []
+    for dirpath, _, filenames in os.walk(root):
+        for filename in filenames:
+            if filename.endswith('.cpp'):
+                cpp_files.append(os.path.join(dirpath, filename))
+    return cpp_files
 
 src = collect_cpp_files("src")
 
