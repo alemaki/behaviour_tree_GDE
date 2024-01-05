@@ -8,11 +8,11 @@ class Hitbox : public godot::Area2D
     GDCLASS(Hitbox, godot::Area2D);
 
 protected:
-    void _on_area_entered(godot::Ref<godot::Area2D> area2d);
+    void _on_area_entered(godot::Area2D* area2d);
+    static void _bind_methods();
 
 public: 
     void _ready() override;
-    static void _bind_methods();
 };
 
 

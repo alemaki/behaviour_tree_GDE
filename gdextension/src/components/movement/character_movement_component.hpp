@@ -18,12 +18,10 @@ private:
 
     godot::Vector2 current_velocity;
 
-protected:
+public:
     void _physics_process(double delta) override;
     void _ready() override;
-    static void _bind_methods();
-
-public:
+    
     void set_character(godot::Variant character);
     godot::Variant get_character() const;
     void set_input_component(godot::Variant input_component);
@@ -33,6 +31,8 @@ public:
     void set_friction(float friction);
     float get_friction() const;
 
+protected:
+    static void _bind_methods();
 };
 
 #endif // CHARACTER_MOVEMENT_COMPONENT

@@ -12,6 +12,7 @@ class Hurtbox : public godot::Area2D
 public:
     void hitbox_entered(godot::Area2D* hitbox);
 
+protected:
     static void _bind_methods();
 
 };

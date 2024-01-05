@@ -9,7 +9,7 @@ class Test : public Node2D
 {
     GDCLASS(Test, Node2D);
 
-    protected:
+protected:
     static void _bind_methods(){};
 
 };

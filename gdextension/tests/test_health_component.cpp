@@ -1,3 +1,7 @@
+#ifndef DOCTEST_CONFIG_NO_EXCEPTIONS_BUT_WITH_ALL_ASSERTS
+#define DOCTEST_CONFIG_NO_EXCEPTIONS_BUT_WITH_ALL_ASSERTS
+#endif // DOCTEST_CONFIG_NO_EXCEPTIONS_BUT_WITH_ALL_ASSERTS
+
 #ifndef DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #endif //DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
@@ -8,12 +12,15 @@
 #include <godot_cpp/classes/ref.hpp>
 #include "components/health/health_component.hpp"
 #include "doctest/doctest.h"
-
+#include <iostream>
 namespace TestHealthComponent
 {
 TEST_CASE("[HealthComponent] Basic set.")
 {
-    godot::Ref<HealthComponent> health_component(memnew(HealthComponent));
+    std::cout<<"alabala"<<std::endl;
+    std::cout<<"alabala"<<std::endl;
+    std::cout<<"alabala"<<std::endl;
+    HealthComponent* health_component = memnew(HealthComponent);
 
     health_component->set_max_hp(20);
     health_component->set_current_hp(20);
@@ -30,11 +37,13 @@ TEST_CASE("[HealthComponent] Basic set.")
     health_component->set_max_hp(10);
     health_component->set_current_hp(20);
     REQUIRE(health_component->get_current_hp() <= 10);
+
+    memdelete(health_component);
 }  
 
 TEST_CASE("[HealthComponent] Take damage.")
 {
-    godot::Ref<HealthComponent> health_component(memnew(HealthComponent));
+    HealthComponent* health_component = memnew(HealthComponent);
 
 
     health_component->set_max_hp(20);
@@ -62,11 +71,13 @@ TEST_CASE("[HealthComponent] Take damage.")
         health_component->take_damage(-20);
         CHECK(health_component->get_current_hp() == 20);
     }
+
+    memdelete(health_component);
 }
 
 TEST_CASE("[HealthComponent] Test signals.")
 {
-    godot::Ref<HealthComponent> health_component(memnew(HealthComponent));
+    HealthComponent* health_component = memnew(HealthComponent);
 
     // TODO. Signal testing.
 }
