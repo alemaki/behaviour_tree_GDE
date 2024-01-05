@@ -12,6 +12,8 @@ public:
 
 protected:
     void _evaluate_input(const godot::Ref<godot::InputEvent> event);
+
+public:
     void _ready() override;
     static void _bind_methods();
     

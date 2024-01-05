@@ -8,7 +8,6 @@ class Projectile : public godot::Node2D
     GDCLASS(Projectile, godot::Node2D);
 
 protected:
-
     static void _bind_methods();
 };
 

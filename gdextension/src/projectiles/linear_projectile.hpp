@@ -13,17 +13,16 @@ protected:
     float speed;
     godot::Vector2 direction;
 
-protected:
-
-    void _physics_process(double delta) override;
-    static void _bind_methods();
-
 public:
+    void _physics_process(double delta) override;
 
     void set_direction(godot::Vector2 direction);
     godot::Vector2 get_direction() const;
     void set_speed(float speed);
     float get_speed() const;
+
+protected:
+    static void _bind_methods();
 };
 
 #endif // LINEAR_PROJECTILE_HPP
