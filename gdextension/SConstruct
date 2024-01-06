@@ -22,33 +22,15 @@ def collect_cpp_files(root):
     return cpp_files
 
 # Collect all CPP files in the src directory
-src_files = collect_cpp_files("src")
+src = collect_cpp_files("src")
 
 if env['platform'] == 'linux':
 	libpath = '../libtest{}{}'.format(env['suffix'], env['SHLIBSUFFIX'])
 	sharedlib = env.SharedLibrary(libpath, src)
 	Default(sharedlib)
+
 if env['platform'] == 'windows': # TODO
 	pass
 if env['platform'] == 'android': # TODO
 	pass
 
-
-# Collect all test files in the tests directory
-test_files = Glob("tests/test_*.cpp")
-
-# Include necessary paths for doctest and other dependencies
-env.Append(CPPPATH=["doctest"])
-
-#Compile tests with debbuging symbols for gdb
-# env.Append(CCFLAGS=['-g']) # use only in testing cases, because it slows build/run
-
-# Build the executable for running tests
-test_exe = env.Program(target="test_modules", source=src_files + test_files)
-
-# Set up the target to run tests
-# env.AlwaysBuild(test_exe)
-# env.AddPostAction(test_exe, test_exe[0].abspath + " --no-version --no-colors")
-
-# Default target
-Default(test_exe)
