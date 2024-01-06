@@ -2,8 +2,8 @@
 #define HEALTH_COMPONENT_HPP
 
 
-#include <godot_cpp/classes/Node.hpp>
-#include <iostream>
+#include <godot_cpp/classes/node.hpp>
+
 class HealthComponent : public godot::Node
 {
     GDCLASS(HealthComponent, godot::Node);
@@ -13,13 +13,6 @@ public:
     int current_hp;
 
 public:
-    HealthComponent() : max_hp(0), current_hp(0)
-    {
-        std::cout<<"alabala2"<<std::endl;
-        std::cout<<"alabala2"<<std::endl;
-        std::cout<<"alabala2"<<std::endl;
-        std::cout<<"alabala2"<<std::endl;
-    }
     void set_max_hp(int max_hp);
     int get_max_hp() const;
     void set_current_hp(int current_hp);
