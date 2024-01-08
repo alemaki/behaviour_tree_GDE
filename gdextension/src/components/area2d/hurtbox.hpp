@@ -2,7 +2,6 @@
 #define HURTBOX_HPP
 
 #include <godot_cpp/classes/area2d.hpp>
-#include <godot_cpp/classes/wrapped.hpp>
 
 
 class Hurtbox : public godot::Area2D
