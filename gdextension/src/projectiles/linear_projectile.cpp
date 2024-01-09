@@ -2,9 +2,14 @@
 
 void LinearProjectile::_bind_methods()
 {
-    godot::ClassDB::bind_method(godot::D_METHOD("set_speed"), &LinearProjectile::set_speed);
-    godot::ClassDB::bind_method(godot::D_METHOD("get_speed"), &LinearProjectile::get_speed);
-    ADD_PROPERTY(godot::PropertyInfo(godot::Variant::FLOAT, "speed"), "set_speed", "get_speed");
+    using namespace godot;
+    ClassDB::bind_method(D_METHOD("set_speed"), &LinearProjectile::set_speed);
+    ClassDB::bind_method(D_METHOD("get_speed"), &LinearProjectile::get_speed);
+    ClassDB::bind_method(D_METHOD("set_direction"), &LinearProjectile::set_direction);
+    ClassDB::bind_method(D_METHOD("get_direction"), &LinearProjectile::get_direction);
+
+    ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "speed"), "set_speed", "get_speed");
+    ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "direction"), "set_direction", "get_direction");
 }
 
 void LinearProjectile::set_direction(godot::Vector2 direction)

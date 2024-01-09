@@ -23,13 +23,14 @@ public:
     void _ready() override;
     
     void set_character(godot::Variant character);
-    godot::Variant get_character() const;
     void set_input_component(godot::Variant input_component);
-    godot::Variant get_input_component() const;
     void set_speed(float speed);
-    float get_speed() const;
     void set_friction(float friction);
-    float get_friction() const;
+
+    _FORCE_INLINE_ godot::Variant get_character() const;
+    _FORCE_INLINE_ godot::Variant get_input_component() const;
+    _FORCE_INLINE_ float get_speed() const;
+    _FORCE_INLINE_ float get_friction() const;
 
 protected:
     static void _bind_methods();

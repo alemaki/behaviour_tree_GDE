@@ -4,7 +4,9 @@
 
 void Hitbox::_bind_methods()
 {
-    ADD_SIGNAL(godot::MethodInfo("hit_hurtbox", godot::PropertyInfo(godot::Variant::OBJECT, "hitbox")));
+    using namespace godot;
+    
+    ADD_SIGNAL(MethodInfo("hit_hurtbox", PropertyInfo(Variant::OBJECT, "hitbox")));
 }
 
 void Hitbox::_ready()

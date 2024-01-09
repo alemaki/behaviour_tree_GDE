@@ -16,7 +16,10 @@
 #include "components/area2d/hitbox.hpp"
 #include "components/area2d/hurtbox.hpp"
 #include "components/health/health_component.hpp"
+#include "components/input/character_input_component.hpp"
+#include "components/movement/character_movement_component.hpp"
 #include "projectiles/projectile.hpp"
+#include "projectiles/linear_projectile.hpp"
 
 
 using namespace godot;
@@ -32,6 +35,9 @@ void initialize_gdextension_module(ModuleInitializationLevel p_level)
 	ClassDB::register_class<HealthComponent>();
 	ClassDB::register_class<Hitbox>();
 	ClassDB::register_class<Hurtbox>();
+	ClassDB::register_class<LinearProjectile>();
+	ClassDB::register_class<CharacterMovementComponent>();
+	ClassDB::register_class<CharacterInputComponent>();
 }
 
 void uninitialize_gdextension_module(ModuleInitializationLevel p_level)

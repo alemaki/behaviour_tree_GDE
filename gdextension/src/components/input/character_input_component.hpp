@@ -7,16 +7,18 @@ class CharacterInputComponent : public godot::Node
 {
     GDCLASS(CharacterInputComponent, godot::Node);
 
-public:
+protected:
     godot::Vector2 direction_input;
 
-protected:
     void _evaluate_input(const godot::Ref<godot::InputEvent> event);
 
 public:
     void _ready() override;
-    static void _bind_methods();
     
+    _FORCE_INLINE_ godot::Vector2 get_direction_input() const;
+
+protected:
+    static void _bind_methods();
 };
 
 #endif // CHARACTER_INPUT_COMPONENT

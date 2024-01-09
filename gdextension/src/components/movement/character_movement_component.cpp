@@ -5,13 +5,15 @@
 
 void CharacterMovementComponent::_bind_methods()
 {
-    godot::ClassDB::bind_method(godot::D_METHOD("set_character", "character"), &CharacterMovementComponent::set_character);
-    godot::ClassDB::bind_method(godot::D_METHOD("get_character"), &CharacterMovementComponent::get_character);
-    ADD_PROPERTY(godot::PropertyInfo(godot::Variant::OBJECT, "character"), "set_character", "get_character");
+    using namespace godot;
 
-    godot::ClassDB::bind_method(godot::D_METHOD("set_input_component", "input_component"), &CharacterMovementComponent::set_input_component);
-    godot::ClassDB::bind_method(godot::D_METHOD("get_input_component"), &CharacterMovementComponent::get_input_component);
-    ADD_PROPERTY(godot::PropertyInfo(godot::Variant::OBJECT, "input_component"), "set_input_component", "get_input_component");
+    ClassDB::bind_method(D_METHOD("set_character", "character"), &CharacterMovementComponent::set_character);
+    ClassDB::bind_method(D_METHOD("get_character"), &CharacterMovementComponent::get_character);
+    ClassDB::bind_method(D_METHOD("set_input_component", "input_component"), &CharacterMovementComponent::set_input_component);
+    ClassDB::bind_method(D_METHOD("get_input_component"), &CharacterMovementComponent::get_input_component);
+
+    ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "input_component"), "set_input_component", "get_input_component");
+    ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "character"), "set_character", "get_character");
 }
 
 void CharacterMovementComponent::_physics_process(double delta)
@@ -22,7 +24,7 @@ void CharacterMovementComponent::_physics_process(double delta)
 
     if (input_component != nullptr)
     {
-        target_velocity = input_component->direction_input * speed;
+        target_velocity = input_component->get_direction_input() * speed;
         
     }
 

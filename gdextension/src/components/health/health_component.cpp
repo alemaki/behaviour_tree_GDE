@@ -4,13 +4,17 @@
 
 void HealthComponent::_bind_methods()
 {
-    godot::ClassDB::bind_method(godot::D_METHOD("set_max_hp", "max_hp"), &HealthComponent::set_max_hp);
-    godot::ClassDB::bind_method(godot::D_METHOD("get_max_hp"), &HealthComponent::get_max_hp);
-    ADD_PROPERTY(godot::PropertyInfo(godot::Variant::INT, "max_hp"), "set_max_hp", "get_max_hp");
+    using namespace godot;
 
-    godot::ClassDB::bind_method(godot::D_METHOD("set_current_hp", "current_hp"), &HealthComponent::set_current_hp);
-    godot::ClassDB::bind_method(godot::D_METHOD("get_current_hp"), &HealthComponent::get_current_hp);
-    ADD_PROPERTY(godot::PropertyInfo(godot::Variant::INT, "current_hp"), "set_current_hp", "get_current_hp");    
+    ClassDB::bind_method(D_METHOD("take_damage"), &HealthComponent::take_damage);
+
+    ClassDB::bind_method(D_METHOD("set_current_hp", "current_hp"), &HealthComponent::set_current_hp);
+    ClassDB::bind_method(D_METHOD("set_max_hp", "max_hp"), &HealthComponent::set_max_hp);
+    ClassDB::bind_method(D_METHOD("get_current_hp"), &HealthComponent::get_current_hp);
+    ClassDB::bind_method(D_METHOD("get_max_hp"), &HealthComponent::get_max_hp);
+
+    ADD_PROPERTY(PropertyInfo(Variant::INT, "max_hp"), "set_max_hp", "get_max_hp");
+    ADD_PROPERTY(PropertyInfo(Variant::INT, "current_hp"), "set_current_hp", "get_current_hp");    
 }
 
 void HealthComponent::set_max_hp(int max_hp)
