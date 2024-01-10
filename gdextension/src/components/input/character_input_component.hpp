@@ -15,7 +15,7 @@ protected:
 public:
     void _ready() override;
     
-    _FORCE_INLINE_ godot::Vector2 get_direction_input() const;
+    godot::Vector2 get_direction_input() const;
 
 protected:
     static void _bind_methods();

@@ -25,12 +25,14 @@ def collect_cpp_files(root):
 src = collect_cpp_files("src")
 
 if env['platform'] == 'linux':
-	libpath = '../libtest{}{}'.format(env['suffix'], env['SHLIBSUFFIX'])
+	libpath = '../libdemonless{}{}'.format(env['suffix'], env['SHLIBSUFFIX'])
 	sharedlib = env.SharedLibrary(libpath, src)
 	Default(sharedlib)
 
 if env['platform'] == 'windows': # TODO
-	pass
+	libpath = '../libdemonless{}{}'.format(env['suffix'], env['SHLIBSUFFIX'])
+	sharedlib = env.SharedLibrary(libpath, src)
+	Default(sharedlib)
 if env['platform'] == 'android': # TODO
 	pass
 

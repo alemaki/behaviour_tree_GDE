@@ -13,6 +13,11 @@
 
 #include "test.hpp"
 
+#include "behaviour_tree/tasks/bt_action.hpp"
+#include "behaviour_tree/tasks/bt_composite.hpp"
+#include "behaviour_tree/tasks/bt_condition.hpp"
+#include "behaviour_tree/tasks/bt_decorator.hpp"
+#include "behaviour_tree/tasks/bt_task.hpp"
 #include "components/area2d/hitbox.hpp"
 #include "components/area2d/hurtbox.hpp"
 #include "components/health/health_component.hpp"
@@ -36,8 +41,13 @@ void initialize_gdextension_module(ModuleInitializationLevel p_level)
 	ClassDB::register_class<Hitbox>();
 	ClassDB::register_class<Hurtbox>();
 	ClassDB::register_class<LinearProjectile>();
-	ClassDB::register_class<CharacterMovementComponent>();
 	ClassDB::register_class<CharacterInputComponent>();
+	ClassDB::register_class<CharacterMovementComponent>();
+	ClassDB::register_class<BTTask>();
+	ClassDB::register_class<BTDecorator>();
+	ClassDB::register_class<BTComposite>();
+	ClassDB::register_class<BTCondition>();
+	ClassDB::register_class<BTAction>();
 }
 
 void uninitialize_gdextension_module(ModuleInitializationLevel p_level)
