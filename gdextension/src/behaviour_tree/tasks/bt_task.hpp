@@ -29,13 +29,16 @@ private:
     void set_children(godot::Array array);
 
 public:
+    BTTask(){};
+
     godot::Node* get_actor() const;
     void set_actor(godot::Node* actor);
+    Status get_status() const;
+    void set_status(BTTask::Status status);
 
-    _FORCE_INLINE_ godot::Ref<BTTask> get_parent() const;
-    _FORCE_INLINE_ Status get_status() const;
-    _FORCE_INLINE_ int get_child_count()const;
-    _FORCE_INLINE_ bool is_root() const;
+    godot::Ref<BTTask> get_parent() const;
+    int get_child_count()const;
+    bool is_root() const;
     
 	godot::Ref<BTTask> get_root() const;
 
@@ -44,7 +47,7 @@ public:
 	void remove_child(godot::Ref<BTTask> child);
 	void remove_child_at_index(int index);
 
-	_FORCE_INLINE_ bool has_child(const godot::Ref<BTTask> &p_child) const;
+	bool has_child(const godot::Ref<BTTask> &p_child) const;
 
 protected:
     static void _bind_methods();

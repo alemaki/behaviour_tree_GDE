@@ -3,9 +3,9 @@
 
 #include "bt_task.hpp"
 
-class BTComposite : public BTTask {
+class BTComposite : public BTTask
+{
 	GDCLASS(BTComposite, BTTask);
-    
 };
 
 #endif // BT_COMPOSITE_HPP

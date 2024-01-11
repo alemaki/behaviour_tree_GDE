@@ -11,13 +11,11 @@
 #include <godot_cpp/core/defs.hpp>
 #include <godot_cpp/godot.hpp>
 
-#include "test.hpp"
-
+#include "behaviour_tree/tasks/bt_task.hpp"
 #include "behaviour_tree/tasks/bt_action.hpp"
 #include "behaviour_tree/tasks/bt_composite.hpp"
 #include "behaviour_tree/tasks/bt_condition.hpp"
 #include "behaviour_tree/tasks/bt_decorator.hpp"
-#include "behaviour_tree/tasks/bt_task.hpp"
 #include "components/area2d/hitbox.hpp"
 #include "components/area2d/hurtbox.hpp"
 #include "components/health/health_component.hpp"
@@ -35,7 +33,6 @@ void initialize_gdextension_module(ModuleInitializationLevel p_level)
 	{
 		return;
 	}
-	ClassDB::register_class<Test>();
 	ClassDB::register_class<Projectile>();
 	ClassDB::register_class<HealthComponent>();
 	ClassDB::register_class<Hitbox>();
