@@ -3,7 +3,6 @@
 
 #include <godot_cpp/classes/area2d.hpp>
 
-
 class Hurtbox : public godot::Area2D
 {
     GDCLASS(Hurtbox, godot::Area2D);

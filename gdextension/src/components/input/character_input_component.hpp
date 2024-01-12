@@ -10,15 +10,15 @@ class CharacterInputComponent : public godot::Node
 protected:
     godot::Vector2 direction_input;
 
-    void _evaluate_input(const godot::Ref<godot::InputEvent> event);
+    void evaluate_input();
 
 public:
-    void _ready() override;
-    
     godot::Vector2 get_direction_input() const;
+    void _process(double delta) override;
 
 protected:
     static void _bind_methods();
+
 };
 
 #endif // CHARACTER_INPUT_COMPONENT

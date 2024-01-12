@@ -21,6 +21,7 @@ void HealthComponent::set_max_hp(int max_hp)
 {
     max_hp = godot::Math::clamp<int>(max_hp, 0, max_hp);
     this->max_hp = max_hp;
+    this->current_hp = godot::Math::clamp<int>(this->current_hp, 0, this->max_hp);
 }
 
 int HealthComponent::get_max_hp() const

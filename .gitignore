@@ -2,8 +2,12 @@
 .godot/
 .gdextension/godot-cpp/
 .vs
+
+# C++ objects specific ignores
 *.dll
 *.os
+*.o
+*.so
 
 # Godot-specific ignores
 .import/
@@ -17,3 +21,7 @@ export_presets.cfg
 .mono/
 data_*/
 mono_crash.*.json
+
+# Project specific ignores
+addons/gut/
+

@@ -9,8 +9,8 @@ class HealthComponent : public godot::Node
     GDCLASS(HealthComponent, godot::Node);
     
 public:
-    int max_hp;
-    int current_hp;
+    int max_hp = 0;
+    int current_hp = 0;
 
 public:
     void set_max_hp(int max_hp);
