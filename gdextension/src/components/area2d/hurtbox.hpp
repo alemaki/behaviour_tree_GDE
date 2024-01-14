@@ -7,7 +7,8 @@ class Hurtbox : public godot::Area2D
 {
     GDCLASS(Hurtbox, godot::Area2D);
 
-public:
+    friend class Hitbox;
+protected:
     void hitbox_entered(godot::Area2D* hitbox);
 
 protected:

@@ -12,7 +12,7 @@ protected:
     static void _bind_methods();
 
 public: 
-    void _ready() override;
+    Hitbox();
 };
 
 
