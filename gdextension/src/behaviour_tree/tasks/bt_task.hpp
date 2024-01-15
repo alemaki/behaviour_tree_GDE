@@ -29,7 +29,7 @@ private:
     void set_children(godot::Array array);
 
 public:
-    BTTask(){};
+    BTTask();
 
     _FORCE_INLINE_ godot::Node* get_actor() const;
     _FORCE_INLINE_ Status get_status() const;
@@ -43,7 +43,7 @@ public:
 	godot::Ref<BTTask> get_root() const;
 
 	void add_child(godot::Ref<BTTask> child);
-	void add_child_at_index(int index, godot::Ref<BTTask> child);
+	void add_child_at_index(godot::Ref<BTTask> child, int index);
 	void remove_child(godot::Ref<BTTask> child);
 	void remove_child_at_index(int index);
 
@@ -53,8 +53,6 @@ protected:
     static void _bind_methods();
 
 };
-
-
 VARIANT_ENUM_CAST(BTTask::Status);
 
 #endif // BT_TASK_HPP

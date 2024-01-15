@@ -21,4 +21,6 @@ void CharacterInputComponent::_bind_methods()
     using namespace godot;
     
     ClassDB::bind_method(D_METHOD("get_direction_input"),&CharacterInputComponent::get_direction_input);
+
+    ClassDB::bind_method(D_METHOD("_process", "delta"), &CharacterInputComponent::_process);
 }

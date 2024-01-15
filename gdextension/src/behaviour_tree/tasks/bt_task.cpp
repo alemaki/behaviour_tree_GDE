@@ -1,5 +1,12 @@
 #include "bt_task.hpp"
 
+BTTask::BTTask()
+{
+    this->actor = nullptr;
+    this->parent = nullptr;
+    this->status = Status::FRESH;
+}
+
 godot::Node* BTTask::get_actor() const
 {
     return this->actor;
@@ -80,7 +87,7 @@ bool BTTask::is_root() const
 godot::Ref<BTTask> BTTask::get_root() const
 {
     const BTTask* root(this);
-    while(root->parent == nullptr)
+    while(root->parent != nullptr)
     {
         root = (root->parent);
     }
@@ -102,7 +109,7 @@ void BTTask::add_child(godot::Ref<BTTask> child)
     this->children.push_back(child);
 }
 
-void BTTask::add_child_at_index(int index, godot::Ref<BTTask> child)
+void BTTask::add_child_at_index(godot::Ref<BTTask> child, int index)
 {
     if (!(child.is_valid()))
     {
@@ -156,10 +163,11 @@ void BTTask::_bind_methods()
 	ClassDB::bind_method(D_METHOD("get_root"), &BTTask::get_root);
 	ClassDB::bind_method(D_METHOD("get_child_count"), &BTTask::get_child_count);
 	ClassDB::bind_method(D_METHOD("add_child", "child"), &BTTask::add_child);
-	ClassDB::bind_method(D_METHOD("add_child_at_index", "index", "child"), &BTTask::add_child_at_index);
+	ClassDB::bind_method(D_METHOD("add_child_at_index", "child", "index"), &BTTask::add_child_at_index);
 	ClassDB::bind_method(D_METHOD("remove_child", "child"), &BTTask::remove_child);
 	ClassDB::bind_method(D_METHOD("remove_child_at_index", "index"), &BTTask::remove_child_at_index);
 	ClassDB::bind_method(D_METHOD("has_child", "child"), &BTTask::has_child);
+    ClassDB::bind_method(D_METHOD("get_parent"), &BTTask::get_parent);
 
     ClassDB::bind_method(D_METHOD("set_actor", "actor"), &BTTask::set_actor);
     ClassDB::bind_method(D_METHOD("get_actor"), &BTTask::get_actor);
@@ -168,7 +176,7 @@ void BTTask::_bind_methods()
     ClassDB::bind_method(D_METHOD("set_children", "children"), &BTTask::set_children);
     ClassDB::bind_method(D_METHOD("get_children"), &BTTask::get_children);
 
-    // TODO: Apparently the engine gives segmentation fault if property info about the objects isn't filled.
+    // NOTE: Apparently the engine gives segmentation fault if property info about the objects isn't filled.
     // Only happens when there are other registered objects that inherit from this class
     ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "actor", PROPERTY_HINT_RESOURCE_TYPE, "Node", PROPERTY_USAGE_NONE), "set_actor", "get_actor");
     ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "children", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NO_EDITOR | PROPERTY_USAGE_INTERNAL), "set_children", "get_children");

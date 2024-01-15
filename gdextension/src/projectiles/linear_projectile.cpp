@@ -40,8 +40,6 @@ void LinearProjectile::_bind_methods()
     ClassDB::bind_method(D_METHOD("set_direction"), &LinearProjectile::set_direction);
     ClassDB::bind_method(D_METHOD("get_direction"), &LinearProjectile::get_direction);
 
-    //ClassDB::bind_method(D_METHOD("_physics_process", "delta"), &LinearProjectile::_physics_process);
-
     ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "speed"), "set_speed", "get_speed");
     ADD_PROPERTY(PropertyInfo(Variant::VECTOR2, "direction"), "set_direction", "get_direction");
 }
