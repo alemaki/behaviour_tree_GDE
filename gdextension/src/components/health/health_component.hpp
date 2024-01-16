@@ -19,6 +19,7 @@ public:
     _FORCE_INLINE_ int get_current_hp() const;
     
     void take_damage(int amount);
+    void heal(int amount);
     
 
 protected:

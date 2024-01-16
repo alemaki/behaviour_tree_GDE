@@ -15,7 +15,7 @@ func test_bt_task_basic():
 	assert_null(root_task.get_parent(), "Parent should be null.")
 
 
-func test_child_addition_and_array():
+func test_bt_task_child_addition_and_array():
 	var root_task: BTTask = autofree(BTTask.new())
 	var child1: BTTask = autofree(BTTask.new())
 	var child2: BTTask = autofree(BTTask.new())
@@ -35,7 +35,7 @@ func test_child_addition_and_array():
 	assert_eq(children[1], child2, "Second child should be child2.")
 	assert_eq(children[2], child3, "Third child should be child3.")
 
-func test_has_child():
+func test_bt_task_has_child():
 	var root_task: BTTask = autofree(BTTask.new())
 	var child_task: BTTask = autofree(BTTask.new())
 	
@@ -47,7 +47,7 @@ func test_has_child():
 	var other_task: BTTask = autofree(BTTask.new())
 	assert_false(root_task.has_child(other_task), "Root task should not have other task.")
 
-func test_child_count():
+func test_bt_task_child_count():
 	var root_task: BTTask = autofree(BTTask.new())
 	var child1: BTTask = autofree(BTTask.new())
 	var child2: BTTask = autofree(BTTask.new())
@@ -62,7 +62,7 @@ func test_child_count():
 	root_task.add_child(child3)
 	assert_eq(root_task.get_child_count(), 3, "Child count should be 3 after adding children.")
 
-func test_child_twice_addtition():
+func test_bt_task_child_twice_addtition():
 	var root_task: BTTask = autofree(BTTask.new())
 	var child1: BTTask = autofree(BTTask.new())
 	var child2: BTTask = autofree(BTTask.new())
@@ -73,7 +73,7 @@ func test_child_twice_addtition():
 	root_task.add_child(child2)
 	assert_eq(root_task.get_child_count(), 2, "Children shouldn't be added twice..")
 
-func test_child_addition_at_index():
+func test_bt_task_child_addition_at_index():
 	var root_task: BTTask = autofree(BTTask.new())
 	var child1: BTTask = autofree(BTTask.new())
 	var child2: BTTask = autofree(BTTask.new())
@@ -93,7 +93,7 @@ func test_child_addition_at_index():
 	assert_eq(children[1], child3, "Second child should be child3.")
 	assert_eq(children[2], child1, "Third child should be child1.")
 
-func test_child_removal():
+func test_bt_task_child_removal():
 	var root_task: BTTask = autofree(BTTask.new())
 	var child1: BTTask = autofree(BTTask.new())
 	var child2: BTTask = autofree(BTTask.new())
@@ -119,7 +119,7 @@ func test_child_removal():
 	assert_ne(root_task, child3.get_root(), "Child should be root after removal.")
 	assert_true(root_task.has_child(child2), "Remaining child should be child2.")
 
-func test_child_twice_removal():
+func test_bt_task_child_twice_removal():
 	var root_task: BTTask = autofree(BTTask.new())
 	var child1: BTTask = autofree(BTTask.new())
 	var child2: BTTask = autofree(BTTask.new())
@@ -132,7 +132,7 @@ func test_child_twice_removal():
 	assert_eq(root_task.get_child_count(), 1, "Child should be removed once.")
 
 
-func test_child_removal_at_index():
+func test_bt_task_child_removal_at_index():
 	var root_task: BTTask = autofree(BTTask.new())
 	var child1: BTTask = autofree(BTTask.new())
 	var child2: BTTask = autofree(BTTask.new())
@@ -158,7 +158,7 @@ func test_child_removal_at_index():
 	assert_ne(root_task, child1.get_parent(), "Child should be not have parent after removal.")
 	assert_ne(root_task, child1.get_root(), "Child should be root after removal.")
 
-func test_get_parent_after_children_added():
+func test_bt_task_get_parent_after_children_added():
 	var root_task: BTTask = autofree(BTTask.new())
 	var child_task: BTTask = autofree(BTTask.new())
 	var grandchild_task: BTTask = autofree(BTTask.new())
@@ -173,7 +173,7 @@ func test_get_parent_after_children_added():
 	assert_eq(another_child_task.get_parent(), root_task, "Parent of another child task should be root.")
 	assert_eq(child_task.get_parent(), root_task, "Parent of child task should be root task after another child has been added.")
 
-func test_is_root():
+func test_bt_task_is_root():
 	var root_task: BTTask = autofree(BTTask.new())
 	var child_task: BTTask = autofree(BTTask.new())
 	var grandchild_task: BTTask = autofree(BTTask.new())
@@ -185,7 +185,7 @@ func test_is_root():
 	assert_false(child_task.is_root(), "Child task should not be identified as root.")
 	assert_false(grandchild_task.is_root(), "Grandchild task should not be identified as root.")
 
-func test_get_root():
+func test_bt_task_get_root():
 	var root_task: BTTask = autofree(BTTask.new())
 	var child_task: BTTask = autofree(BTTask.new())
 	var grandchild_task: BTTask = autofree(BTTask.new())

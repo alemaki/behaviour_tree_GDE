@@ -44,4 +44,30 @@ func test_health_component_take_damage():
 	assert_eq(health_component.get_current_hp(), 0, "Current_hp should be decreased to 0 and not less.")
 	
 	health_component.take_damage(-20)
-	assert_eq(health_component.get_current_hp(), 0, "Current_hp should shouldn't change on negative damage.")	
+	assert_eq(health_component.get_current_hp(), 0, "Current_hp should shouldn't change on negative damage.")
+
+func test_health_component_heal():
+	var health_component: HealthComponent = autoqfree(HealthComponent.new())
+	
+	health_component.set_max_hp(100)
+	health_component.set_current_hp(50)
+	
+	health_component.heal(20)
+	assert_eq(health_component.get_current_hp(), 70, "Current_hp should be increased by 20.")
+	
+	health_component.heal(31)
+	assert_eq(health_component.get_current_hp(), 100, "Current_hp should be capped at max_hp = 100.")
+	
+	health_component.set_current_hp(50)
+	health_component.heal(-20)
+	assert_eq(health_component.get_current_hp(), 50, "Current_hp should shouldn't change on negative heal.")
+	
+func test_health_component_health_depleted_signal():
+	var health_component: HealthComponent = autoqfree(HealthComponent.new())
+	health_component.set_max_hp(10)
+	health_component.set_current_hp(2)
+	watch_signals(health_component)
+	health_component.take_damage(1)
+	assert_signal_not_emitted(health_component, "health_depleted")
+	health_component.take_damage(1)
+	assert_signal_emitted(health_component, "health_depleted")
