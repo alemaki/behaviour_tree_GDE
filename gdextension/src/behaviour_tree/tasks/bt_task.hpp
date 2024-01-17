@@ -28,6 +28,12 @@ private:
     godot::Array get_children() const;
     void set_children(godot::Array array);
 
+protected:
+    virtual void _setup();
+    virtual void _enter();
+    virtual void _exit();
+    virtual Status _tick(double delta);
+    
 public:
     BTTask();
 
@@ -37,7 +43,8 @@ public:
     void set_status(BTTask::Status status);
 
     _FORCE_INLINE_ godot::Ref<BTTask> get_parent() const;
-    _FORCE_INLINE_ int get_child_count()const;
+    _FORCE_INLINE_ int get_child_count() const;
+    _FORCE_INLINE_ godot::Ref<BTTask> get_child(int index) const;
     bool is_root() const;
     
 	godot::Ref<BTTask> get_root() const;
@@ -48,6 +55,9 @@ public:
 	void remove_child_at_index(int index);
 
 	_FORCE_INLINE_ bool has_child(const godot::Ref<BTTask> &p_child) const;
+
+    virtual BTTask::Status execute(double delta);
+    virtual void abort();
 
 protected:
     static void _bind_methods();

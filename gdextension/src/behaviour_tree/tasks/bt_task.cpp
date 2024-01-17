@@ -26,6 +26,10 @@ int BTTask::get_child_count() const
     return this->children.size();
 }
 
+godot::Ref<BTTask> BTTask::get_child(int index) const
+{
+    return godot::Ref<BTTask>(this->children[index]);
+}
 godot::Array BTTask::get_children() const
 {
     godot::Array array;
@@ -154,6 +158,60 @@ void BTTask::remove_child_at_index(int index)
 bool BTTask::has_child(const godot::Ref<BTTask>& child) const
 {
     return (this->children.find(child) != -1);
+}
+BTTask::Status BTTask::execute(double delta)
+{
+    // either fresh or already ran before
+	if (status != RUNNING)
+    {
+		// Reset children status if already ran before.
+		if (status != FRESH)
+        {
+			for (int i = 0; i < get_child_count(); i++)
+            {
+				children.get(i)->abort();
+			}
+		}
+		this->_enter();
+	}
+
+	this->_tick(delta);
+
+    // done after _tick
+	if (status != RUNNING)
+    {
+		this->_exit();
+	}
+	return status;
+}
+
+void BTTask::abort()
+{
+	for (int i = 0; i < children.size(); i++)
+    {
+		get_child(i)->abort();
+	}
+	if (status == RUNNING)
+    {
+		this->_exit();
+	}
+	status = FRESH;
+}
+void BTTask::_setup()
+{
+
+}
+void BTTask::_enter()
+{
+    
+}
+void BTTask:: _exit()
+{
+
+}
+BTTask::Status BTTask::_tick(double delta)
+{
+    return Status::FAILURE;
 }
 void BTTask::_bind_methods()
 {
