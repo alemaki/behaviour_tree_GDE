@@ -1,11 +1,11 @@
-#ifndef BT_SEQUENCE_HPP
-#define BT_SEQUENCE_HPP
+#ifndef BT_SELECTOR_H
+#define BT_SELECTOR_H
 
 #include "behaviour_tree/tasks/bt_composite.hpp"
 
-class BTSequence : public BTComposite
+class BTSelector : public BTComposite
 {
-	GDCLASS(BTSequence, BTComposite);
+	GDCLASS(BTSelector, BTComposite);
 
 private:
 	int last_running_index = 0;
@@ -15,4 +15,4 @@ protected:
 	virtual Status _tick(double p_delta) override;
 };
 
-#endif // BT_SEQUENCE_HPP
+#endif // BT_SELECTOR_H
