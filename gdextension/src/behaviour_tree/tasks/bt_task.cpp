@@ -159,13 +159,26 @@ bool BTTask::has_child(const godot::Ref<BTTask>& child) const
 {
     return (this->children.find(child) != -1);
 }
+
+bool BTTask::has_running_child() const
+{
+    for (godot::Ref<BTTask> child : children)
+    {
+        if (child->get_status() == Status::RUNNING)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
 BTTask::Status BTTask::execute(double delta)
 {
     // either fresh or already ran before
-	if (status != RUNNING)
+	if (this->status != RUNNING)
     {
 		// Reset children status if already ran before.
-		if (status != FRESH)
+		if (this->status != FRESH)
         {
 			for (int i = 0; i < get_child_count(); i++)
             {
@@ -175,14 +188,14 @@ BTTask::Status BTTask::execute(double delta)
 		this->_enter();
 	}
 
-	this->_tick(delta);
+	this->status = this->_tick(delta);
 
     // done after _tick
-	if (status != RUNNING)
+	if (this->status != RUNNING)
     {
 		this->_exit();
 	}
-	return status;
+	return this->status;
 }
 
 void BTTask::abort()
@@ -191,11 +204,11 @@ void BTTask::abort()
     {
 		get_child(i)->abort();
 	}
-	if (status == RUNNING)
+	if (this->status == RUNNING)
     {
 		this->_exit();
 	}
-	status = FRESH;
+	this->status = FRESH;
 }
 void BTTask::_setup()
 {

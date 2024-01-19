@@ -55,7 +55,7 @@ public:
 	void remove_child_at_index(int index);
 
 	_FORCE_INLINE_ bool has_child(const godot::Ref<BTTask> &p_child) const;
-
+    bool has_running_child() const;
     virtual BTTask::Status execute(double delta);
     virtual void abort();
 

@@ -6,7 +6,7 @@ void BTRandomSequence::_enter()
     if (this->indicies.size() != count)
     {
         this->indicies.resize(count);
-        for (size_t i = 0; i < count; i++)
+        for (int i = 0; i < count; i++)
         {
             indicies[i] = i;
         }
