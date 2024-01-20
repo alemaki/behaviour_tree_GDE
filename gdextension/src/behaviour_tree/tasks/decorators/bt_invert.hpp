@@ -7,7 +7,7 @@ class BTInvert : public BTDecorator
 {
 	GDCLASS(BTInvert, BTDecorator);
 
-public:
+protected:
     virtual BTTask::Status _tick(double delta) override;
 };
 

@@ -7,7 +7,7 @@ class BTAlwaysSucceed : public BTDecorator
 {
 	GDCLASS(BTAlwaysSucceed, BTDecorator);
 
-public:
+protected:
     virtual BTTask::Status _tick(double delta) override;
 };
 
