@@ -7,28 +7,9 @@ BTTask::BTTask()
     this->status = Status::FRESH;
 }
 
-godot::Node* BTTask::get_actor() const
-{
-    return this->actor;
-}
-
 void BTTask::set_actor(godot::Node* actor)
 {
     this->actor = actor;
-}
-godot::Ref<BTTask> BTTask::get_parent() const
-{
-    return godot::Ref<BTTask>(this->parent);
-}
-
-int BTTask::get_child_count() const
-{
-    return this->children.size();
-}
-
-godot::Ref<BTTask> BTTask::get_child(int index) const
-{
-    return godot::Ref<BTTask>(this->children[index]);
 }
 godot::Array BTTask::get_children() const
 {
@@ -71,11 +52,6 @@ void BTTask::set_children(godot::Array array)
     {
         this->children.resize(size - invalid_refs);
     }
-}
-
-BTTask::Status BTTask::get_status() const
-{
-    return this->status;
 }
 
 void BTTask::set_status(BTTask::Status status) 
@@ -153,11 +129,6 @@ void BTTask::remove_child_at_index(int index)
     }
     this->children[index]->parent = nullptr;
     this->children.remove_at(index);
-}
-
-bool BTTask::has_child(const godot::Ref<BTTask>& child) const
-{
-    return (this->children.find(child) != -1);
 }
 
 bool BTTask::has_running_child() const

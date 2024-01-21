@@ -15,8 +15,14 @@ public:
 public:
     void set_max_hp(int max_hp);
     void set_current_hp(int current_hp);
-    _FORCE_INLINE_ int get_max_hp() const;
-    _FORCE_INLINE_ int get_current_hp() const;
+    _FORCE_INLINE_ int get_max_hp() const
+    {
+        return this->max_hp;
+    }
+    _FORCE_INLINE_ int get_current_hp() const
+    {
+        return this->current_hp;
+    }
     
     void take_damage(int amount);
     void heal(int amount);

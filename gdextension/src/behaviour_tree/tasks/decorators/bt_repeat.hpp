@@ -20,13 +20,25 @@ protected:
 
 public:
     void set_repeat_times(int repeat_times);
-    _FORCE_INLINE_ int get_repeat_times() const;
+    _FORCE_INLINE_ int get_repeat_times() const
+    {
+        return this->repeat_times;
+    }
     void set_abort_on_failure(bool abort_on_failure);
-    _FORCE_INLINE_ bool get_abort_on_failure() const;
+    _FORCE_INLINE_ bool get_abort_on_failure() const
+    {
+        return this->abort_on_failure;
+    }
     void set_abort_on_success(bool abort_on_success);
-    _FORCE_INLINE_ bool get_abort_on_success() const;
+    _FORCE_INLINE_ bool get_abort_on_success() const
+    {
+        return this->abort_on_success;
+    }
     void set_run_forever(bool run_forever);
-    _FORCE_INLINE_ bool get_run_forever() const;
+    _FORCE_INLINE_ bool get_run_forever() const
+    {
+        return this->run_forever;
+    }
 
 protected:
     static void _bind_methods();

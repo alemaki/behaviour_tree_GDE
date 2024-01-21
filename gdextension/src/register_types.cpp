@@ -41,10 +41,10 @@ void initialize_gdextension_module(ModuleInitializationLevel p_level)
 	ClassDB::register_class<CharacterInputComponent>();
 	ClassDB::register_class<CharacterMovementComponent>();
 	ClassDB::register_class<BTTask>();
-	ClassDB::register_class<BTDecorator>();
-	ClassDB::register_class<BTComposite>();
-	ClassDB::register_class<BTCondition>();
-	ClassDB::register_class<BTAction>();
+	//ClassDB::register_class<BTDecorator>();
+	//ClassDB::register_class<BTComposite>();
+	//ClassDB::register_class<BTCondition>();
+	//ClassDB::register_class<BTAction>();
 }
 
 void uninitialize_gdextension_module(ModuleInitializationLevel p_level)

@@ -5,18 +5,9 @@ void BTRepeat::set_repeat_times(int repeat_times)
     this->repeat_times = repeat_times;
 }
 
-int BTRepeat::get_repeat_times() const
-{
-    return this->repeat_times;
-}
-
 void BTRepeat::set_abort_on_failure(bool abort_on_failure)
 {
     this->abort_on_failure = abort_on_failure;
-}
-bool BTRepeat::get_abort_on_failure() const
-{
-    return this->abort_on_failure;
 }
 
 void BTRepeat::set_abort_on_success(bool abort_on_success)
@@ -24,19 +15,9 @@ void BTRepeat::set_abort_on_success(bool abort_on_success)
     this->abort_on_success = abort_on_success;
 }
 
-bool BTRepeat::get_abort_on_success() const
-{
-    return this->abort_on_success;
-}
-
 void  BTRepeat::set_run_forever(bool run_forever)
 {
     this->run_forever = run_forever;
-}
-
-bool BTRepeat::get_run_forever() const
-{
-    return this->run_forever;
 }
 
 void BTRepeat::_enter() 

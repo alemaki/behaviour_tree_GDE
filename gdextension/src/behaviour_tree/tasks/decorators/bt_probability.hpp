@@ -14,7 +14,10 @@ protected:
 
 public:
     void set_run_chance(float chance);
-    _FORCE_INLINE_ float get_run_chance() const;
+    _FORCE_INLINE_ float get_run_chance() const
+    {
+        return this->run_chance;
+    }
 
 protected:
     static void _bind_methods();

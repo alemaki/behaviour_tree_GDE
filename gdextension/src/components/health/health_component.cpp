@@ -7,20 +7,10 @@ void HealthComponent::set_max_hp(int max_hp)
     this->current_hp = godot::Math::clamp<int>(this->current_hp, 0, this->max_hp);
 }
 
-int HealthComponent::get_max_hp() const
-{
-    return this->max_hp;
-}
-
 void HealthComponent::set_current_hp(int current_hp)
 {
     current_hp = godot::Math::clamp<int>(current_hp, 0, this->max_hp);
     this->current_hp = current_hp;
-}
-
-int HealthComponent::get_current_hp() const
-{
-    return this->current_hp;
 }
 
 void HealthComponent::take_damage(int amount)

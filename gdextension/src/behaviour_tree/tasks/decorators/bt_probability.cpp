@@ -6,10 +6,7 @@ void BTProbability::set_run_chance(float chance)
     chance = godot::Math::clamp<float>(chance, 0, 1);
     this->run_chance = chance;
 }
-float BTProbability::get_run_chance() const
-{
-    return this->run_chance;
-}
+
 BTTask::Status BTProbability::_tick(double delta)
 {
     if(godot::UtilityFunctions::randf() < this->run_chance)
