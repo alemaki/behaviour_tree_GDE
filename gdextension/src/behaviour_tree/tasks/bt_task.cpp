@@ -133,7 +133,7 @@ void BTTask::remove_child_at_index(int index)
 
 bool BTTask::has_running_child() const
 {
-    for (godot::Ref<BTTask> child : children)
+    for (godot::Ref<BTTask> child : this->children)
     {
         if (child->get_status() == Status::RUNNING)
         {
@@ -153,7 +153,7 @@ BTTask::Status BTTask::execute(double delta)
         {
 			for (int i = 0; i < get_child_count(); i++)
             {
-				children.get(i)->abort();
+				this->children.get(i)->abort();
 			}
 		}
 		this->_enter();
@@ -173,7 +173,7 @@ void BTTask::abort()
 {
 	for (int i = 0; i < children.size(); i++)
     {
-		get_child(i)->abort();
+		this->get_child(i)->abort();
 	}
 	if (this->status == RUNNING)
     {
