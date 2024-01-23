@@ -25,10 +25,7 @@ void LinearProjectile::_physics_process(double delta)
 {
     Projectile::_physics_process(delta);
     godot::Vector2 vector_travelled = this->direction * this->speed * delta;
-    godot::UtilityFunctions::print(vector_travelled);
-    godot::UtilityFunctions::print("Position before" + this->get_position());
     this->set_position(this->get_position() + vector_travelled);
-    godot::UtilityFunctions::print("Position after" + this->get_position());
 }
 
 

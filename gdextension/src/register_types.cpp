@@ -11,6 +11,8 @@
 #include <godot_cpp/core/defs.hpp>
 #include <godot_cpp/godot.hpp>
 
+#include "behaviour_tree/behaviour_tree.hpp"
+#include "behaviour_tree/bt_editor_plugin.hpp"
 #include "behaviour_tree/tasks/bt_task.hpp"
 #include "behaviour_tree/tasks/bt_action.hpp"
 #include "behaviour_tree/tasks/bt_composite.hpp"
@@ -29,22 +31,27 @@ using namespace godot;
 
 void initialize_gdextension_module(ModuleInitializationLevel p_level)
 {
-	if (p_level != MODULE_INITIALIZATION_LEVEL_SCENE)
+	if (p_level == MODULE_INITIALIZATION_LEVEL_SCENE)
 	{
-		return;
+		ClassDB::register_class<Projectile>();
+		ClassDB::register_class<HealthComponent>();
+		ClassDB::register_class<Hitbox>();
+		ClassDB::register_class<Hurtbox>();
+		ClassDB::register_class<LinearProjectile>();
+		ClassDB::register_class<CharacterInputComponent>();
+		ClassDB::register_class<CharacterMovementComponent>();
+		ClassDB::register_class<BTTask>();
+		//ClassDB::register_class<BTDecorator>();
+		//ClassDB::register_class<BTComposite>();
+		//ClassDB::register_class<BTCondition>();
+		//ClassDB::register_class<BTAction>();
+		ClassDB::register_class<BehaviourTree>();
 	}
-	ClassDB::register_class<Projectile>();
-	ClassDB::register_class<HealthComponent>();
-	ClassDB::register_class<Hitbox>();
-	ClassDB::register_class<Hurtbox>();
-	ClassDB::register_class<LinearProjectile>();
-	ClassDB::register_class<CharacterInputComponent>();
-	ClassDB::register_class<CharacterMovementComponent>();
-	ClassDB::register_class<BTTask>();
-	//ClassDB::register_class<BTDecorator>();
-	//ClassDB::register_class<BTComposite>();
-	//ClassDB::register_class<BTCondition>();
-	//ClassDB::register_class<BTAction>();
+	if (p_level == MODULE_INITIALIZATION_LEVEL_EDITOR)
+	{
+		ClassDB::register_internal_class<BTEditorPlugin>();
+		EditorPlugins::add_by_type<BTEditorPlugin>();
+	}
 }
 
 void uninitialize_gdextension_module(ModuleInitializationLevel p_level)
