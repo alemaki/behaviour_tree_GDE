@@ -24,9 +24,9 @@ private:
 public:
     BTEditorPlugin();
     ~BTEditorPlugin();
-
     virtual void _make_visible(bool visible) override;
     virtual bool _handles(Object *object) const override;
+    void create_empty_graph_node();
 
 protected:
     static void _bind_methods();

@@ -3,8 +3,8 @@
 BTEditorPlugin::BTEditorPlugin()
 {
     this->main_container = memnew(godot::SplitContainer);
+    this->add_child(this->main_container);
     this->graph_editor= memnew(godot::GraphEdit);
-
     this->main_container->add_child(this->graph_editor);
 
     this->bottom_panel_button = 
@@ -13,12 +13,6 @@ BTEditorPlugin::BTEditorPlugin()
 
 
     this->_make_visible(false);
-}
-
-BTEditorPlugin::~BTEditorPlugin()
-{
-    memfree(this->graph_editor);
-    memfree(this->main_container);
 }
 
 void BTEditorPlugin::_make_visible(bool visible)
