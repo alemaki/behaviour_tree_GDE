@@ -12,12 +12,13 @@
 #include <godot_cpp/godot.hpp>
 
 #include "behaviour_tree/behaviour_tree.hpp"
-#include "behaviour_tree/bt_editor_plugin.hpp"
 #include "behaviour_tree/tasks/bt_task.hpp"
 #include "behaviour_tree/tasks/bt_action.hpp"
 #include "behaviour_tree/tasks/bt_composite.hpp"
 #include "behaviour_tree/tasks/bt_condition.hpp"
 #include "behaviour_tree/tasks/bt_decorator.hpp"
+#include "behaviour_tree/ui/bt_editor_plugin.hpp"
+#include "behaviour_tree/ui/bt_graph_node.hpp"
 #include "components/area2d/hitbox.hpp"
 #include "components/area2d/hurtbox.hpp"
 #include "components/health/health_component.hpp"
@@ -46,10 +47,13 @@ void initialize_gdextension_module(ModuleInitializationLevel p_level)
 		//ClassDB::register_class<BTCondition>();
 		//ClassDB::register_class<BTAction>();
 		ClassDB::register_class<BehaviourTree>();
+
 	}
 	if (p_level == MODULE_INITIALIZATION_LEVEL_EDITOR)
 	{
 		ClassDB::register_internal_class<BTEditorPlugin>();
+		ClassDB::register_internal_class<BTGraphNode>();
+		
 		EditorPlugins::add_by_type<BTEditorPlugin>();
 	}
 }
