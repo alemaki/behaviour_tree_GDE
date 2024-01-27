@@ -21,19 +21,25 @@ private:
     godot::VBoxContainer* button_continer;
     godot::Button* add_new_node_button;
 
-
     godot::Button* bottom_panel_button;
     godot::HSplitContainer* main_container;
     godot::GraphEdit* graph_editor;
 
-    godot::Ref<BTTask> root_task;
+    BehaviourTree* behaviour_tree;
+
+private: 
+    static BTGraphNode* new_bt_graph_node();
+
+    void set_behaviour_tree(BehaviourTree* new_tree);
+    void add_new_node_button_pressed();
 
 public:
     BTEditorPlugin();
     ~BTEditorPlugin();
     virtual void _make_visible(bool visible) override;
+
+    virtual void _edit(Object *object) override;
     virtual bool _handles(Object *object) const override;
-    void create_empty_bt_graph_node();
 
 protected:
     static void _bind_methods();

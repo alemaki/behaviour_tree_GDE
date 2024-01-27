@@ -10,6 +10,7 @@ class BehaviourTree : public godot::Node
 
 private:
     godot::String description;
+    godot::Vector<godot::Ref<BTTask>> all_tasks;
     godot::Ref<BTTask> root_task;
 
 public:
@@ -23,6 +24,15 @@ public:
     {
         return this->root_task;
     }
+
+    void add_task(godot::Ref<BTTask> task);
+    void remove_task(godot::Ref<BTTask> task);
+    void clear_tasks();
+    _FORCE_INLINE_ godot::Vector<godot::Ref<BTTask>> get_all_tasks() const
+    {
+        return this->all_tasks;
+    }
+    
 
 
 protected:
