@@ -43,7 +43,7 @@ void BehaviourTree::_bind_methods()
     ClassDB::bind_method(D_METHOD("add_task", "task"), &BehaviourTree::add_task);
     ClassDB::bind_method(D_METHOD("remove_task", "task"), &BehaviourTree::remove_task);
     ClassDB::bind_method(D_METHOD("clear_tasks"), &BehaviourTree::clear_tasks);
-    ClassDB::bind_method(D_METHOD("get_all_tasks"), &BehaviourTree::get_all_tasks);
+    ClassDB::bind_method(D_METHOD("get_tasks"), &BehaviourTree::get_tasks);
 
     ADD_PROPERTY(PropertyInfo(Variant::STRING, "description"), "set_description", "get_description");
     ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "root_task"), "set_root_task", "get_root_task");

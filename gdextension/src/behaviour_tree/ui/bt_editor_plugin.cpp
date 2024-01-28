@@ -11,10 +11,15 @@ BTEditorPlugin::BTEditorPlugin()
     this->button_continer = memnew(godot::VBoxContainer);
 
     this->add_new_node_button = memnew(godot::Button);
-    this->add_new_node_button->set_text("Insert a node");
+    this->add_new_node_button->set_text("Insert node");
     this->add_new_node_button->connect("pressed", callable_mp(this, &BTEditorPlugin::add_new_node_button_pressed));
 
+    this->clear_nodes_button = memnew(godot::Button);
+    this->clear_nodes_button->set_text("Clear nodes");
+    this->clear_nodes_button->connect("pressed", callable_mp(this, &BTEditorPlugin::clear_graph_nodes));
+
     this->button_continer->add_child(this->add_new_node_button);
+    this->button_continer->add_child(this->clear_nodes_button);
 
     this->main_container->add_child(this->graph_editor);
     this->main_container->add_child(this->button_continer);
@@ -29,21 +34,53 @@ BTEditorPlugin::BTEditorPlugin()
 
 BTEditorPlugin::~BTEditorPlugin()
 {
-    
+
+}
+
+void BTEditorPlugin::clear_graph_nodes()
+{
+    godot::TypedArray<godot::Node> children = this->graph_editor->get_children();
+
+    for (int i = 0, size = children.size(); i < size; i++)
+    {
+        BTGraphNode* bt_graph_node = Object::cast_to<BTGraphNode>(children[i]);
+
+        if (bt_graph_node != nullptr)
+        {
+            this->graph_editor->remove_child(bt_graph_node);
+            this->behaviour_tree->remove_task(bt_graph_node->get_task());
+            bt_graph_node->queue_free();
+            bt_graph_node = nullptr; // just in case
+        }
+    }
+}
+
+void BTEditorPlugin::create_default_graph_nodes()
+{
+    godot::Array tasks = this->behaviour_tree->get_tasks();
+    for (int i = 0, size = tasks.size(); i < size; i++)
+    {
+        BTGraphNode* bt_graph_node = new_bt_graph_node_from_task(godot::Ref<BTTask>(tasks[i]));
+        bt_graph_node->set_graph_editor(this->graph_editor);
+        bt_graph_node->set_title(godot::String("[") + godot::String("New node") + godot::String("]"));
+        
+        // this does nothing right now.
+        bt_graph_node->set_name(godot::String("1"));
+    }
 }
 
 void BTEditorPlugin::set_behaviour_tree(BehaviourTree* new_tree)
 {
     this->behaviour_tree = new_tree;
-    //TODO:
-    //this->clear_graph_nodes();
-    //this->create_default_graph();
-
+    this->clear_graph_nodes();
+    this->create_default_graph_nodes();
 }
-BTGraphNode* BTEditorPlugin::new_bt_graph_node()
+
+
+
+BTGraphNode* BTEditorPlugin::new_bt_graph_node_from_task(godot::Ref<BTTask> bt_task)
 {
     BTGraphNode* bt_graph_node = memnew(BTGraphNode);
-    godot::Ref<BTTask> bt_task = godot::Ref<BTTask>(memnew(BTTask));
 
     bt_graph_node->set_task(bt_task);
 
@@ -51,11 +88,22 @@ BTGraphNode* BTEditorPlugin::new_bt_graph_node()
     bt_graph_node->set_custom_minimum_size(godot::Size2(200, 10));
 
     bt_graph_node->set_position_offset(godot::Vector2(100, 100));
+
+    return bt_graph_node;
+}
+
+BTGraphNode* BTEditorPlugin::new_bt_graph_node()
+{
+    godot::Ref<BTTask> bt_task = godot::Ref<BTTask>(memnew(BTTask));
+    BTGraphNode* bt_graph_node = BTEditorPlugin::new_bt_graph_node_from_task(bt_task);
+
+    return bt_graph_node;
 }
 
 void BTEditorPlugin::add_new_node_button_pressed()
 {
     BTGraphNode* bt_graph_node = BTEditorPlugin::new_bt_graph_node();
+
     bt_graph_node->set_graph_editor(this->graph_editor);
     bt_graph_node->set_title(godot::String("[") + godot::String("New node") + godot::String("]"));
 

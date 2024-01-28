@@ -28,11 +28,18 @@ public:
     void add_task(godot::Ref<BTTask> task);
     void remove_task(godot::Ref<BTTask> task);
     void clear_tasks();
-    _FORCE_INLINE_ godot::Vector<godot::Ref<BTTask>> get_all_tasks() const
+    godot::Array get_tasks() const
     {
-        return this->all_tasks;
+        godot::Array array;
+        int size = this->all_tasks.size();
+        array.resize(size);
+        for (int i = 0; i < size; i++)
+        {
+            array[i] = this->all_tasks[i].ptr();
+        }
+        return array;
     }
-    
+
 
 
 protected:

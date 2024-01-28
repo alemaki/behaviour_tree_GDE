@@ -9,6 +9,7 @@ void BTGraphNode::set_graph_editor(godot::GraphEdit* graph_editor)
 void BTGraphNode::set_task(godot::Ref<BTTask> task)
 {
     this->task = task;
+    this->task->emit_changed();
 }
 void BTGraphNode::_bind_methods()
 {

@@ -10,7 +10,7 @@
 #include "behaviour_tree/behaviour_tree.hpp"
 #include "behaviour_tree/ui/bt_graph_node.hpp"
 
-class BTEditorPlugin: public godot::EditorPlugin
+class BTEditorPlugin : public godot::EditorPlugin
 {
     GDCLASS(BTEditorPlugin, godot::EditorPlugin)
 
@@ -20,6 +20,7 @@ private:
 
     godot::VBoxContainer* button_continer;
     godot::Button* add_new_node_button;
+    godot::Button* clear_nodes_button;
 
     godot::Button* bottom_panel_button;
     godot::HSplitContainer* main_container;
@@ -29,9 +30,14 @@ private:
 
 private: 
     static BTGraphNode* new_bt_graph_node();
+    static BTGraphNode* new_bt_graph_node_from_task(godot::Ref<BTTask> bt_task);
 
     void set_behaviour_tree(BehaviourTree* new_tree);
+
     void add_new_node_button_pressed();
+
+    void clear_graph_nodes();
+    void create_default_graph_nodes();
 
 public:
     BTEditorPlugin();

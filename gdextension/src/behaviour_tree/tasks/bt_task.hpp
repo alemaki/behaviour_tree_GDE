@@ -25,6 +25,7 @@ private:
     godot::Node* actor;
     godot::Vector<godot::Ref<BTTask>> children;
 
+    // NOTE: can't return godot::Vector<godot::Ref<BTTask>>. Investigate.
     godot::Array get_children() const;
     void set_children(godot::Array array);
 
