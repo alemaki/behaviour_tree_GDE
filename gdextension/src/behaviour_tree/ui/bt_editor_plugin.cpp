@@ -1,5 +1,5 @@
 #include "bt_editor_plugin.hpp"
-
+#include "godot_cpp/variant/utility_functions.hpp"
 BTEditorPlugin::BTEditorPlugin()
 {
     this->main_container = memnew(godot::HSplitContainer);
@@ -16,7 +16,7 @@ BTEditorPlugin::BTEditorPlugin()
 
     this->clear_nodes_button = memnew(godot::Button);
     this->clear_nodes_button->set_text("Clear nodes");
-    this->clear_nodes_button->connect("pressed", callable_mp(this, &BTEditorPlugin::clear_graph_nodes));
+    this->clear_nodes_button->connect("pressed", callable_mp(this, &BTEditorPlugin::clear_graph_button_pressed));
 
     this->button_continer->add_child(this->add_new_node_button);
     this->button_continer->add_child(this->clear_nodes_button);
@@ -37,10 +37,16 @@ BTEditorPlugin::~BTEditorPlugin()
 
 }
 
+void BTEditorPlugin::clear_graph_button_pressed()
+{
+    this->clear_graph_nodes();
+    this->behaviour_tree->clear_tasks();
+}
+
 void BTEditorPlugin::clear_graph_nodes()
 {
     godot::TypedArray<godot::Node> children = this->graph_editor->get_children();
-
+    godot::UtilityFunctions::print("Clearing children");
     for (int i = 0, size = children.size(); i < size; i++)
     {
         BTGraphNode* bt_graph_node = Object::cast_to<BTGraphNode>(children[i]);
@@ -50,7 +56,6 @@ void BTEditorPlugin::clear_graph_nodes()
             this->graph_editor->remove_child(bt_graph_node);
             this->behaviour_tree->remove_task(bt_graph_node->get_task());
             bt_graph_node->queue_free();
-            bt_graph_node = nullptr; // just in case
         }
     }
 }
@@ -58,14 +63,15 @@ void BTEditorPlugin::clear_graph_nodes()
 void BTEditorPlugin::create_default_graph_nodes()
 {
     godot::Array tasks = this->behaviour_tree->get_tasks();
+
     for (int i = 0, size = tasks.size(); i < size; i++)
     {
         BTGraphNode* bt_graph_node = new_bt_graph_node_from_task(godot::Ref<BTTask>(tasks[i]));
         bt_graph_node->set_graph_editor(this->graph_editor);
         bt_graph_node->set_title(godot::String("[") + godot::String("New node") + godot::String("]"));
-        
-        // this does nothing right now.
+
         bt_graph_node->set_name(godot::String("1"));
+        this->graph_editor->add_child(bt_graph_node);
     }
 }
 
@@ -100,6 +106,10 @@ BTGraphNode* BTEditorPlugin::new_bt_graph_node()
     return bt_graph_node;
 }
 
+void add_new_node_action()
+{
+
+}
 void BTEditorPlugin::add_new_node_button_pressed()
 {
     BTGraphNode* bt_graph_node = BTEditorPlugin::new_bt_graph_node();
@@ -107,7 +117,6 @@ void BTEditorPlugin::add_new_node_button_pressed()
     bt_graph_node->set_graph_editor(this->graph_editor);
     bt_graph_node->set_title(godot::String("[") + godot::String("New node") + godot::String("]"));
 
-    // this does nothing right now.
     bt_graph_node->set_name(godot::String("1"));
     
     //TODO:
@@ -115,10 +124,7 @@ void BTEditorPlugin::add_new_node_button_pressed()
     //bt_graph_node->connect("node_selected", callable_mp(this, &BTEditorPlugin::_node_selected).bind(id));
     //bt_graph_node->connect("node_deselected", callable_mp(this, &BTEditorPlugin::_node_deselected).bind(id));
 
-    this->graph_editor->add_child(bt_graph_node);
 
-
-    this->behaviour_tree->add_task(bt_graph_node->get_task());
 }
 
 void BTEditorPlugin::_make_visible(bool visible)

@@ -28,17 +28,8 @@ public:
     void add_task(godot::Ref<BTTask> task);
     void remove_task(godot::Ref<BTTask> task);
     void clear_tasks();
-    godot::Array get_tasks() const
-    {
-        godot::Array array;
-        int size = this->all_tasks.size();
-        array.resize(size);
-        for (int i = 0; i < size; i++)
-        {
-            array[i] = this->all_tasks[i].ptr();
-        }
-        return array;
-    }
+    void set_tasks(godot::Array all_tasks);
+    godot::Array get_tasks() const;
 
 
 

@@ -11,6 +11,7 @@ void BTTask::set_actor(godot::Node* actor)
 {
     this->actor = actor;
 }
+
 godot::Array BTTask::get_children() const
 {
     godot::Array array;
@@ -23,9 +24,9 @@ godot::Array BTTask::get_children() const
     return array;
 }
 
-void BTTask::set_children(godot::Array array)
+void BTTask::set_children(godot::Array children)
 {
-    int size = array.size();
+    int size = children.size();
     int invalid_refs = 0;
 
     this->children.clear();
@@ -33,7 +34,7 @@ void BTTask::set_children(godot::Array array)
 
     for (int index = 0; index < size; index++)
     {
-        godot::Ref<BTTask> child = array[index];
+        godot::Ref<BTTask> child = children[index];
         if (child.is_null())
         {
             // TODO: error
@@ -181,22 +182,27 @@ void BTTask::abort()
 	}
 	this->status = FRESH;
 }
+
 void BTTask::_setup()
 {
 
 }
+
 void BTTask::_enter()
 {
     
 }
+
 void BTTask:: _exit()
 {
 
 }
+
 BTTask::Status BTTask::_tick(double delta)
 {
     return Status::FAILURE;
 }
+
 void BTTask::_bind_methods()
 {
     using namespace godot;

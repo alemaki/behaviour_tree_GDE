@@ -2,11 +2,11 @@
 #define BT_EDITOR_PLUGIN_HPP
 
 #include <godot_cpp/classes/button.hpp>
+#include <godot_cpp/classes/editor_undo_redo_manager.hpp>
 #include <godot_cpp/classes/editor_plugin.hpp>
 #include <godot_cpp/classes/graph_edit.hpp>
 #include <godot_cpp/classes/h_split_container.hpp>
 #include <godot_cpp/classes/v_box_container.hpp>
-
 #include "behaviour_tree/behaviour_tree.hpp"
 #include "behaviour_tree/ui/bt_graph_node.hpp"
 
@@ -35,6 +35,7 @@ private:
     void set_behaviour_tree(BehaviourTree* new_tree);
 
     void add_new_node_button_pressed();
+    void clear_graph_button_pressed();
 
     void clear_graph_nodes();
     void create_default_graph_nodes();
@@ -46,6 +47,7 @@ public:
 
     virtual void _edit(Object *object) override;
     virtual bool _handles(Object *object) const override;
+
 
 protected:
     static void _bind_methods();

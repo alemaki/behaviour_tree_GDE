@@ -27,7 +27,7 @@ private:
 
     // NOTE: can't return godot::Vector<godot::Ref<BTTask>>. Investigate.
     godot::Array get_children() const;
-    void set_children(godot::Array array);
+    void set_children(godot::Array children);
 
 protected:
     virtual void _setup();

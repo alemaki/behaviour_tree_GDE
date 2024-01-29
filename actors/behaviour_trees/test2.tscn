@@ -1,0 +1,14 @@
+[gd_scene load_steps=5 format=3 uid="uid://cth7wqjolasme"]
+
+[sub_resource type="BTTask" id="BTTask_uvaxp"]
+
+[sub_resource type="BTTask" id="BTTask_t2v1p"]
+
+[sub_resource type="BTTask" id="BTTask_gjq4j"]
+
+[sub_resource type="BTTask" id="BTTask_sh64g"]
+
+[node name="BehaviourTree" type="BehaviourTree"]
+description = "test"
+root_task = SubResource("BTTask_uvaxp")
+all_tasks = [SubResource("BTTask_uvaxp"), SubResource("BTTask_t2v1p"), SubResource("BTTask_gjq4j"), SubResource("BTTask_sh64g")]
