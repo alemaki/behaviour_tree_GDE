@@ -38,7 +38,6 @@ void BehaviourTree::remove_task(godot::Ref<BTTask> task)
 }
 void BehaviourTree::clear_tasks()
 {
-    godot::UtilityFunctions::print("clearing");
     this->all_tasks.clear();
     this->root_task.unref();
 }
@@ -46,7 +45,28 @@ void BehaviourTree::clear_tasks()
 
 void BehaviourTree::set_tasks(godot::Array all_tasks)
 {
+    int size = all_tasks.size();
+    int invalid_refs = 0;
 
+    this->all_tasks.clear();
+    this->all_tasks.resize(size);
+
+    for (int index = 0; index < size; index++)
+    {
+        godot::Ref<BTTask> child = all_tasks[index];
+        if (child.is_null())
+        {
+            // TODO: error
+            invalid_refs++;
+            continue;
+        }
+        this->all_tasks.set(index - invalid_refs, child);
+    }
+
+    if (invalid_refs != 0)
+    {
+        this->all_tasks.resize(size - invalid_refs);
+    }
 }
 
 godot::Array BehaviourTree::get_tasks() const
@@ -76,5 +96,7 @@ void BehaviourTree::_bind_methods()
     ClassDB::bind_method(D_METHOD("get_all_tasks"), &BehaviourTree::get_tasks);
 
     ADD_PROPERTY(PropertyInfo(Variant::STRING, "description"), "set_description", "get_description");
-    ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "root_task"), "set_root_task", "get_root_task"); //, PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NO_EDITOR
+    /* TODO: show or no show? , PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NO_EDITOR */
+    ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "root_task"), "set_root_task", "get_root_task");
+    ADD_PROPERTY(PropertyInfo(Variant::ARRAY, "all_tasks"), "set_all_tasks", "get_all_tasks"); 
 }

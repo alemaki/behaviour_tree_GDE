@@ -46,7 +46,6 @@ void BTEditorPlugin::clear_graph_button_pressed()
 void BTEditorPlugin::clear_graph_nodes()
 {
     godot::TypedArray<godot::Node> children = this->graph_editor->get_children();
-    godot::UtilityFunctions::print("Clearing children");
     for (int i = 0, size = children.size(); i < size; i++)
     {
         BTGraphNode* bt_graph_node = Object::cast_to<BTGraphNode>(children[i]);
@@ -69,7 +68,6 @@ void BTEditorPlugin::create_default_graph_nodes()
         BTGraphNode* bt_graph_node = new_bt_graph_node_from_task(godot::Ref<BTTask>(tasks[i]));
         bt_graph_node->set_graph_editor(this->graph_editor);
         bt_graph_node->set_title(godot::String("[") + godot::String("New node") + godot::String("]"));
-
         bt_graph_node->set_name(godot::String("1"));
         this->graph_editor->add_child(bt_graph_node);
     }
@@ -124,6 +122,16 @@ void BTEditorPlugin::add_new_node_button_pressed()
     //bt_graph_node->connect("node_selected", callable_mp(this, &BTEditorPlugin::_node_selected).bind(id));
     //bt_graph_node->connect("node_deselected", callable_mp(this, &BTEditorPlugin::_node_deselected).bind(id));
 
+    godot::EditorUndoRedoManager* undo_redo_manager = this->get_undo_redo();
+
+    undo_redo_manager->create_action("Add a node to the behaviour tree.");
+    undo_redo_manager->add_do_method(this->behaviour_tree, "add_task", bt_graph_node->get_task());
+    undo_redo_manager->add_do_method(this->graph_editor, "add_child", bt_graph_node);
+
+    undo_redo_manager->add_undo_method(this->graph_editor, "remove_child", bt_graph_node);
+    undo_redo_manager->add_undo_method(this->behaviour_tree, "remove_task", bt_graph_node->get_task());
+
+    undo_redo_manager->commit_action();
 
 }
 
