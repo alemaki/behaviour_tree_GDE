@@ -18,8 +18,6 @@ void Hitbox::_on_area_entered(godot::Area2D* area2d)
 void Hitbox::_bind_methods()
 {
     using namespace godot;
-    
-    //NOTE: you are supposed to bind methods called by signals.
     ClassDB::bind_method(D_METHOD("_on_area_entered", "area2d"), &Hitbox::_on_area_entered);
 
     ADD_SIGNAL(MethodInfo("hit_hurtbox", PropertyInfo(Variant::OBJECT, "hitbox", PROPERTY_HINT_NONE, "Area2D")));

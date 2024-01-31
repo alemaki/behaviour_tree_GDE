@@ -10,13 +10,43 @@ void BehaviourTree::set_root_task(godot::Ref<BTTask> task)
     this->root_task = task;
 }
 
+int BehaviourTree::get_task_id(godot::Ref<BTTask> task) const
+{
+    for (const godot::KeyValue<int, godot::Ref<BTTask>> &key_value : this->task_map)
+    {
+        if (key_value.value == task)
+        {
+            return key_value.key;
+        }
+    }
+    return -1;
+}
+
+bool BehaviourTree::has_task(godot::Ref<BTTask> task) const
+{
+    return (this->get_task_id(task) != -1);
+}
+
 void BehaviourTree::add_task(godot::Ref<BTTask> task)
 {
-    this->all_tasks.push_back(task);
+    ERR_FAIL_COND(this->has_task(task));
+    int id = this->get_valid_id();
+    this->task_map.insert(id, task);
 
     if (!(this->root_task.is_valid()))
     {
-        this->root_task = task;
+        this->set_root_task(task);
+    }
+}
+
+void BehaviourTree::add_task(int id, godot::Ref<BTTask> task)
+{
+    ERR_FAIL_COND(task_map.has(id));
+    this->task_map.insert(id, task);
+
+    if (!(this->root_task.is_valid()))
+    {
+        this->set_root_task(task);
     }
 }
 
@@ -26,19 +56,42 @@ void BehaviourTree::remove_task(godot::Ref<BTTask> task)
      * Detach parent, children.
      * */
 
-    this->all_tasks.erase(task);
+    int id = this->get_task_id(task);
+    this->task_map.erase(id);
     if (this->root_task == task)
     {
-        root_task.unref();
-        if (all_tasks.size() > 0)
+        this->root_task.unref();
+        if (task_map.size() > 0)
         {
-            root_task = all_tasks[0]->get_root();
+            godot::Ref<BTTask> some_task = this->task_map.front()->get();
+            this->root_task = some_task->get_root();
         }
     }
 }
+
+
+void BehaviourTree::remove_task(int id)
+{
+    /* TODO: 
+     * Detach parent, children.
+     * */
+
+    godot::Ref<BTTask> task = task_map[id];
+    this->task_map.erase(id);
+    if (this->root_task == task)
+    {
+        this->root_task.unref();
+        if (task_map.size() > 0)
+        {
+            godot::Ref<BTTask> some_task = this->task_map.front()->get();
+            this->root_task = some_task->get_root();
+        }
+    }
+}
+
 void BehaviourTree::clear_tasks()
 {
-    this->all_tasks.clear();
+    this->task_map.clear();
     this->root_task.unref();
 }
 
@@ -46,37 +99,31 @@ void BehaviourTree::clear_tasks()
 void BehaviourTree::set_tasks(godot::Array all_tasks)
 {
     int size = all_tasks.size();
-    int invalid_refs = 0;
 
-    this->all_tasks.clear();
-    this->all_tasks.resize(size);
+    this->task_map.clear();
 
     for (int index = 0; index < size; index++)
     {
-        godot::Ref<BTTask> child = all_tasks[index];
-        if (child.is_null())
+        godot::Ref<BTTask> task = all_tasks[index];
+        if (task.is_null())
         {
             // TODO: error
-            invalid_refs++;
             continue;
         }
-        this->all_tasks.set(index - invalid_refs, child);
-    }
-
-    if (invalid_refs != 0)
-    {
-        this->all_tasks.resize(size - invalid_refs);
+        this->task_map.insert(this->get_valid_id(), task);
     }
 }
 
 godot::Array BehaviourTree::get_tasks() const
 {
     godot::Array array;
-    int size = this->all_tasks.size();
+    int size = this->task_map.size();
     array.resize(size);
-    for (int i = 0; i < size; i++)
+    int i = 0;
+    for (const godot::KeyValue<int, godot::Ref<BTTask>> &key_value : this->task_map)
     {
-        array[i] = this->all_tasks[i].ptr();
+        i++;
+        array[i] = key_value.value;
     }
     return array;
 }
@@ -89,8 +136,9 @@ void BehaviourTree::_bind_methods()
     ClassDB::bind_method(D_METHOD("get_description"), &BehaviourTree::get_description);
     ClassDB::bind_method(D_METHOD("set_root_task", "task"), &BehaviourTree::set_root_task);
     ClassDB::bind_method(D_METHOD("get_root_task"), &BehaviourTree::get_root_task);
-    ClassDB::bind_method(D_METHOD("add_task", "task"), &BehaviourTree::add_task);
-    ClassDB::bind_method(D_METHOD("remove_task", "task"), &BehaviourTree::remove_task);
+    // TODO: disabled for now, enable later
+    //ClassDB::bind_method(D_METHOD("add_task", "task"), &BehaviourTree::add_task);
+    //ClassDB::bind_method(D_METHOD("remove_task", "task"), &BehaviourTree::remove_task);
     ClassDB::bind_method(D_METHOD("clear_tasks"), &BehaviourTree::clear_tasks);
     ClassDB::bind_method(D_METHOD("set_all_tasks"), &BehaviourTree::set_tasks);
     ClassDB::bind_method(D_METHOD("get_all_tasks"), &BehaviourTree::get_tasks);

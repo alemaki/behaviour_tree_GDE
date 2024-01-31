@@ -24,17 +24,23 @@ BTEditorPlugin::BTEditorPlugin()
     this->main_container->add_child(this->graph_editor);
     this->main_container->add_child(this->button_continer);
 
-    this->bottom_panel_button = 
+    this->bottom_panel_button =
         add_control_to_bottom_panel(this->main_container,
                                     this->bottom_panel_button_name);
 
-
     this->_make_visible(false);
+
+    this->graph_editor->connect("connection_request", callable_mp(this, &BTEditorPlugin::connection_request));
 }
 
 BTEditorPlugin::~BTEditorPlugin()
 {
 
+}
+
+void BTEditorPlugin::connection_request(godot::StringName from_node, int from_port, godot::StringName to_node, int to_port)
+{
+    
 }
 
 void BTEditorPlugin::clear_graph_button_pressed()
@@ -80,8 +86,6 @@ void BTEditorPlugin::set_behaviour_tree(BehaviourTree* new_tree)
     this->create_default_graph_nodes();
 }
 
-
-
 BTGraphNode* BTEditorPlugin::new_bt_graph_node_from_task(godot::Ref<BTTask> bt_task)
 {
     BTGraphNode* bt_graph_node = memnew(BTGraphNode);
@@ -104,10 +108,6 @@ BTGraphNode* BTEditorPlugin::new_bt_graph_node()
     return bt_graph_node;
 }
 
-void add_new_node_action()
-{
-
-}
 void BTEditorPlugin::add_new_node_button_pressed()
 {
     BTGraphNode* bt_graph_node = BTEditorPlugin::new_bt_graph_node();
@@ -115,8 +115,6 @@ void BTEditorPlugin::add_new_node_button_pressed()
     bt_graph_node->set_graph_editor(this->graph_editor);
     bt_graph_node->set_title(godot::String("[") + godot::String("New node") + godot::String("]"));
 
-    bt_graph_node->set_name(godot::String("1"));
-    
     //TODO:
     //bt_graph_node->connect("dragged", callable_mp(this, &BTEditorPlugin::_node_dragged).bind(id));
     //bt_graph_node->connect("node_selected", callable_mp(this, &BTEditorPlugin::_node_selected).bind(id));
@@ -133,6 +131,8 @@ void BTEditorPlugin::add_new_node_button_pressed()
 
     undo_redo_manager->commit_action();
 
+    godot::String name = godot::itos(this->behaviour_tree->get_task_id(bt_graph_node->get_task()));
+    bt_graph_node->set_name(name);
 }
 
 void BTEditorPlugin::_make_visible(bool visible)
@@ -155,7 +155,6 @@ void BTEditorPlugin::_make_visible(bool visible)
 void BTEditorPlugin::_edit(Object* object)
 {
     BehaviourTree* behaviour_tree = godot::Object::cast_to<BehaviourTree>(object);
-
     if (behaviour_tree != nullptr)
     {
         if (behaviour_tree != this->behaviour_tree)
@@ -167,7 +166,6 @@ void BTEditorPlugin::_edit(Object* object)
             // do nothing for now
         }
     }
-
     return;
 }
 

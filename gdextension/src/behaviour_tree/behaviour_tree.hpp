@@ -2,7 +2,9 @@
 #define BEHAVIOUR_TREE_HPP
 
 #include <godot_cpp/classes/resource.hpp>
-#include "behaviour_tree/tasks/bt_action.hpp"
+#include <godot_cpp/templates/rb_map.hpp>
+
+#include "behaviour_tree/tasks/bt_task.hpp"
 
 class BehaviourTree : public godot::Node
 {
@@ -10,7 +12,7 @@ class BehaviourTree : public godot::Node
 
 private:
     godot::String description;
-    godot::Vector<godot::Ref<BTTask>> all_tasks;
+    godot::RBMap<int, godot::Ref<BTTask>> task_map; // Using rb_map for back method
     godot::Ref<BTTask> root_task;
 
 public:
@@ -24,14 +26,21 @@ public:
     {
         return this->root_task;
     }
-
+    int get_task_id(godot::Ref<BTTask> task) const;
+    bool has_task(godot::Ref<BTTask> task) const;
     void add_task(godot::Ref<BTTask> task);
+    void add_task(int id, godot::Ref<BTTask> task);
+    void remove_task(int id);
     void remove_task(godot::Ref<BTTask> task);
     void clear_tasks();
     void set_tasks(godot::Array all_tasks);
     godot::Array get_tasks() const;
+    int get_task_id(godot::Ref<BTTask> task) const
+    {
+        return this->all_tasks.find(task);
+    }
 
-
+    int get_valid_id();
 
 protected:
     static void _bind_methods();

@@ -37,9 +37,10 @@ private:
     void add_new_node_button_pressed();
     void clear_graph_button_pressed();
 
+    void connection_request(godot::StringName from_node, int from_port, godot::StringName to_node, int to_port);
+
     void clear_graph_nodes();
     void create_default_graph_nodes();
-
 public:
     BTEditorPlugin();
     ~BTEditorPlugin();
