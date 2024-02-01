@@ -26,21 +26,15 @@ public:
     {
         return this->root_task;
     }
+    int get_valid_id() const;
     int get_task_id(godot::Ref<BTTask> task) const;
     bool has_task(godot::Ref<BTTask> task) const;
-    void add_task(godot::Ref<BTTask> task);
     void add_task(int id, godot::Ref<BTTask> task);
+    void remove_task_by_ref(godot::Ref<BTTask> task);
     void remove_task(int id);
-    void remove_task(godot::Ref<BTTask> task);
     void clear_tasks();
     void set_tasks(godot::Array all_tasks);
     godot::Array get_tasks() const;
-    int get_task_id(godot::Ref<BTTask> task) const
-    {
-        return this->all_tasks.find(task);
-    }
-
-    int get_valid_id();
 
 protected:
     static void _bind_methods();

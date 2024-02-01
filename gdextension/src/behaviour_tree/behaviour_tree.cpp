@@ -10,6 +10,11 @@ void BehaviourTree::set_root_task(godot::Ref<BTTask> task)
     this->root_task = task;
 }
 
+int BehaviourTree::get_valid_id() const
+{
+    return (this->task_map.size() > 0) ? (this->task_map.back()->key() + 1) : 1;
+}
+
 int BehaviourTree::get_task_id(godot::Ref<BTTask> task) const
 {
     for (const godot::KeyValue<int, godot::Ref<BTTask>> &key_value : this->task_map)
@@ -27,18 +32,6 @@ bool BehaviourTree::has_task(godot::Ref<BTTask> task) const
     return (this->get_task_id(task) != -1);
 }
 
-void BehaviourTree::add_task(godot::Ref<BTTask> task)
-{
-    ERR_FAIL_COND(this->has_task(task));
-    int id = this->get_valid_id();
-    this->task_map.insert(id, task);
-
-    if (!(this->root_task.is_valid()))
-    {
-        this->set_root_task(task);
-    }
-}
-
 void BehaviourTree::add_task(int id, godot::Ref<BTTask> task)
 {
     ERR_FAIL_COND(task_map.has(id));
@@ -50,7 +43,7 @@ void BehaviourTree::add_task(int id, godot::Ref<BTTask> task)
     }
 }
 
-void BehaviourTree::remove_task(godot::Ref<BTTask> task)
+void BehaviourTree::remove_task_by_ref(godot::Ref<BTTask> task)
 {
     /* TODO: 
      * Detach parent, children.
@@ -68,7 +61,6 @@ void BehaviourTree::remove_task(godot::Ref<BTTask> task)
         }
     }
 }
-
 
 void BehaviourTree::remove_task(int id)
 {
@@ -94,7 +86,6 @@ void BehaviourTree::clear_tasks()
     this->task_map.clear();
     this->root_task.unref();
 }
-
 
 void BehaviourTree::set_tasks(godot::Array all_tasks)
 {
@@ -132,14 +123,15 @@ void BehaviourTree::_bind_methods()
 {
     using namespace godot;
 
+    ClassDB::bind_method(D_METHOD("add_task", "task"), &BehaviourTree::add_task);
+    ClassDB::bind_method(D_METHOD("remove_task", "id"), &BehaviourTree::remove_task);
+    ClassDB::bind_method(D_METHOD("remove_task_by_ref", "task"), &BehaviourTree::remove_task_by_ref);
+    ClassDB::bind_method(D_METHOD("clear_tasks"), &BehaviourTree::clear_tasks);
+
     ClassDB::bind_method(D_METHOD("set_description", "description"), &BehaviourTree::set_description);
     ClassDB::bind_method(D_METHOD("get_description"), &BehaviourTree::get_description);
     ClassDB::bind_method(D_METHOD("set_root_task", "task"), &BehaviourTree::set_root_task);
     ClassDB::bind_method(D_METHOD("get_root_task"), &BehaviourTree::get_root_task);
-    // TODO: disabled for now, enable later
-    //ClassDB::bind_method(D_METHOD("add_task", "task"), &BehaviourTree::add_task);
-    //ClassDB::bind_method(D_METHOD("remove_task", "task"), &BehaviourTree::remove_task);
-    ClassDB::bind_method(D_METHOD("clear_tasks"), &BehaviourTree::clear_tasks);
     ClassDB::bind_method(D_METHOD("set_all_tasks"), &BehaviourTree::set_tasks);
     ClassDB::bind_method(D_METHOD("get_all_tasks"), &BehaviourTree::get_tasks);
 
