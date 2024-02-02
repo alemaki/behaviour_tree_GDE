@@ -36,6 +36,24 @@ public:
     void set_tasks(godot::Array all_tasks);
     godot::Array get_tasks() const;
 
+    _FORCE_INLINE_ bool can_connect(godot::Ref<BTTask> parent, godot::Ref<BTTask> child) const
+    {
+        return (
+            parent.is_valid() &&
+            child.is_valid() &&
+            /* TODO: remove has_task or leave it be? */
+            has_task(parent) &&
+            has_task(child) &&
+            (child != parent) &&
+            (parent->get_root() != child) &&
+            !(child->get_parent().is_valid()) &&
+            !(parent->has_child(child))
+            );
+        
+    }
+
+    void connect_tasks(godot::Ref<BTTask> parent, godot::Ref<BTTask> child, int child_pos = 0);
+
 protected:
     static void _bind_methods();
 };

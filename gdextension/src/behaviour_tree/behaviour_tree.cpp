@@ -41,6 +41,7 @@ void BehaviourTree::add_task(int id, godot::Ref<BTTask> task)
     {
         this->set_root_task(task);
     }
+    godot::UtilityFunctions::printerr("Added task nicely.");
 }
 
 void BehaviourTree::remove_task_by_ref(godot::Ref<BTTask> task)
@@ -87,18 +88,18 @@ void BehaviourTree::clear_tasks()
     this->root_task.unref();
 }
 
-void BehaviourTree::set_tasks(godot::Array all_tasks)
+void BehaviourTree::set_tasks(godot::Array tasks)
 {
-    int size = all_tasks.size();
+    int size = tasks.size();
 
     this->task_map.clear();
 
     for (int index = 0; index < size; index++)
     {
-        godot::Ref<BTTask> task = all_tasks[index];
+        godot::Ref<BTTask> task = tasks[index];
         if (task.is_null())
         {
-            // TODO: error
+            /* TODO: error */
             continue;
         }
         this->task_map.insert(this->get_valid_id(), task);
@@ -119,6 +120,13 @@ godot::Array BehaviourTree::get_tasks() const
     return array;
 }
 
+void BehaviourTree::connect_tasks(godot::Ref<BTTask> parent, godot::Ref<BTTask> child, int child_pos)
+{
+    ERR_FAIL_COND_MSG(!can_connect(parent, child), "Cannot connect parent to child.");
+    parent->add_child_at_index(child, child_pos);
+}
+
+
 void BehaviourTree::_bind_methods()
 {
     using namespace godot;
@@ -138,5 +146,5 @@ void BehaviourTree::_bind_methods()
     ADD_PROPERTY(PropertyInfo(Variant::STRING, "description"), "set_description", "get_description");
     /* TODO: show or no show? , PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NO_EDITOR */
     ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "root_task"), "set_root_task", "get_root_task");
-    ADD_PROPERTY(PropertyInfo(Variant::ARRAY, "all_tasks"), "set_all_tasks", "get_all_tasks"); 
+    // ADD_PROPERTY(PropertyInfo(Variant::ARRAY, "tasks"), "set_all_tasks", "get_all_tasks");
 }
