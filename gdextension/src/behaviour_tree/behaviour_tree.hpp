@@ -28,6 +28,7 @@ public:
     }
     int get_valid_id() const;
     int get_task_id(godot::Ref<BTTask> task) const;
+    godot::Ref<BTTask> get_task(int id) const;
     bool has_task(godot::Ref<BTTask> task) const;
     void add_task(int id, godot::Ref<BTTask> task);
     void remove_task_by_ref(godot::Ref<BTTask> task);

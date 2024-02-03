@@ -7,6 +7,7 @@
 #include <godot_cpp/classes/graph_edit.hpp>
 #include <godot_cpp/classes/h_split_container.hpp>
 #include <godot_cpp/classes/v_box_container.hpp>
+#include <godot_cpp/templates/hash_map.hpp>
 #include "behaviour_tree/behaviour_tree.hpp"
 #include "behaviour_tree/ui/bt_graph_node.hpp"
 
@@ -28,12 +29,15 @@ private:
 
     BehaviourTree* behaviour_tree;
 
+    godot::HashMap<godot::StringName, BTGraphNode*> node_map;
+
 private: 
     static BTGraphNode* new_bt_graph_node();
     static BTGraphNode* new_bt_graph_node_from_task(godot::Ref<BTTask> bt_task);
 
     void set_behaviour_tree(BehaviourTree* new_tree);
-
+    void add_node_method(int id, BTGraphNode* bt_graph_node);
+    void remove_node_method(int id, BTGraphNode* bt_graph_node);
     void add_new_node_button_pressed();
     void clear_graph_button_pressed();
 

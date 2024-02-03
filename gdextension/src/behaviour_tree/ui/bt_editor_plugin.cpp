@@ -1,5 +1,7 @@
 #include "bt_editor_plugin.hpp"
-#include "godot_cpp/variant/utility_functions.hpp"
+#include <godot_cpp/variant/color.hpp>
+#include <godot_cpp/variant/utility_functions.hpp>
+
 BTEditorPlugin::BTEditorPlugin()
 {
     this->main_container = memnew(godot::HSplitContainer);
@@ -40,8 +42,15 @@ BTEditorPlugin::~BTEditorPlugin()
 
 void BTEditorPlugin::connection_request(godot::StringName _from_node, int from_port, godot::StringName _to_node, int to_port)
 {
-    BTGraphNode* from_node = godot::Object::cast_to<BTGraphNode>(this->find_child(_from_node));
-    BTGraphNode* to_node = godot::Object::cast_to<BTGraphNode>(this->find_child(_to_node));
+
+    ERR_FAIL_COND_MSG(!(this->node_map.has(_from_node)), "From_node doesn't exist.");
+    ERR_FAIL_COND_MSG(!(this->node_map.has(_to_node)), "To_node doesn't exist.");
+
+    BTGraphNode* from_node = this->node_map[_from_node];
+    BTGraphNode* to_node = this->node_map[_to_node];
+
+    godot::UtilityFunctions::print(from_node);
+    godot::UtilityFunctions::print(to_node);
 
     ERR_FAIL_COND_MSG(((from_node == nullptr) || (to_node == nullptr)), "Invalid from_node or to_node.");
     /* TODO: swap parent and child if reversed (left and right port) */
@@ -53,6 +62,10 @@ void BTEditorPlugin::connection_request(godot::StringName _from_node, int from_p
         /* TODO: undo redo */
         this->graph_editor->connect_node(_from_node, from_port,  _to_node, to_port);
         this->behaviour_tree->connect_tasks(from_node->get_task(), to_node->get_task());
+    }
+    else
+    {
+        godot::UtilityFunctions::print("Connection failed to make from " + godot::String(_from_node) + " " + godot::itos(from_port) + " to " + godot::String(_to_node) + " " + godot::itos(to_port));
     }
 }
 
@@ -107,11 +120,13 @@ void BTEditorPlugin::set_behaviour_tree(BehaviourTree* new_tree)
 BTGraphNode* BTEditorPlugin::new_bt_graph_node_from_task(godot::Ref<BTTask> bt_task)
 {
     BTGraphNode* bt_graph_node = memnew(BTGraphNode);
-
+    godot::Control* control = memnew(godot::Control);
+    /* TODO: make it look better */
+    bt_graph_node->add_child(control);
     bt_graph_node->set_task(bt_task);
 
-    bt_graph_node->set_slot_enabled_left(0, true);
-    bt_graph_node->set_slot_enabled_right(1, true);
+    bt_graph_node->set_slot(0, true, 0, godot::Color::named("WHITE"),
+                               true, 0, godot::Color::named("WHITE"));
 
     bt_graph_node->set_resizable(false);
     bt_graph_node->set_custom_minimum_size(godot::Size2(200, 10));
@@ -129,6 +144,21 @@ BTGraphNode* BTEditorPlugin::new_bt_graph_node()
     return bt_graph_node;
 }
 
+
+void BTEditorPlugin::add_node_method(int id, BTGraphNode* bt_graph_node)
+{
+    this->behaviour_tree->add_task(id, bt_graph_node->get_task());
+    this->graph_editor->add_child(bt_graph_node);
+    this->node_map.insert(bt_graph_node->get_name(), bt_graph_node);
+}
+
+void BTEditorPlugin::remove_node_method(int id, BTGraphNode* bt_graph_node)
+{
+    this->node_map.erase(bt_graph_node->get_name());
+    this->graph_editor->remove_child(bt_graph_node);
+    this->behaviour_tree->remove_task(id);
+}
+
 void BTEditorPlugin::add_new_node_button_pressed()
 {
     BTGraphNode* bt_graph_node = BTEditorPlugin::new_bt_graph_node();
@@ -137,7 +167,7 @@ void BTEditorPlugin::add_new_node_button_pressed()
 
     int id = this->behaviour_tree->get_valid_id();
     bt_graph_node->set_title(godot::String("[") + godot::itos(id) + godot::String("]"));
-    bt_graph_node->set_name(godot::itos(id) + "alabalalaaala");
+    bt_graph_node->set_name(godot::itos(id));
 
     /* TODO:
     /* bt_graph_node->connect("dragged", callable_mp(this, &BTEditorPlugin::_node_dragged).bind(id));
@@ -147,11 +177,9 @@ void BTEditorPlugin::add_new_node_button_pressed()
     godot::EditorUndoRedoManager* undo_redo_manager = this->get_undo_redo();
 
     undo_redo_manager->create_action("Add a node to the behaviour tree.");
-    undo_redo_manager->add_do_method(this->behaviour_tree, "add_task", id, bt_graph_node->get_task());
-    undo_redo_manager->add_do_method(this->graph_editor, "add_child", bt_graph_node);
 
-    undo_redo_manager->add_undo_method(this->graph_editor, "remove_child", bt_graph_node);
-    undo_redo_manager->add_undo_method(this->behaviour_tree, "remove_task", id);
+    undo_redo_manager->add_do_method(this, "add_node_method", id, bt_graph_node);
+    undo_redo_manager->add_undo_method(this, "remove_node_method", id, bt_graph_node);
 
     undo_redo_manager->commit_action();
 
@@ -201,5 +229,9 @@ bool BTEditorPlugin::_handles(Object* object) const
 
 void BTEditorPlugin::_bind_methods()
 {
+    using namespace godot;
+
+    ClassDB::bind_method(D_METHOD("add_node_method", "id", "bt_graph_node"), &BTEditorPlugin::add_node_method);
+    ClassDB::bind_method(D_METHOD("remove_node_method", "id", "bt_graph_node"), &BTEditorPlugin::remove_node_method);
 
 }

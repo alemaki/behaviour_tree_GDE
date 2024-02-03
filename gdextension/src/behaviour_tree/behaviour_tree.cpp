@@ -27,6 +27,16 @@ int BehaviourTree::get_task_id(godot::Ref<BTTask> task) const
     return -1;
 }
 
+godot::Ref<BTTask> BehaviourTree::get_task(int id) const
+{
+    if (this->task_map.find(id) == nullptr)
+    {
+        return godot::Ref<BTTask>(nullptr);
+    }
+    return this->task_map[id];
+}
+
+
 bool BehaviourTree::has_task(godot::Ref<BTTask> task) const
 {
     return (this->get_task_id(task) != -1);
@@ -41,7 +51,6 @@ void BehaviourTree::add_task(int id, godot::Ref<BTTask> task)
     {
         this->set_root_task(task);
     }
-    godot::UtilityFunctions::printerr("Added task nicely.");
 }
 
 void BehaviourTree::remove_task_by_ref(godot::Ref<BTTask> task)
