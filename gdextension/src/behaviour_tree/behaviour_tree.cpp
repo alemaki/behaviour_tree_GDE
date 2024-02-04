@@ -135,6 +135,12 @@ void BehaviourTree::connect_tasks(godot::Ref<BTTask> parent, godot::Ref<BTTask> 
     parent->add_child_at_index(child, child_pos);
 }
 
+void BehaviourTree::disconnect_tasks(godot::Ref<BTTask> parent, godot::Ref<BTTask> child)
+{
+    ERR_FAIL_COND_MSG(!(parent->has_child(child)), "Cannot remove child from parent.");
+    parent->remove_child(child);
+}
+
 
 void BehaviourTree::_bind_methods()
 {
@@ -144,6 +150,8 @@ void BehaviourTree::_bind_methods()
     ClassDB::bind_method(D_METHOD("remove_task", "id"), &BehaviourTree::remove_task);
     ClassDB::bind_method(D_METHOD("remove_task_by_ref", "task"), &BehaviourTree::remove_task_by_ref);
     ClassDB::bind_method(D_METHOD("clear_tasks"), &BehaviourTree::clear_tasks);
+    ClassDB::bind_method(D_METHOD("connect_tasks", "parent", "child", "child_pos"), &BehaviourTree::connect_tasks);
+    ClassDB::bind_method(D_METHOD("disconnect_tasks", "parent", "child"), &BehaviourTree::disconnect_tasks);
 
     ClassDB::bind_method(D_METHOD("set_description", "description"), &BehaviourTree::set_description);
     ClassDB::bind_method(D_METHOD("get_description"), &BehaviourTree::get_description);

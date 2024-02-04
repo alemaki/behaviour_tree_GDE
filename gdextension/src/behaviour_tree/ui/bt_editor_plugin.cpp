@@ -33,6 +33,8 @@ BTEditorPlugin::BTEditorPlugin()
     this->_make_visible(false);
 
     this->graph_editor->connect("connection_request", callable_mp(this, &BTEditorPlugin::connection_request));
+
+    this->graph_editor->add_valid_connection_type(1, 0);
 }
 
 BTEditorPlugin::~BTEditorPlugin()
@@ -49,23 +51,20 @@ void BTEditorPlugin::connection_request(godot::StringName _from_node, int from_p
     BTGraphNode* from_node = this->node_map[_from_node];
     BTGraphNode* to_node = this->node_map[_to_node];
 
-    godot::UtilityFunctions::print(from_node);
-    godot::UtilityFunctions::print(to_node);
-
-    ERR_FAIL_COND_MSG(((from_node == nullptr) || (to_node == nullptr)), "Invalid from_node or to_node.");
-    /* TODO: swap parent and child if reversed (left and right port) */
-
     bool can_connect = this->behaviour_tree->can_connect(from_node->get_task(), to_node->get_task());
     if (can_connect)
     {
-        godot::UtilityFunctions::print("Connection making from " + godot::String(_from_node) + " " + godot::itos(from_port) + " to " + godot::String(_to_node) + " " + godot::itos(to_port));
-        /* TODO: undo redo */
-        this->graph_editor->connect_node(_from_node, from_port,  _to_node, to_port);
-        this->behaviour_tree->connect_tasks(from_node->get_task(), to_node->get_task());
-    }
-    else
-    {
-        godot::UtilityFunctions::print("Connection failed to make from " + godot::String(_from_node) + " " + godot::itos(from_port) + " to " + godot::String(_to_node) + " " + godot::itos(to_port));
+        godot::EditorUndoRedoManager* undo_redo_manager = this->get_undo_redo();
+
+        undo_redo_manager->create_action("Create a connection between nodes.");
+
+        undo_redo_manager->add_do_method(this->behaviour_tree, "connect_tasks", from_node->get_task(), to_node->get_task(), 0);
+        undo_redo_manager->add_do_method(this->graph_editor, "connect_node", _from_node, from_port, _to_node, to_port);
+        
+        undo_redo_manager->add_undo_method(this->graph_editor, "disconnect_node", _from_node, from_port, _to_node, to_port);
+        undo_redo_manager->add_undo_method(this->behaviour_tree, "disconnect_tasks", from_node->get_task(), to_node->get_task());
+
+        undo_redo_manager->commit_action();
     }
 }
 
@@ -77,6 +76,7 @@ void BTEditorPlugin::clear_graph_button_pressed()
 
 void BTEditorPlugin::clear_graph_nodes()
 {
+    this->graph_editor->clear_connections();
     this->behaviour_tree->clear_tasks();
 
     godot::TypedArray<godot::Node> children = this->graph_editor->get_children();
@@ -123,10 +123,11 @@ BTGraphNode* BTEditorPlugin::new_bt_graph_node_from_task(godot::Ref<BTTask> bt_t
     godot::Control* control = memnew(godot::Control);
     /* TODO: make it look better */
     bt_graph_node->add_child(control);
+
     bt_graph_node->set_task(bt_task);
 
     bt_graph_node->set_slot(0, true, 0, godot::Color::named("WHITE"),
-                               true, 0, godot::Color::named("WHITE"));
+                               true, 1, godot::Color::named("WHITE"));
 
     bt_graph_node->set_resizable(false);
     bt_graph_node->set_custom_minimum_size(godot::Size2(200, 10));
@@ -176,7 +177,7 @@ void BTEditorPlugin::add_new_node_button_pressed()
 
     godot::EditorUndoRedoManager* undo_redo_manager = this->get_undo_redo();
 
-    undo_redo_manager->create_action("Add a node to the behaviour tree.");
+    undo_redo_manager->create_action("Add a node.");
 
     undo_redo_manager->add_do_method(this, "add_node_method", id, bt_graph_node);
     undo_redo_manager->add_undo_method(this, "remove_node_method", id, bt_graph_node);

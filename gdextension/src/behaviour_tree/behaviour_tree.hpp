@@ -54,6 +54,7 @@ public:
     }
 
     void connect_tasks(godot::Ref<BTTask> parent, godot::Ref<BTTask> child, int child_pos = 0);
+    void disconnect_tasks(godot::Ref<BTTask> parent, godot::Ref<BTTask> child);
 
 protected:
     static void _bind_methods();
