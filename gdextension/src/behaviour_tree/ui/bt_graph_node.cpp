@@ -1,5 +1,18 @@
 #include "bt_graph_node.hpp"
 
+BTGraphNode::BTGraphNode()
+{
+
+}
+
+BTGraphNode::BTGraphNode(const godot::StringName& name, godot::Ref<BTTask> task, godot::GraphEdit* graph_editor)
+{
+    this->set_name(name);
+    this->set_title(godot::String("[") + name + godot::String("]"));
+    this->set_task(task);
+    this->set_graph_editor(graph_editor);
+}
+
 
 void BTGraphNode::set_graph_editor(godot::GraphEdit* graph_editor)
 {

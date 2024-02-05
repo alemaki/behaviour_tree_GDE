@@ -39,9 +39,8 @@ BTEditorPlugin::BTEditorPlugin()
 
 BTEditorPlugin::~BTEditorPlugin()
 {
-
+    
 }
-
 void BTEditorPlugin::connection_request(godot::StringName _from_node, int from_port, godot::StringName _to_node, int to_port)
 {
 
@@ -55,7 +54,7 @@ void BTEditorPlugin::connection_request(godot::StringName _from_node, int from_p
     if (can_connect)
     {
         godot::EditorUndoRedoManager* undo_redo_manager = this->get_undo_redo();
-
+        
         undo_redo_manager->create_action("Create a connection between nodes.");
 
         undo_redo_manager->add_do_method(this->behaviour_tree, "connect_tasks", from_node->get_task(), to_node->get_task(), 0);
@@ -77,7 +76,6 @@ void BTEditorPlugin::clear_graph_button_pressed()
 void BTEditorPlugin::clear_graph_nodes()
 {
     this->graph_editor->clear_connections();
-    this->behaviour_tree->clear_tasks();
 
     godot::TypedArray<godot::Node> children = this->graph_editor->get_children();
     for (int i = 0, size = children.size(); i < size; i++)
@@ -109,6 +107,30 @@ void BTEditorPlugin::create_default_graph_nodes()
     }
     /* TODO: Make connections */
 }
+
+godot::Array BTEditorPlugin::get_bt_graph_nodes()
+{
+    godot::Array result;
+    result.resize(this->node_map.size());
+    for (godot::KeyValue<godot::StringName, BTGraphNode*> element : this->node_map)
+    {
+        result.push_back(element.value);
+    }
+    return result;
+}
+
+void BTEditorPlugin::arrange_nodes()
+{
+    godot::HashMap<godot::Ref<BTTask>, BTGraphNode*> task_to_node;
+    godot::Array bt_graph_nodes = this->get_bt_graph_nodes();
+    for (int i = 0, size = bt_graph_nodes.size(); i < size; i++)
+    {
+        BTGraphNode* bt_graph_node = Object::cast_to<BTGraphNode>(bt_graph_nodes[i]);
+        task_to_node[bt_graph_node->get_task()] = bt_graph_node;
+    }
+    /* TODO:: arrange. */
+}
+
 
 void BTEditorPlugin::set_behaviour_tree(BehaviourTree* new_tree)
 {

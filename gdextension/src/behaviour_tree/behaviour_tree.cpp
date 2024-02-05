@@ -1,5 +1,6 @@
 #include "behaviour_tree.hpp"
 #include <godot_cpp/variant/utility_functions.hpp>
+
 void BehaviourTree::set_description(const godot::String &description)
 {
     this->description = description;
@@ -93,6 +94,7 @@ void BehaviourTree::remove_task(int id)
 
 void BehaviourTree::clear_tasks()
 {
+    godot::UtilityFunctions::print("Clearing.");
     this->task_map.clear();
     this->root_task.unref();
 }
@@ -163,5 +165,5 @@ void BehaviourTree::_bind_methods()
     ADD_PROPERTY(PropertyInfo(Variant::STRING, "description"), "set_description", "get_description");
     /* TODO: show or no show? , PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NO_EDITOR */
     ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "root_task"), "set_root_task", "get_root_task");
-    // ADD_PROPERTY(PropertyInfo(Variant::ARRAY, "tasks"), "set_all_tasks", "get_all_tasks");
+    //ADD_PROPERTY(PropertyInfo(Variant::ARRAY, "tasks"), "set_all_tasks", "get_all_tasks");
 }

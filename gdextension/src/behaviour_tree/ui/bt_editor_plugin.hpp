@@ -35,6 +35,7 @@ private:
     static BTGraphNode* new_bt_graph_node();
     static BTGraphNode* new_bt_graph_node_from_task(godot::Ref<BTTask> bt_task);
 
+    godot::Array get_bt_graph_nodes();
     void set_behaviour_tree(BehaviourTree* new_tree);
     void add_node_method(int id, BTGraphNode* bt_graph_node);
     void remove_node_method(int id, BTGraphNode* bt_graph_node);
@@ -45,6 +46,8 @@ private:
 
     void clear_graph_nodes();
     void create_default_graph_nodes();
+    void arrange_nodes();
+
 public:
     BTEditorPlugin();
     ~BTEditorPlugin();

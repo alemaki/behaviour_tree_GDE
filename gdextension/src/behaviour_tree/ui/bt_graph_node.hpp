@@ -19,6 +19,8 @@ private:
     godot::Ref<BTTask> task;
 
 public:
+    BTGraphNode();
+    BTGraphNode(const godot::StringName& name, godot::Ref<BTTask> task, godot::GraphEdit* graph_editor);
     void set_graph_editor(godot::GraphEdit* graph_editor);
     _FORCE_INLINE_ godot::GraphEdit* get_graph_editor() const
     {

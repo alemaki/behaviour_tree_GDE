@@ -1,3 +1,6 @@
-[gd_scene format=3 uid="uid://dwjfyblb4kvpf"]
+[gd_scene load_steps=2 format=3 uid="uid://dwjfyblb4kvpf"]
+
+[sub_resource type="BTTask" id="BTTask_0thlw"]
 
 [node name="BehaviourTree" type="BehaviourTree"]
+root_task = SubResource("BTTask_0thlw")
