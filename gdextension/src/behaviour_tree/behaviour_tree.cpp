@@ -135,6 +135,10 @@ void BehaviourTree::connect_tasks(godot::Ref<BTTask> parent, godot::Ref<BTTask> 
 {
     ERR_FAIL_COND_MSG(!can_connect(parent, child), "Cannot connect parent to child.");
     parent->add_child_at_index(child, child_pos);
+    if (child == this->root_task)
+    {
+        this->root_task = parent;
+    }
 }
 
 void BehaviourTree::disconnect_tasks(godot::Ref<BTTask> parent, godot::Ref<BTTask> child)

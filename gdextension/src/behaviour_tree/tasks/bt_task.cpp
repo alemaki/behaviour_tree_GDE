@@ -5,6 +5,7 @@ BTTask::BTTask()
     this->actor = nullptr;
     this->parent = nullptr;
     this->status = Status::FRESH;
+    this->custom_name = "";
 }
 
 void BTTask::set_actor(godot::Node* actor)
@@ -24,7 +25,12 @@ godot::Array BTTask::get_children() const
     return array;
 }
 
-void BTTask::set_children(godot::Array children)
+void BTTask::set_custom_name(const godot::String& name)
+{
+    this->custom_name = custom_name;
+}
+
+void BTTask::set_children(const godot::Array& children)
 {
     int size = children.size();
     int invalid_refs = 0;
@@ -217,6 +223,9 @@ void BTTask::_bind_methods()
 	ClassDB::bind_method(D_METHOD("has_child", "child"), &BTTask::has_child);
     ClassDB::bind_method(D_METHOD("get_parent"), &BTTask::get_parent);
 
+    
+    ClassDB::bind_method(D_METHOD("set_custom_name", "name"), &BTTask::set_custom_name);
+    ClassDB::bind_method(D_METHOD("get_custom_name"), &BTTask::get_custom_name);
     ClassDB::bind_method(D_METHOD("set_actor", "actor"), &BTTask::set_actor);
     ClassDB::bind_method(D_METHOD("get_actor"), &BTTask::get_actor);
     ClassDB::bind_method(D_METHOD("set_status", "status"), &BTTask::set_status);
@@ -224,9 +233,11 @@ void BTTask::_bind_methods()
     ClassDB::bind_method(D_METHOD("set_children", "children"), &BTTask::set_children);
     ClassDB::bind_method(D_METHOD("get_children"), &BTTask::get_children);
 
-    // NOTE: Apparently the engine gives segmentation fault if property info about the objects isn't filled.
-    // Only happens when there are other registered objects that inherit from this class
-    ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "actor", PROPERTY_HINT_RESOURCE_TYPE, "Node", PROPERTY_USAGE_NONE), "set_actor", "get_actor");
+    /* NOTE: Apparently the engine gives segmentation fault if property info about the objects isn't filled.
+    * Only happens when there are other registered objects that inherit from this class 
+    */
+    ADD_PROPERTY(PropertyInfo(Variant::STRING, "custom_name", PROPERTY_HINT_RESOURCE_TYPE, "Name of the task.", PROPERTY_USAGE_NONE), "set_custom_name", "get_custom_name");
+    ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "actor", PROPERTY_HINT_RESOURCE_TYPE, "Actor to be controlled.", PROPERTY_USAGE_NONE), "set_actor", "get_actor");
     ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "children", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NO_EDITOR | PROPERTY_USAGE_INTERNAL), "set_children", "get_children");
     ADD_PROPERTY(PropertyInfo(Variant::INT, "status", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NONE), "", "get_status");
     

@@ -21,6 +21,7 @@ private:
 
     godot::VBoxContainer* button_continer;
     godot::Button* add_new_node_button;
+    godot::Button* arrange_nodes_button;
     godot::Button* clear_nodes_button;
 
     godot::Button* bottom_panel_button;
@@ -32,20 +33,22 @@ private:
     godot::HashMap<godot::StringName, BTGraphNode*> node_map;
 
 private: 
-    static BTGraphNode* new_bt_graph_node();
-    static BTGraphNode* new_bt_graph_node_from_task(godot::Ref<BTTask> bt_task);
+    BTGraphNode* new_bt_graph_node();
+    BTGraphNode* new_bt_graph_node_from_task(godot::Ref<BTTask> bt_task);
 
-    godot::Array get_bt_graph_nodes();
+    godot::Array get_graph_nodes();
     void set_behaviour_tree(BehaviourTree* new_tree);
     void add_node_method(int id, BTGraphNode* bt_graph_node);
     void remove_node_method(int id, BTGraphNode* bt_graph_node);
-    void add_new_node_button_pressed();
-    void clear_graph_button_pressed();
+    void _add_new_node_button_pressed();
+    void _arrange_nodes_button_pressed();
+    void _clear_graph_button_pressed();
 
     void connection_request(godot::StringName from_node, int from_port, godot::StringName to_node, int to_port);
 
     void clear_graph_nodes();
     void create_default_graph_nodes();
+    void _extract_node_levels_into_stack(BTGraphNode* root_node, godot::Vector<godot::Pair<BTGraphNode*, int>>& stack, godot::HashMap<godot::Ref<BTTask>, BTGraphNode*>& task_to_node,  int current_level = 0);
     void arrange_nodes();
 
 public:

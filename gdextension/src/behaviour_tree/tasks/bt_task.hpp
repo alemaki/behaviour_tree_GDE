@@ -22,12 +22,9 @@ public:
 private:
     Status status;
     BTTask* parent;
+    godot::String custom_name;
     godot::Node* actor;
     godot::Vector<godot::Ref<BTTask>> children;
-
-    // NOTE: can't return godot::Vector<godot::Ref<BTTask>>. Investigate.
-    godot::Array get_children() const;
-    void set_children(godot::Array children);
 
 protected:
     virtual void _setup();
@@ -37,23 +34,29 @@ protected:
     
 public:
     BTTask();
-
+    void set_custom_name(const godot::String& name);
+    _FORCE_INLINE_ godot::String get_custom_name() const
+    {
+        return this->custom_name;
+    }
+    void set_actor(godot::Node* actor);
     _FORCE_INLINE_ godot::Node* get_actor() const
     {
         return this->actor;
     }
+    void set_status(BTTask::Status status);
     _FORCE_INLINE_ Status get_status() const
     {
         return this->status;
     }
-    void set_actor(godot::Node* actor);
-    void set_status(BTTask::Status status);
 
     _FORCE_INLINE_ godot::Ref<BTTask> get_parent() const
     {
         return godot::Ref<BTTask>(this->parent);
     }
-
+    // NOTE: can't return godot::Vector<godot::Ref<BTTask>>. Investigate.
+    godot::Array get_children() const;
+    void set_children(const godot::Array& children);
     _FORCE_INLINE_ int get_child_count() const
     {
         return this->children.size();
@@ -71,7 +74,7 @@ public:
 	void remove_child(godot::Ref<BTTask> child);
 	void remove_child_at_index(int index);
 
-	_FORCE_INLINE_ bool has_child(const godot::Ref<BTTask> &child) const
+	_FORCE_INLINE_ bool has_child(const godot::Ref<BTTask> child) const
     {
         return (this->children.find(child) != -1);
     }
@@ -83,6 +86,7 @@ protected:
     static void _bind_methods();
 
 };
+
 VARIANT_ENUM_CAST(BTTask::Status);
 
 #endif // BT_TASK_HPP

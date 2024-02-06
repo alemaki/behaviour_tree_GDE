@@ -2,17 +2,23 @@
 
 BTGraphNode::BTGraphNode()
 {
-
+    this->setup_default();
 }
 
-BTGraphNode::BTGraphNode(const godot::StringName& name, godot::Ref<BTTask> task, godot::GraphEdit* graph_editor)
+void BTGraphNode::setup_default()
 {
-    this->set_name(name);
-    this->set_title(godot::String("[") + name + godot::String("]"));
-    this->set_task(task);
-    this->set_graph_editor(graph_editor);
-}
+    godot::Control* control = memnew(godot::Control);
+    /* TODO: make it look better */
+    this->add_child(control);
 
+    this->set_slot(0, true, 0, godot::Color::named("WHITE"),
+                               true, 1, godot::Color::named("WHITE"));
+
+    this->set_resizable(false);
+    this->set_custom_minimum_size(godot::Size2(100, 10));
+
+    this->set_position_offset(godot::Vector2(100, 100));
+}
 
 void BTGraphNode::set_graph_editor(godot::GraphEdit* graph_editor)
 {

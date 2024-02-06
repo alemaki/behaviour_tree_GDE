@@ -14,13 +14,18 @@ BTEditorPlugin::BTEditorPlugin()
 
     this->add_new_node_button = memnew(godot::Button);
     this->add_new_node_button->set_text("Insert node");
-    this->add_new_node_button->connect("pressed", callable_mp(this, &BTEditorPlugin::add_new_node_button_pressed));
+    this->add_new_node_button->connect("pressed", callable_mp(this, &BTEditorPlugin::_add_new_node_button_pressed));
+
+    this->arrange_nodes_button = memnew(godot::Button);
+    this->arrange_nodes_button->set_text("Arrange nodes");
+    this->arrange_nodes_button->connect("pressed", callable_mp(this, &BTEditorPlugin::_arrange_nodes_button_pressed));
 
     this->clear_nodes_button = memnew(godot::Button);
     this->clear_nodes_button->set_text("Clear nodes");
-    this->clear_nodes_button->connect("pressed", callable_mp(this, &BTEditorPlugin::clear_graph_button_pressed));
+    this->clear_nodes_button->connect("pressed", callable_mp(this, &BTEditorPlugin::_clear_graph_button_pressed));
 
     this->button_continer->add_child(this->add_new_node_button);
+    this->button_continer->add_child(this->arrange_nodes_button);
     this->button_continer->add_child(this->clear_nodes_button);
 
     this->main_container->add_child(this->graph_editor);
@@ -41,6 +46,7 @@ BTEditorPlugin::~BTEditorPlugin()
 {
     
 }
+
 void BTEditorPlugin::connection_request(godot::StringName _from_node, int from_port, godot::StringName _to_node, int to_port)
 {
 
@@ -67,10 +73,11 @@ void BTEditorPlugin::connection_request(godot::StringName _from_node, int from_p
     }
 }
 
-void BTEditorPlugin::clear_graph_button_pressed()
+void BTEditorPlugin::_clear_graph_button_pressed()
 {
     this->clear_graph_nodes();
     this->behaviour_tree->clear_tasks();
+    this->node_map.clear();
 }
 
 void BTEditorPlugin::clear_graph_nodes()
@@ -108,27 +115,76 @@ void BTEditorPlugin::create_default_graph_nodes()
     /* TODO: Make connections */
 }
 
-godot::Array BTEditorPlugin::get_bt_graph_nodes()
+godot::Array BTEditorPlugin::get_graph_nodes()
 {
     godot::Array result;
-    result.resize(this->node_map.size());
-    for (godot::KeyValue<godot::StringName, BTGraphNode*> element : this->node_map)
+    for (const godot::KeyValue<godot::StringName, BTGraphNode*>& element : this->node_map)
     {
+        if (element.value == nullptr)
+        {
+            godot::UtilityFunctions::printerr("Invalid node from reading. Key: " + element.key);
+            continue;
+        }
         result.push_back(element.value);
     }
     return result;
 }
 
+void BTEditorPlugin::_extract_node_levels_into_stack(
+    BTGraphNode* root_node, 
+    godot::Vector<godot::Pair<BTGraphNode*, int>>& stack, 
+    godot::HashMap<godot::Ref<BTTask>, BTGraphNode*>& task_to_node, 
+    int current_level)
+{
+    stack.push_back(godot::Pair<BTGraphNode*, int>(root_node, current_level));
+
+    godot::Array children = root_node->get_task()->get_children();
+
+    for (int i = 0, size = children.size(); i < size; i++)
+    {
+        BTGraphNode* child_node = Object::cast_to<BTGraphNode>(task_to_node[children[i]]);
+        this->_extract_node_levels_into_stack(child_node, stack, task_to_node, current_level + 1);
+    }
+}
+
 void BTEditorPlugin::arrange_nodes()
 {
     godot::HashMap<godot::Ref<BTTask>, BTGraphNode*> task_to_node;
-    godot::Array bt_graph_nodes = this->get_bt_graph_nodes();
+    godot::Array bt_graph_nodes = this->get_graph_nodes();
+    if (bt_graph_nodes.size() == 0)
+    {
+        return;
+    }
     for (int i = 0, size = bt_graph_nodes.size(); i < size; i++)
     {
         BTGraphNode* bt_graph_node = Object::cast_to<BTGraphNode>(bt_graph_nodes[i]);
         task_to_node[bt_graph_node->get_task()] = bt_graph_node;
     }
-    /* TODO:: arrange. */
+    BTGraphNode* root_node = task_to_node[this->behaviour_tree->get_root_task()];
+
+    godot::Vector<godot::Pair<BTGraphNode*, int>> stack;
+    this->_extract_node_levels_into_stack(root_node, stack, task_to_node);
+
+    godot::HashMap<int, int> level_to_node_count;
+    godot::Vector2 root_node_position = root_node->get_position_offset();
+    godot::Vector2 node_padding = godot::Vector2(130, 40);
+    int current_index = stack.size() - 1;
+
+    while (current_index >= 0)
+    {
+        godot::Pair<BTGraphNode*, int> pair_node_level = stack[current_index];
+
+        godot::UtilityFunctions::print(level_to_node_count[pair_node_level.second]);
+        godot::Vector2 position = godot::Vector2(0, 0);
+        position.x += node_padding.x*pair_node_level.second;
+        position.y += node_padding.y*level_to_node_count[pair_node_level.second];
+        position += root_node_position;
+
+        pair_node_level.first->set_position_offset(position);
+
+        level_to_node_count[pair_node_level.second]++;
+        current_index--;
+    }
 }
 
 
@@ -142,19 +198,8 @@ void BTEditorPlugin::set_behaviour_tree(BehaviourTree* new_tree)
 BTGraphNode* BTEditorPlugin::new_bt_graph_node_from_task(godot::Ref<BTTask> bt_task)
 {
     BTGraphNode* bt_graph_node = memnew(BTGraphNode);
-    godot::Control* control = memnew(godot::Control);
-    /* TODO: make it look better */
-    bt_graph_node->add_child(control);
 
     bt_graph_node->set_task(bt_task);
-
-    bt_graph_node->set_slot(0, true, 0, godot::Color::named("WHITE"),
-                               true, 1, godot::Color::named("WHITE"));
-
-    bt_graph_node->set_resizable(false);
-    bt_graph_node->set_custom_minimum_size(godot::Size2(200, 10));
-
-    bt_graph_node->set_position_offset(godot::Vector2(100, 100));
 
     return bt_graph_node;
 }
@@ -182,7 +227,7 @@ void BTEditorPlugin::remove_node_method(int id, BTGraphNode* bt_graph_node)
     this->behaviour_tree->remove_task(id);
 }
 
-void BTEditorPlugin::add_new_node_button_pressed()
+void BTEditorPlugin::_add_new_node_button_pressed()
 {
     BTGraphNode* bt_graph_node = BTEditorPlugin::new_bt_graph_node();
 
@@ -206,6 +251,11 @@ void BTEditorPlugin::add_new_node_button_pressed()
 
     undo_redo_manager->commit_action();
 
+}
+
+void BTEditorPlugin::_arrange_nodes_button_pressed()
+{
+    this->arrange_nodes();
 }
 
 void BTEditorPlugin::_make_visible(bool visible)
