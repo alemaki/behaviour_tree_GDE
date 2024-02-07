@@ -40,9 +40,13 @@ private:
     void set_behaviour_tree(BehaviourTree* new_tree);
     void add_node_method(int id, BTGraphNode* bt_graph_node);
     void remove_node_method(int id, BTGraphNode* bt_graph_node);
+    void connect_nodes_method(BTGraphNode* from_node, int from_port, BTGraphNode* to_node, int to_port);
+    void disconnect_nodes_method(BTGraphNode* from_node, int from_port, BTGraphNode* to_node, int to_port);
+    int get_node_position_in_children(BTGraphNode* graph_node, BTGraphNode* parent_graph_node);
     void _add_new_node_button_pressed();
     void _arrange_nodes_button_pressed();
     void _clear_graph_button_pressed();
+    void _node_dragged(const godot::Vector2 &_from, const godot::Vector2 &_to, godot::StringName node_name);
 
     void connection_request(godot::StringName from_node, int from_port, godot::StringName to_node, int to_port);
 
