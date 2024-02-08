@@ -10,6 +10,7 @@
 #include <godot_cpp/templates/hash_map.hpp>
 #include "behaviour_tree/behaviour_tree.hpp"
 #include "behaviour_tree/ui/bt_graph_node.hpp"
+#include "behaviour_tree/ui/bt_graph_editor.hpp"
 
 class BTEditorPlugin : public godot::EditorPlugin
 {
@@ -26,34 +27,7 @@ private:
 
     godot::Button* bottom_panel_button;
     godot::HSplitContainer* main_container;
-    godot::GraphEdit* graph_editor;
-
-    BehaviourTree* behaviour_tree;
-
-    godot::HashMap<godot::StringName, BTGraphNode*> node_map;
-
-private: 
-    BTGraphNode* new_bt_graph_node();
-    BTGraphNode* new_bt_graph_node_from_task(godot::Ref<BTTask> bt_task);
-
-    godot::Array get_graph_nodes();
-    void set_behaviour_tree(BehaviourTree* new_tree);
-    void add_node_method(int id, BTGraphNode* bt_graph_node);
-    void remove_node_method(int id, BTGraphNode* bt_graph_node);
-    void connect_nodes_method(BTGraphNode* from_node, int from_port, BTGraphNode* to_node, int to_port);
-    void disconnect_nodes_method(BTGraphNode* from_node, int from_port, BTGraphNode* to_node, int to_port);
-    int get_node_position_in_children(BTGraphNode* graph_node, BTGraphNode* parent_graph_node);
-    void _add_new_node_button_pressed();
-    void _arrange_nodes_button_pressed();
-    void _clear_graph_button_pressed();
-    void _node_dragged(const godot::Vector2 &_from, const godot::Vector2 &_to, godot::StringName node_name);
-
-    void connection_request(godot::StringName from_node, int from_port, godot::StringName to_node, int to_port);
-
-    void clear_graph_nodes();
-    void create_default_graph_nodes();
-    void _extract_node_levels_into_stack(BTGraphNode* root_node, godot::Vector<godot::Pair<BTGraphNode*, int>>& stack, godot::HashMap<godot::Ref<BTTask>, BTGraphNode*>& task_to_node,  int current_level = 0);
-    void arrange_nodes();
+    godot::Ref<BTGraphEditor> graph_editor;
 
 public:
     BTEditorPlugin();
