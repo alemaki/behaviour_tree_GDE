@@ -128,9 +128,7 @@ void BTGraphEditor::_node_dragged(const godot::Vector2 &_from, const godot::Vect
     parent_task->remove_child(dragged_task);
     int index = get_node_position_in_children(dragged_graph_node, parent_graph_node);
     parent_task->add_child_at_index(dragged_task, index);
-
     godot::UtilityFunctions::print("New index: " + godot::itos(index));
-
     return;
 }
 
@@ -155,6 +153,7 @@ void BTGraphEditor::create_default_graph_nodes()
 {
     godot::Array tasks = this->behaviour_tree->get_tasks();
 
+    godot::HashMap<godot::Ref<BTTask>, BTGraphNode*> task_to_node;
     for (int i = 0, size = tasks.size(); i < size; i++)
     {
         BTGraphNode* bt_graph_node = new_bt_graph_node_from_task(godot::Ref<BTTask>(tasks[i]));
@@ -164,9 +163,25 @@ void BTGraphEditor::create_default_graph_nodes()
         int id = this->behaviour_tree->get_task_id(godot::Ref<BTTask>(tasks[i]));
         bt_graph_node->set_title(godot::String("[") + godot::itos(id) + godot::String("]"));
         bt_graph_node->set_name(godot::itos(id));
+        this->node_map.insert(godot::itos(id), bt_graph_node);
         this->graph_editor->add_child(bt_graph_node);
+
+        task_to_node.insert(tasks[i], bt_graph_node);
     }
-    /* TODO: Make connections */
+    
+    for (int i = 0, size = tasks.size(); i < size; i++)
+    {
+        BTGraphNode* parent_node = task_to_node[godot::Ref<BTTask>(tasks[i])];
+        godot::Array children = parent_node->get_task()->get_children();
+
+        for (int i = 0, size = children.size(); i < size; i++)
+        {
+            BTGraphNode* child_node = task_to_node[godot::Ref<BTTask>(children[i])];
+            this->graph_editor->connect_node(parent_node->get_name(), 0, child_node->get_name(), 0);
+        }
+    }
+
+    this->arrange_nodes();
 }
 
 godot::Array BTGraphEditor::get_graph_nodes()
@@ -206,6 +221,7 @@ void BTGraphEditor::arrange_nodes()
 {
     godot::HashMap<godot::Ref<BTTask>, BTGraphNode*> task_to_node;
     godot::Array bt_graph_nodes = this->get_graph_nodes();
+
     if (bt_graph_nodes.size() == 0)
     {
         return;
@@ -241,7 +257,6 @@ void BTGraphEditor::arrange_nodes()
     }
 }
 
-
 void BTGraphEditor::set_behaviour_tree(BehaviourTree* new_tree)
 {
     this->behaviour_tree = new_tree;
@@ -265,7 +280,6 @@ BTGraphNode* BTGraphEditor::new_bt_graph_node()
 
     return bt_graph_node;
 }
-
 
 void BTGraphEditor::add_node_method(int id, BTGraphNode* bt_graph_node)
 {

@@ -1,6 +1,25 @@
 #include "behaviour_tree.hpp"
 #include <godot_cpp/variant/utility_functions.hpp>
 
+
+godot::Dictionary BehaviourTree::get_task_map()
+{ 
+    godot::Dictionary dict;
+    for (const godot::KeyValue<int, godot::Ref<BTTask>>& element : task_map)
+    {
+        dict[element.key] = element.value;
+    }
+    return dict;
+}
+void BehaviourTree::set_task_map(godot::Dictionary dict)
+{
+    this->task_map.clear();
+    godot::Array keys = dict.keys();
+    for (int i = 0, size = keys.size(); i < size; i++)
+    {
+        this->task_map.insert(keys[i], dict[keys[i]]);
+    }
+}
 void BehaviourTree::set_description(const godot::String &description)
 {
     this->description = description;
@@ -99,24 +118,6 @@ void BehaviourTree::clear_tasks()
     this->root_task.unref();
 }
 
-void BehaviourTree::set_tasks(godot::Array tasks)
-{
-    int size = tasks.size();
-
-    this->task_map.clear();
-
-    for (int index = 0; index < size; index++)
-    {
-        godot::Ref<BTTask> task = tasks[index];
-        if (task.is_null())
-        {
-            /* TODO: error */
-            continue;
-        }
-        this->task_map.insert(this->get_valid_id(), task);
-    }
-}
-
 godot::Array BehaviourTree::get_tasks() const
 {
     godot::Array array;
@@ -125,8 +126,8 @@ godot::Array BehaviourTree::get_tasks() const
     int i = 0;
     for (const godot::KeyValue<int, godot::Ref<BTTask>> &key_value : this->task_map)
     {
-        i++;
         array[i] = key_value.value;
+        i++;
     }
     return array;
 }
@@ -163,11 +164,12 @@ void BehaviourTree::_bind_methods()
     ClassDB::bind_method(D_METHOD("get_description"), &BehaviourTree::get_description);
     ClassDB::bind_method(D_METHOD("set_root_task", "task"), &BehaviourTree::set_root_task);
     ClassDB::bind_method(D_METHOD("get_root_task"), &BehaviourTree::get_root_task);
-    ClassDB::bind_method(D_METHOD("set_all_tasks"), &BehaviourTree::set_tasks);
     ClassDB::bind_method(D_METHOD("get_all_tasks"), &BehaviourTree::get_tasks);
+    ClassDB::bind_method(D_METHOD("set_task_map", "task_map"), &BehaviourTree::set_task_map);
+    ClassDB::bind_method(D_METHOD("get_task_map"), &BehaviourTree::get_task_map);
 
     ADD_PROPERTY(PropertyInfo(Variant::STRING, "description"), "set_description", "get_description");
     /* TODO: show or no show? , PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NO_EDITOR */
     ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "root_task"), "set_root_task", "get_root_task");
-    //ADD_PROPERTY(PropertyInfo(Variant::ARRAY, "tasks"), "set_all_tasks", "get_all_tasks");
+    ADD_PROPERTY(PropertyInfo(Variant::DICTIONARY, "task_map"), "set_task_map", "get_task_map");
 }

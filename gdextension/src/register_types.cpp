@@ -51,8 +51,9 @@ void initialize_gdextension_module(ModuleInitializationLevel p_level)
 	}
 	if (p_level == MODULE_INITIALIZATION_LEVEL_EDITOR)
 	{
-		ClassDB::register_internal_class<BTEditorPlugin>();
 		ClassDB::register_internal_class<BTGraphNode>();
+		ClassDB::register_internal_class<BTGraphEditor>();
+		ClassDB::register_internal_class<BTEditorPlugin>();
 		
 		EditorPlugins::add_by_type<BTEditorPlugin>();
 	}

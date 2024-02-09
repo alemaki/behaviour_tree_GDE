@@ -50,6 +50,7 @@ public:
         return this->status;
     }
 
+    void set_parent(godot::Ref<BTTask> parent);
     _FORCE_INLINE_ godot::Ref<BTTask> get_parent() const
     {
         return godot::Ref<BTTask>(this->parent);

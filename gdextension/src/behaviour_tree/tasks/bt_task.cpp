@@ -13,6 +13,11 @@ void BTTask::set_actor(godot::Node* actor)
     this->actor = actor;
 }
 
+void BTTask::set_parent(godot::Ref<BTTask> parent)
+{
+    this->parent = parent.ptr();
+}
+
 godot::Array BTTask::get_children() const
 {
     godot::Array array;
@@ -221,9 +226,9 @@ void BTTask::_bind_methods()
 	ClassDB::bind_method(D_METHOD("remove_child", "child"), &BTTask::remove_child);
 	ClassDB::bind_method(D_METHOD("remove_child_at_index", "index"), &BTTask::remove_child_at_index);
 	ClassDB::bind_method(D_METHOD("has_child", "child"), &BTTask::has_child);
-    ClassDB::bind_method(D_METHOD("get_parent"), &BTTask::get_parent);
 
-    
+    ClassDB::bind_method(D_METHOD("set_parent", "parent"), &BTTask::set_parent);
+    ClassDB::bind_method(D_METHOD("get_parent"), &BTTask::get_parent);
     ClassDB::bind_method(D_METHOD("set_custom_name", "name"), &BTTask::set_custom_name);
     ClassDB::bind_method(D_METHOD("get_custom_name"), &BTTask::get_custom_name);
     ClassDB::bind_method(D_METHOD("set_actor", "actor"), &BTTask::set_actor);
@@ -236,6 +241,7 @@ void BTTask::_bind_methods()
     /* NOTE: Apparently the engine gives segmentation fault if property info about the objects isn't filled.
     * Only happens when there are other registered objects that inherit from this class 
     */
+    ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "parent", PROPERTY_HINT_NONE, "Parent of the task.", PROPERTY_USAGE_NONE), "set_parent", "get_parent");
     ADD_PROPERTY(PropertyInfo(Variant::STRING, "custom_name", PROPERTY_HINT_RESOURCE_TYPE, "Name of the task.", PROPERTY_USAGE_NONE), "set_custom_name", "get_custom_name");
     ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "actor", PROPERTY_HINT_RESOURCE_TYPE, "Actor to be controlled.", PROPERTY_USAGE_NONE), "set_actor", "get_actor");
     ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "children", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NO_EDITOR | PROPERTY_USAGE_INTERNAL), "set_children", "get_children");

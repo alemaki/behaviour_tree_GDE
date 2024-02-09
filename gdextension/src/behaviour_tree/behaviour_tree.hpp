@@ -15,6 +15,10 @@ private:
     godot::RBMap<int, godot::Ref<BTTask>> task_map; // Using rb_map for back method
     godot::Ref<BTTask> root_task;
 
+private:
+    godot::Dictionary get_task_map();
+    void set_task_map(godot::Dictionary dict);
+
 public:
     void set_description(const godot::String &description);
     _FORCE_INLINE_ godot::String get_description() const
@@ -34,7 +38,6 @@ public:
     void remove_task_by_ref(godot::Ref<BTTask> task);
     void remove_task(int id);
     void clear_tasks();
-    void set_tasks(godot::Array all_tasks);
     godot::Array get_tasks() const;
 
     _FORCE_INLINE_ bool can_connect(godot::Ref<BTTask> parent, godot::Ref<BTTask> child) const
@@ -55,6 +58,11 @@ public:
 
     void connect_tasks(godot::Ref<BTTask> parent, godot::Ref<BTTask> child, int child_pos = 0);
     void disconnect_tasks(godot::Ref<BTTask> parent, godot::Ref<BTTask> child);
+
+    _FORCE_INLINE_ int get_task_count()
+    {
+        return this->task_map.size();
+    }
 
 protected:
     static void _bind_methods();
