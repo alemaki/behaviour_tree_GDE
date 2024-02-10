@@ -23,19 +23,6 @@ void BTGraphEditor::set_editor_plugin(godot::EditorPlugin* editor_plugin)
     this->editor_plugin = editor_plugin;
 }
 
-void BTGraphEditor::connect_nodes_method(BTGraphNode* from_node, int from_port, BTGraphNode* to_node, int to_port)
-{
-    int child_index = get_node_position_in_children(to_node, from_node);
-    this->behaviour_tree->connect_tasks(from_node->get_task(), to_node->get_task(), child_index);
-    this->graph_editor->connect_node(from_node->get_name(), from_port, to_node->get_name(), to_port);
-}
-
-void BTGraphEditor::disconnect_nodes_method(BTGraphNode* from_node, int from_port, BTGraphNode* to_node, int to_port)
-{
-    this->graph_editor->disconnect_node(from_node->get_name(), from_port, to_node->get_name(), to_port);
-    this->behaviour_tree->disconnect_tasks(from_node->get_task(), to_node->get_task());
-}
-
 void BTGraphEditor::connection_request(godot::StringName _from_node, int from_port, godot::StringName _to_node, int to_port)
 {
 
@@ -51,15 +38,20 @@ void BTGraphEditor::connection_request(godot::StringName _from_node, int from_po
         godot::EditorUndoRedoManager* undo_redo_manager = this->editor_plugin->get_undo_redo();
 
         undo_redo_manager->create_action("Create a connection between nodes.");
-        
-        undo_redo_manager->add_do_method(this, "connect_nodes_method", from_node, from_port, to_node, to_port);
-        undo_redo_manager->add_undo_method(this, "disconnect_nodes_method", from_node, from_port, to_node, to_port);
+
+        int index = this->get_node_position_in_children(from_node, to_node);
+
+        undo_redo_manager->add_do_method(this->behaviour_tree, "connect_tasks", from_node->get_task(), to_node->get_task(), index);
+        undo_redo_manager->add_undo_method(this->behaviour_tree, "disconnect_tasks", from_node->get_task(), to_node->get_task());
+
+        undo_redo_manager->add_do_method(this->graph_editor, "connect_node", from_node->get_name(), from_port, to_node->get_name(), to_port);
+        undo_redo_manager->add_undo_method(this->graph_editor, "disconnect_node", from_node->get_name(), from_port, to_node->get_name(), to_port);
 
         undo_redo_manager->commit_action();
     }
 }
 
-int BTGraphEditor::get_node_position_in_children(BTGraphNode* graph_node, BTGraphNode* parent_graph_node)
+int BTGraphEditor::get_node_position_in_children(BTGraphNode* parent_graph_node, BTGraphNode* graph_node)
 {
     godot::Ref<BTTask> task = graph_node->get_task();
 
@@ -104,6 +96,8 @@ void BTGraphEditor::_node_dragged(const godot::Vector2 &_from, const godot::Vect
 {
     ERR_FAIL_COND_MSG(!(this->node_map.has(node_name)), "Dragged an invalid node");
 
+    godot::UtilityFunctions::print("Dragged node: " + node_name);
+
     BTGraphNode* dragged_graph_node = this->node_map[node_name];
     godot::Ref<BTTask> dragged_task = dragged_graph_node->get_task();
 
@@ -126,9 +120,9 @@ void BTGraphEditor::_node_dragged(const godot::Vector2 &_from, const godot::Vect
     BTGraphNode* parent_graph_node = task_to_node[parent_task];
 
     parent_task->remove_child(dragged_task);
-    int index = get_node_position_in_children(dragged_graph_node, parent_graph_node);
+    int index = get_node_position_in_children(parent_graph_node, dragged_graph_node);
     parent_task->add_child_at_index(dragged_task, index);
-    godot::UtilityFunctions::print("New index: " + godot::itos(index));
+
     return;
 }
 
@@ -151,6 +145,7 @@ void BTGraphEditor::clear_graph_nodes()
 
 void BTGraphEditor::create_default_graph_nodes()
 {
+    godot::UtilityFunctions::print("Creating default graph nodes.");
     godot::Array tasks = this->behaviour_tree->get_tasks();
 
     godot::HashMap<godot::Ref<BTTask>, BTGraphNode*> task_to_node;
@@ -163,8 +158,12 @@ void BTGraphEditor::create_default_graph_nodes()
         int id = this->behaviour_tree->get_task_id(godot::Ref<BTTask>(tasks[i]));
         bt_graph_node->set_title(godot::String("[") + godot::itos(id) + godot::String("]"));
         bt_graph_node->set_name(godot::itos(id));
+
         this->node_map.insert(godot::itos(id), bt_graph_node);
+
         this->graph_editor->add_child(bt_graph_node);
+
+        bt_graph_node->connect("dragged", callable_mp(this, &BTGraphEditor::_node_dragged).bind(godot::itos(id)));
 
         task_to_node.insert(tasks[i], bt_graph_node);
     }
@@ -281,18 +280,14 @@ BTGraphNode* BTGraphEditor::new_bt_graph_node()
     return bt_graph_node;
 }
 
-void BTGraphEditor::add_node_method(int id, BTGraphNode* bt_graph_node)
+void BTGraphEditor::insert_node(BTGraphNode* bt_graph_node)
 {
-    this->behaviour_tree->add_task(id, bt_graph_node->get_task());
-    this->graph_editor->add_child(bt_graph_node);
     this->node_map.insert(bt_graph_node->get_name(), bt_graph_node);
 }
 
-void BTGraphEditor::remove_node_method(int id, BTGraphNode* bt_graph_node)
+void BTGraphEditor::erase_node(BTGraphNode* bt_graph_node)
 {
     this->node_map.erase(bt_graph_node->get_name());
-    this->graph_editor->remove_child(bt_graph_node);
-    this->behaviour_tree->remove_task(id);
 }
 
 void BTGraphEditor::_add_new_node_button_pressed()
@@ -316,8 +311,13 @@ void BTGraphEditor::_add_new_node_button_pressed()
 
     undo_redo_manager->create_action("Add a node.");
 
-    undo_redo_manager->add_do_method(this, "add_node_method", id, bt_graph_node);
-    undo_redo_manager->add_undo_method(this, "remove_node_method", id, bt_graph_node);
+    undo_redo_manager->add_do_method(this->behaviour_tree, "add_task", id, bt_graph_node->get_task());
+    undo_redo_manager->add_do_method(this->graph_editor, "add_child", bt_graph_node);
+    undo_redo_manager->add_do_method(this, "insert_node", bt_graph_node);
+
+    undo_redo_manager->add_undo_method(this, "erase_node", bt_graph_node);
+    undo_redo_manager->add_undo_method(this->graph_editor, "remove_child", bt_graph_node);
+    undo_redo_manager->add_undo_method(this->behaviour_tree, "remove_task", id);
 
     undo_redo_manager->commit_action();
 
@@ -338,10 +338,19 @@ void BTGraphEditor::_clear_graph_button_pressed()
 void BTGraphEditor::_bind_methods()
 {
     using namespace godot;
+    ClassDB::bind_method(D_METHOD("insert_node", "bt_graph_node"), &BTGraphEditor::insert_node);
+    ClassDB::bind_method(D_METHOD("erase_node", "bt_graph_node"), &BTGraphEditor::erase_node);
 
-    ClassDB::bind_method(D_METHOD("add_node_method", "id", "bt_graph_node"), &BTGraphEditor::add_node_method);
-    ClassDB::bind_method(D_METHOD("remove_node_method", "id", "bt_graph_node"), &BTGraphEditor::remove_node_method);
+    ClassDB::bind_method(D_METHOD("move_nodes"), &BTGraphEditor::move_nodes);
+    /* unneeded for now */
+    // ClassDB::bind_method(D_METHOD("add_node_method", "id", "bt_graph_node"), &BTGraphEditor::add_node_method);
+    // ClassDB::bind_method(D_METHOD("remove_node_method", "id", "bt_graph_node"), &BTGraphEditor::remove_node_method);
+    // ClassDB::bind_method(D_METHOD("connect_nodes_method", "from_node", "from_port", "to_node", "to_port"), &BTGraphEditor::connect_nodes_method);
+    // ClassDB::bind_method(D_METHOD("disconnect_nodes_method", "from_node", "from_port", "to_node", "to_port"), &BTGraphEditor::disconnect_nodes_method);
 
-    ClassDB::bind_method(D_METHOD("connect_nodes_method", "from_node", "from_port", "to_node", "to_port"), &BTGraphEditor::connect_nodes_method);
-    ClassDB::bind_method(D_METHOD("disconnect_nodes_method", "from_node", "from_port", "to_node", "to_port"), &BTGraphEditor::disconnect_nodes_method);
+    ClassDB::bind_method(D_METHOD("set_behaviour_tree", "behaviour_tree"), &BTGraphEditor::set_behaviour_tree);
+    ClassDB::bind_method(D_METHOD("get_behaviour_tree"), &BTGraphEditor::get_behaviour_tree);
+
+    ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "behavior_tree"), "set_behavior_tree", "get_behavior_tree");
+
 }

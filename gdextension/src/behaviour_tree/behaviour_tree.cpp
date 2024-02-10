@@ -113,7 +113,6 @@ void BehaviourTree::remove_task(int id)
 
 void BehaviourTree::clear_tasks()
 {
-    godot::UtilityFunctions::print("Clearing.");
     this->task_map.clear();
     this->root_task.unref();
 }

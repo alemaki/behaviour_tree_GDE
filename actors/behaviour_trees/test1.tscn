@@ -1,3 +1,33 @@
-[gd_scene format=3 uid="uid://dwjfyblb4kvpf"]
+[gd_scene load_steps=8 format=3 uid="uid://dwjfyblb4kvpf"]
+
+[sub_resource type="BTTask" id="BTTask_fngfg"]
+
+[sub_resource type="BTTask" id="BTTask_8ljmd"]
+children = [SubResource("BTTask_fngfg")]
+
+[sub_resource type="BTTask" id="BTTask_wvclr"]
+children = [SubResource("BTTask_8ljmd")]
+
+[sub_resource type="BTTask" id="BTTask_b776j"]
+
+[sub_resource type="BTTask" id="BTTask_sh33f"]
+children = [SubResource("BTTask_b776j")]
+
+[sub_resource type="BTTask" id="BTTask_sxdrp"]
+children = [SubResource("BTTask_sh33f")]
+
+[sub_resource type="BTTask" id="BTTask_immpf"]
+children = [SubResource("BTTask_wvclr"), SubResource("BTTask_sxdrp")]
 
 [node name="BehaviourTree" type="BehaviourTree"]
+description = "alabala"
+root_task = SubResource("BTTask_immpf")
+task_map = {
+1: SubResource("BTTask_immpf"),
+2: SubResource("BTTask_wvclr"),
+3: SubResource("BTTask_8ljmd"),
+4: SubResource("BTTask_sxdrp"),
+5: SubResource("BTTask_sh33f"),
+6: SubResource("BTTask_fngfg"),
+7: SubResource("BTTask_b776j")
+}

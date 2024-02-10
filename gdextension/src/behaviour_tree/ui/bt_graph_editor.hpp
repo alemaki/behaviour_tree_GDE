@@ -30,9 +30,17 @@ private:
     BehaviourTree* behaviour_tree;
     godot::HashMap<godot::StringName, BTGraphNode*> node_map;
 
+    struct DragOperation
+    {
+        godot::Vector2 from_positon;
+        godot::Vector2 to_position;
+        godot::StringName node;
+    };
+    godot::Vector<DragOperation> drag_buffer;
+
 private:
     void set_editor_plugin(godot::EditorPlugin* editor_plugin);
-    _FORCE_INLINE_ godot::GraphEdit* get_graph_editor()
+    _FORCE_INLINE_ godot::GraphEdit* get_graph_edit()
     {
         return this->graph_editor;
     }
@@ -40,17 +48,19 @@ private:
     BTGraphNode* new_bt_graph_node_from_task(godot::Ref<BTTask> bt_task);
 
     godot::Array get_graph_nodes();
+
     void set_behaviour_tree(BehaviourTree* new_tree);
-    void add_node_method(int id, BTGraphNode* bt_graph_node);
-    void remove_node_method(int id, BTGraphNode* bt_graph_node);
-    void connect_nodes_method(BTGraphNode* from_node, int from_port, BTGraphNode* to_node, int to_port);
-    void disconnect_nodes_method(BTGraphNode* from_node, int from_port, BTGraphNode* to_node, int to_port);
-    int get_node_position_in_children(BTGraphNode* graph_node, BTGraphNode* parent_graph_node);
+    _FORCE_INLINE_ BehaviourTree* get_behaviour_tree()
+    {
+        return this->behaviour_tree;
+    }
+    void insert_node(BTGraphNode* bt_graph_node);
+    void erase_node(BTGraphNode* bt_graph_node);    int get_node_position_in_children(BTGraphNode* graph_node, BTGraphNode* parent_graph_node);
     void _add_new_node_button_pressed();
     void _arrange_nodes_button_pressed();
     void _clear_graph_button_pressed();
     void _node_dragged(const godot::Vector2 &_from, const godot::Vector2 &_to, godot::StringName node_name);
-
+    void _move_nodes();
     void connection_request(godot::StringName from_node, int from_port, godot::StringName to_node, int to_port);
 
     void clear_graph_nodes();

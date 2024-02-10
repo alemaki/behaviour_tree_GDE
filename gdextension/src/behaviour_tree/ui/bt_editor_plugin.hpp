@@ -19,7 +19,7 @@ class BTEditorPlugin : public godot::EditorPlugin
 private:
     const godot::String plugin_name = "BTEditorPlugin";
     const godot::String bottom_panel_button_name = "Behaviour tree";
-
+    
     godot::VBoxContainer* button_continer;
     godot::Button* add_new_node_button;
     godot::Button* arrange_nodes_button;
@@ -28,6 +28,13 @@ private:
     godot::Button* bottom_panel_button;
     godot::HSplitContainer* main_container;
     godot::Ref<BTGraphEditor> graph_editor;
+
+private:
+    void set_graph_editor(BTGraphEditor* graph_editor);
+    _FORCE_INLINE_ BTGraphEditor* get_graph_editor()
+    {
+        return this->graph_editor.ptr();
+    }
 
 public:
     BTEditorPlugin();

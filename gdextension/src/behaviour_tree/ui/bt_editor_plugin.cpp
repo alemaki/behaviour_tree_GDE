@@ -4,7 +4,7 @@
 
 BTEditorPlugin::BTEditorPlugin()
 {
-    this->graph_editor = godot::Ref<BTGraphEditor>(memnew(BTGraphEditor));
+    this->set_graph_editor(memnew(BTGraphEditor));
     this->graph_editor->set_editor_plugin(this);
 
     this->main_container = memnew(godot::HSplitContainer);
@@ -27,7 +27,7 @@ BTEditorPlugin::BTEditorPlugin()
     this->button_continer->add_child(this->arrange_nodes_button);
     this->button_continer->add_child(this->clear_nodes_button);
 
-    this->main_container->add_child(this->graph_editor->get_graph_editor());
+    this->main_container->add_child(this->graph_editor->get_graph_edit());
     this->main_container->add_child(this->button_continer);
 
     this->bottom_panel_button =
@@ -40,6 +40,14 @@ BTEditorPlugin::BTEditorPlugin()
 BTEditorPlugin::~BTEditorPlugin()
 {
     
+}
+
+void BTEditorPlugin::set_graph_editor(BTGraphEditor* graph_editor)
+{
+    if (graph_editor!= nullptr)
+    {
+        this->graph_editor = godot::Ref<BTGraphEditor>(graph_editor);
+    }
 }
 void BTEditorPlugin::_make_visible(bool visible)
 {
@@ -86,4 +94,9 @@ bool BTEditorPlugin::_handles(Object* object) const
 void BTEditorPlugin::_bind_methods()
 {
     using namespace godot;
+
+    ClassDB::bind_method(D_METHOD("set_graph_editor", "graph_editor"), &BTEditorPlugin::set_graph_editor);
+    ClassDB::bind_method(D_METHOD("get_graph_editor"), &BTEditorPlugin::get_graph_editor);
+
+     ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "graph_editor"), "set_graph_editor", "get_graph_editor");
 }

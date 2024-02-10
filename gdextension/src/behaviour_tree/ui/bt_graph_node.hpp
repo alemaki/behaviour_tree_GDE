@@ -17,7 +17,7 @@ class BTGraphNode : public godot::GraphNode
 private:
     godot::GraphEdit* graph_editor;
     godot::Ref<BTTask> task;
-
+    
 private:
     void setup_default();
 public:
