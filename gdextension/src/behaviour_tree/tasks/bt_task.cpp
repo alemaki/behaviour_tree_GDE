@@ -37,10 +37,15 @@ void BTTask::set_custom_name(const godot::String& name)
 
 void BTTask::set_children(const godot::Array& children)
 {
-    int size = children.size();
-    int invalid_refs = 0;
+    for (godot::Ref<BTTask> child : this->children)
+    {
+        child->set_parent(nullptr);
+    }
 
     this->children.clear();
+
+    int size = children.size();
+    int invalid_refs = 0;
     this->children.resize(size);
 
     for (int index = 0; index < size; index++)

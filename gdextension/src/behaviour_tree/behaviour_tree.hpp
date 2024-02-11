@@ -37,6 +37,8 @@ public:
     void add_task(int id, godot::Ref<BTTask> task);
     void remove_task_by_ref(godot::Ref<BTTask> task);
     void remove_task(int id);
+    void detach_task_by_ref(godot::Ref<BTTask> task);
+    void detach_task(int id); 
     void clear_tasks();
     godot::Array get_tasks() const;
 
@@ -58,6 +60,7 @@ public:
 
     void connect_tasks(godot::Ref<BTTask> parent, godot::Ref<BTTask> child, int child_pos = 0);
     void disconnect_tasks(godot::Ref<BTTask> parent, godot::Ref<BTTask> child);
+    void move_task(godot::Ref<BTTask> child, int new_child_pos);
 
     _FORCE_INLINE_ int get_task_count()
     {

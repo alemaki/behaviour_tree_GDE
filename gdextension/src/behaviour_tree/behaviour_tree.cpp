@@ -73,32 +73,33 @@ void BehaviourTree::add_task(int id, godot::Ref<BTTask> task)
     }
 }
 
+void BehaviourTree::detach_task_by_ref(godot::Ref<BTTask> task)
+{
+    int id = this->get_task_id(task);
+    this->detach_task(id);
+}
+
+void BehaviourTree::detach_task(int id)
+{
+    godot::Ref<BTTask> task = this->task_map[id];
+    if (task->get_parent().is_valid())
+    {
+        task->get_parent()->remove_child(task);
+    }
+
+    task->set_children({});
+}
 void BehaviourTree::remove_task_by_ref(godot::Ref<BTTask> task)
 {
-    /* TODO: 
-     * Detach parent, children.
-     * */
-
     int id = this->get_task_id(task);
-    this->task_map.erase(id);
-    if (this->root_task == task)
-    {
-        this->root_task.unref();
-        if (task_map.size() > 0)
-        {
-            godot::Ref<BTTask> some_task = this->task_map.front()->get();
-            this->root_task = some_task->get_root();
-        }
-    }
+    this->remove_task(id);
 }
 
 void BehaviourTree::remove_task(int id)
 {
-    /* TODO: 
-     * Detach parent, children.
-     * */
+    godot::Ref<BTTask> task = this->task_map[id];
+    this->detach_task(id);
 
-    godot::Ref<BTTask> task = task_map[id];
     this->task_map.erase(id);
     if (this->root_task == task)
     {
@@ -147,17 +148,25 @@ void BehaviourTree::disconnect_tasks(godot::Ref<BTTask> parent, godot::Ref<BTTas
     parent->remove_child(child);
 }
 
+void BehaviourTree::move_task(godot::Ref<BTTask> child, int new_pos)
+{
+    godot::Ref<BTTask> parent = child->get_parent();
+    int child_index = parent->get_child_index(child);
+    parent->remove_child(child);
+    parent->add_child_at_index(child, new_pos - (child_index < new_pos ? 1 : 0));
+}
 
 void BehaviourTree::_bind_methods()
 {
     using namespace godot;
-
+    
     ClassDB::bind_method(D_METHOD("add_task", "task"), &BehaviourTree::add_task);
     ClassDB::bind_method(D_METHOD("remove_task", "id"), &BehaviourTree::remove_task);
     ClassDB::bind_method(D_METHOD("remove_task_by_ref", "task"), &BehaviourTree::remove_task_by_ref);
     ClassDB::bind_method(D_METHOD("clear_tasks"), &BehaviourTree::clear_tasks);
     ClassDB::bind_method(D_METHOD("connect_tasks", "parent", "child", "child_pos"), &BehaviourTree::connect_tasks);
     ClassDB::bind_method(D_METHOD("disconnect_tasks", "parent", "child"), &BehaviourTree::disconnect_tasks);
+    ClassDB::bind_method(D_METHOD("move_task", "child", "new_pos"), &BehaviourTree::move_task);
 
     ClassDB::bind_method(D_METHOD("set_description", "description"), &BehaviourTree::set_description);
     ClassDB::bind_method(D_METHOD("get_description"), &BehaviourTree::get_description);

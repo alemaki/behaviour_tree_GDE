@@ -32,11 +32,13 @@ private:
 
     struct DragOperation
     {
-        godot::Vector2 from_positon;
+        godot::Vector2 from_position;
         godot::Vector2 to_position;
-        godot::StringName node;
+        godot::StringName node_name;
     };
     godot::Vector<DragOperation> drag_buffer;
+    bool drag_called;
+    bool arranging_nodes;
 
 private:
     void set_editor_plugin(godot::EditorPlugin* editor_plugin);
@@ -55,7 +57,8 @@ private:
         return this->behaviour_tree;
     }
     void insert_node(BTGraphNode* bt_graph_node);
-    void erase_node(BTGraphNode* bt_graph_node);    int get_node_position_in_children(BTGraphNode* graph_node, BTGraphNode* parent_graph_node);
+    void erase_node(BTGraphNode* bt_graph_node);
+    int get_node_position_in_children(BTGraphNode* graph_node, BTGraphNode* parent_graph_node);
     void _add_new_node_button_pressed();
     void _arrange_nodes_button_pressed();
     void _clear_graph_button_pressed();
