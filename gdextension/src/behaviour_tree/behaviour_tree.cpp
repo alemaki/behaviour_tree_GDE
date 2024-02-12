@@ -156,6 +156,17 @@ void BehaviourTree::move_task(godot::Ref<BTTask> child, int new_pos)
     parent->add_child_at_index(child, new_pos - (child_index < new_pos ? 1 : 0));
 }
 
+void BehaviourTree::set_tasks_of_parent(godot::Ref<BTTask> parent, godot::Array new_children)
+{
+    ERR_FAIL_COND_MSG(!(this->has_task(parent)), "Parent not in tree.");
+    for (int i = 0 , size = new_children.size(); i < size; i++)
+    {
+        godot::Ref<BTTask> task = godot::Ref<BTTask>(new_children[i]);
+        ERR_FAIL_COND_MSG(!(this->has_task(task)), "Child not in tree.");
+    }
+    parent->set_children(new_children);
+}
+
 void BehaviourTree::_bind_methods()
 {
     using namespace godot;
@@ -167,6 +178,7 @@ void BehaviourTree::_bind_methods()
     ClassDB::bind_method(D_METHOD("connect_tasks", "parent", "child", "child_pos"), &BehaviourTree::connect_tasks);
     ClassDB::bind_method(D_METHOD("disconnect_tasks", "parent", "child"), &BehaviourTree::disconnect_tasks);
     ClassDB::bind_method(D_METHOD("move_task", "child", "new_pos"), &BehaviourTree::move_task);
+    ClassDB::bind_method(D_METHOD("set_tasks_of_parent", "parent", "new_children"), &BehaviourTree::set_tasks_of_parent);
 
     ClassDB::bind_method(D_METHOD("set_description", "description"), &BehaviourTree::set_description);
     ClassDB::bind_method(D_METHOD("get_description"), &BehaviourTree::get_description);

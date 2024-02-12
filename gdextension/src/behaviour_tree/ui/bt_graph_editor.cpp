@@ -1,4 +1,5 @@
 #include "bt_graph_editor.hpp"
+#include <godot_cpp/templates/hash_set.hpp>
 #include <godot_cpp/variant/color.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
 
@@ -39,10 +40,9 @@ void BTGraphEditor::connection_request(godot::StringName _from_node, int from_po
     {
         godot::EditorUndoRedoManager* undo_redo_manager = this->editor_plugin->get_undo_redo();
 
-        undo_redo_manager->create_action("Create a connection between nodes.");
+        undo_redo_manager->create_action("Create a connection.");
 
-        int index = this->get_node_position_in_children(from_node, to_node);
-
+        int index = this->get_node_insert_index_by_y_in_children(from_node, to_node);
         undo_redo_manager->add_do_method(this->behaviour_tree, "connect_tasks", from_node->get_task(), to_node->get_task(), index);
         undo_redo_manager->add_undo_method(this->behaviour_tree, "disconnect_tasks", from_node->get_task(), to_node->get_task());
 
@@ -53,9 +53,9 @@ void BTGraphEditor::connection_request(godot::StringName _from_node, int from_po
     }
 }
 
-int BTGraphEditor::get_node_position_in_children(BTGraphNode* parent_graph_node, BTGraphNode* graph_node)
+godot::Array BTGraphEditor::get_sorted_by_y_children_of_parent(BTGraphNode* parent_graph_node)
 {
-    godot::Ref<BTTask> task = graph_node->get_task();
+    godot::Ref<BTTask> parent_task = parent_graph_node->get_task();
 
     godot::HashMap<godot::Ref<BTTask>, BTGraphNode*> task_to_node;
     godot::Array bt_graph_nodes = this->get_graph_nodes();
@@ -66,52 +66,78 @@ int BTGraphEditor::get_node_position_in_children(BTGraphNode* parent_graph_node,
         task_to_node[bt_graph_node->get_task()] = bt_graph_node;
     }
 
-    godot::Array all_children = parent_graph_node->get_task()->get_children();
-    int size = all_children.size();
-    int current_task_index = parent_graph_node->get_task()->get_child_index(task);
-    /* child is already owned by parent.*/
-
-
+    godot::Array children = parent_graph_node->get_task()->get_children();
+    int size = children.size();
+    godot::Vector<BTGraphNode*> nodes;
+    nodes.resize(size);
     for (int i = 0; i < size; i++)
     {
-        BTGraphNode* node1 = task_to_node[all_children[i]];
-
-        godot::UtilityFunctions::print("Task number " + godot::itos(i) + " is on y: " + godot::itos(node1->get_position_offset().y));
+        BTGraphNode* graph_node = task_to_node[godot::Ref<BTTask>(children[i])];
+        nodes.set(i, graph_node);
     }
 
-    if (size == 0 || (current_task_index == 0 && size == 1))
+    /* TODO: optimise bubble sort */
+    for (int i = 0; i < size; i++)
+    {
+        for (int j = i; j < size; j++)
+        {
+            if (nodes[i]->get_position_offset().y > nodes[j]->get_position_offset().y)
+            {
+                /* TODO: Find swap for vector, since read-only */
+                BTGraphNode* temp = nodes[i];
+                nodes.set(i, nodes[j]);
+                nodes.set(j, temp);
+
+                SWAP(children[i], children[j]);
+            }
+        }
+    }
+
+    return children;
+}
+
+int BTGraphEditor::get_node_insert_index_by_y_in_children(BTGraphNode* parent_graph_node, BTGraphNode* graph_node)
+{
+    godot::Ref<BTTask> task = graph_node->get_task();
+    godot::Ref<BTTask> parent_task = parent_graph_node->get_task();
+
+    if (parent_task->has_child(task))
+    {
+        godot::UtilityFunctions::printerr("Error: No way to insert - parent already has that task!");
+        return -1;
+    }
+    godot::HashMap<godot::Ref<BTTask>, BTGraphNode*> task_to_node;
+    godot::Array bt_graph_nodes = this->get_graph_nodes();
+
+    for (int i = 0, size = bt_graph_nodes.size(); i < size; i++)
+    {
+        BTGraphNode* bt_graph_node = Object::cast_to<BTGraphNode>(bt_graph_nodes[i]);
+        task_to_node[bt_graph_node->get_task()] = bt_graph_node;
+    }
+    godot::Array all_children = parent_task->get_children();
+    int size = all_children.size();
+
+    if (size == 0)
     {
         return 0;
     }
 
-    godot::UtilityFunctions::print("Current Index: ");
-    godot::UtilityFunctions::print(current_task_index);
-    godot::UtilityFunctions::print("Current Y: " + godot::itos(graph_node->get_position_offset().y));
-
-    for (int i = (current_task_index == 0 ? 1 : 0); i < size - 1; i++)
+    for (int i = 0; i < size - 1; i++)
     {
-        BTGraphNode* node1 = task_to_node[all_children[i - (current_task_index == i ? 1 : 0)]];
+        BTGraphNode* node1 = task_to_node[all_children[i]];
         BTGraphNode* node2 = task_to_node[all_children[i + 1]];
 
-        if (i + 1 == current_task_index)
-        {
-            continue;
-        }
-        godot::UtilityFunctions::print("i = " + godot::itos(i) + " Checking indexes: " + godot::itos((i - (current_task_index == i ? 1 : 0))) + " " + godot::itos((i+1)) + "   Y: " + godot::itos(node1->get_position_offset().y) + " " + godot::itos(node2->get_position_offset().y));
         if (graph_node->get_position_offset().y >= node1->get_position_offset().y &&
             graph_node->get_position_offset().y <= node2->get_position_offset().y)
         {
             return i + 1;
         }
     }
-    
-    BTGraphNode* first_child_node = task_to_node[all_children[(current_task_index == 0 ? 1 : 0)]];
-    godot::UtilityFunctions::print("Checking smaller than: " + godot::itos((current_task_index == 0 ? 1 : 0)) + "   Y: " + godot::itos(first_child_node->get_position_offset().y));
+    BTGraphNode* first_child_node = task_to_node[all_children[0]];
     if (graph_node->get_position_offset().y < first_child_node->get_position_offset().y)
     {
         return 0;
     }
-
     /* Last option is after last*/
     return size;
 }
@@ -143,35 +169,37 @@ void BTGraphEditor::_move_nodes()
 
     godot::EditorUndoRedoManager* undo_redo = this->editor_plugin->get_undo_redo();
 
+    godot::HashSet<godot::Ref<BTTask>> sorted_parents;
+        
     undo_redo->create_action("Move node(s)");
+
+    for (DragOperation operation : this->drag_buffer)
+    {
+        godot::Ref<BTTask> parent = this->node_map[operation.node_name]->get_task()->get_parent();
+        if (!parent.is_valid())
+        {
+            continue;
+        }
+        if (!(sorted_parents.has(parent)))
+        {
+            godot::Array old_children = parent->get_children();
+            godot::Array new_children = this->get_sorted_by_y_children_of_parent(task_to_node[parent]);
+            undo_redo->add_do_method(this->behaviour_tree, "set_tasks_of_parent", parent, new_children);
+            undo_redo->add_undo_method(this->behaviour_tree, "set_tasks_of_parent", parent, old_children);
+            sorted_parents.insert(parent);
+        }
+    }
+
     for (DragOperation& operation : drag_buffer)
     {
         BTGraphNode* dragged_graph_node = this->node_map[operation.node_name];
-        godot::Ref<BTTask> dragged_task = dragged_graph_node->get_task();
 
-        /* No point in reordering node when arranging or no parent */
-        if ((this->arranging_nodes) || (!(dragged_task->get_parent().is_valid())))
-        {
-            undo_redo->add_do_method(dragged_graph_node, "set_position_offset", operation.to_position);
-            undo_redo->add_undo_method(dragged_graph_node, "set_position_offset", operation.from_position);
-            continue;
-        }
-        godot::Ref<BTTask> parent_task = dragged_task->get_parent();
-        BTGraphNode* parent_graph_node = task_to_node[parent_task];
-
-
-        int old_index = parent_task->get_child_index(dragged_task);
-        int new_index = get_node_position_in_children(parent_graph_node, dragged_graph_node);
-        godot::UtilityFunctions::print("New index: " + godot::itos(new_index));
-        undo_redo->add_do_method(this->behaviour_tree, "move_task", dragged_graph_node->get_task(), new_index);
         undo_redo->add_do_method(dragged_graph_node, "set_position_offset", operation.to_position);
-        
         undo_redo->add_undo_method(dragged_graph_node, "set_position_offset", operation.from_position);
-        undo_redo->add_undo_method(this->behaviour_tree, "move_task", dragged_graph_node->get_task(), old_index);
     }
 
     undo_redo->commit_action();
-    this->arranging_nodes = false;
+
     drag_buffer.clear();
 }
 
@@ -194,7 +222,6 @@ void BTGraphEditor::clear_graph_nodes()
 
 void BTGraphEditor::create_default_graph_nodes()
 {
-    godot::UtilityFunctions::print("Creating default graph nodes.");
     godot::Array tasks = this->behaviour_tree->get_tasks();
 
     godot::HashMap<godot::Ref<BTTask>, BTGraphNode*> task_to_node;
@@ -295,6 +322,10 @@ void BTGraphEditor::arrange_nodes()
     godot::Vector2 node_padding = godot::Vector2(150, 50);
     int current_index = stack.size() - 1;
 
+    godot::EditorUndoRedoManager* undo_redo_manager = this->editor_plugin->get_undo_redo();
+
+    undo_redo_manager->create_action("Arrange node(s)");
+
     while (current_index >= 0)
     {
         godot::Pair<BTGraphNode*, int> pair_node_level = stack[current_index];
@@ -304,22 +335,15 @@ void BTGraphEditor::arrange_nodes()
         position.y += node_padding.y*level_to_node_count[pair_node_level.second];
         position += root_node_position;
 
-        this->drag_buffer.push_back({
-            pair_node_level.first->get_position_offset(),
-            position, 
-            pair_node_level.first->get_name()});
+        /*NOTE: won't save in scene of behaviour tree*/
+        undo_redo_manager->add_do_method(pair_node_level.first, "set_position_offset", position);
+        undo_redo_manager->add_undo_method(pair_node_level.first, "set_position_offset", pair_node_level.first->get_position_offset());
 
         level_to_node_count[pair_node_level.second]++;
         current_index--;
     }
 
-    this->arranging_nodes = true;
-
-    if (!this->drag_called)
-    {
-        this->drag_called = true;
-        this->call_deferred(godot::StringName("_move_nodes"));
-    }
+    undo_redo_manager->commit_action();
 }
 
 void BTGraphEditor::set_behaviour_tree(BehaviourTree* new_tree)

@@ -38,7 +38,6 @@ private:
     };
     godot::Vector<DragOperation> drag_buffer;
     bool drag_called;
-    bool arranging_nodes;
 
 private:
     void set_editor_plugin(godot::EditorPlugin* editor_plugin);
@@ -58,7 +57,8 @@ private:
     }
     void insert_node(BTGraphNode* bt_graph_node);
     void erase_node(BTGraphNode* bt_graph_node);
-    int get_node_position_in_children(BTGraphNode* graph_node, BTGraphNode* parent_graph_node);
+    godot::Array get_sorted_by_y_children_of_parent(BTGraphNode* parent_graph_node);
+    int get_node_insert_index_by_y_in_children(BTGraphNode* parent_graph_node, BTGraphNode* graph_node);
     void _add_new_node_button_pressed();
     void _arrange_nodes_button_pressed();
     void _clear_graph_button_pressed();
