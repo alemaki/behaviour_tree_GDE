@@ -28,7 +28,8 @@ private:
     godot::GraphEdit* graph_editor;
 
     BehaviourTree* behaviour_tree;
-    godot::HashMap<godot::StringName, BTGraphNode*> node_map;
+    godot::HashMap<godot::StringName, BTGraphNode*> name_to_node;
+    godot::HashMap<godot::Ref<BTTask>, BTGraphNode*> task_to_node;
 
     struct DragOperation
     {
@@ -36,6 +37,7 @@ private:
         godot::Vector2 to_position;
         godot::StringName node_name;
     };
+
     godot::Vector<DragOperation> drag_buffer;
     bool drag_called;
 
@@ -68,7 +70,7 @@ private:
 
     void clear_graph_nodes();
     void create_default_graph_nodes();
-    void _extract_node_levels_into_stack(BTGraphNode* root_node, godot::Vector<godot::Pair<BTGraphNode*, int>>& stack, godot::HashMap<godot::Ref<BTTask>, BTGraphNode*>& task_to_node,  int current_level = 0);
+    void _extract_node_levels_into_stack(BTGraphNode* root_node, godot::Vector<godot::Pair<BTGraphNode*, int>>& stack,  int current_level = 0);
     void arrange_nodes();
 
 public:

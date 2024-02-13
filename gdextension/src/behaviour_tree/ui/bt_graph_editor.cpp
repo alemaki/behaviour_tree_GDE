@@ -29,11 +29,11 @@ void BTGraphEditor::set_editor_plugin(godot::EditorPlugin* editor_plugin)
 void BTGraphEditor::connection_request(godot::StringName _from_node, int from_port, godot::StringName _to_node, int to_port)
 {
 
-    ERR_FAIL_COND_MSG(!(this->node_map.has(_from_node)), "From_node doesn't exist.");
-    ERR_FAIL_COND_MSG(!(this->node_map.has(_to_node)), "To_node doesn't exist.");
+    ERR_FAIL_COND_MSG(!(this->name_to_node.has(_from_node)), "From_node doesn't exist.");
+    ERR_FAIL_COND_MSG(!(this->name_to_node.has(_to_node)), "To_node doesn't exist.");
 
-    BTGraphNode* from_node = this->node_map[_from_node];
-    BTGraphNode* to_node = this->node_map[_to_node];
+    BTGraphNode* from_node = this->name_to_node[_from_node];
+    BTGraphNode* to_node = this->name_to_node[_to_node];
 
     bool can_connect = this->behaviour_tree->can_connect(from_node->get_task(), to_node->get_task());
     if (can_connect)
@@ -57,22 +57,13 @@ godot::Array BTGraphEditor::get_sorted_by_y_children_of_parent(BTGraphNode* pare
 {
     godot::Ref<BTTask> parent_task = parent_graph_node->get_task();
 
-    godot::HashMap<godot::Ref<BTTask>, BTGraphNode*> task_to_node;
-    godot::Array bt_graph_nodes = this->get_graph_nodes();
-
-    for (int i = 0, size = bt_graph_nodes.size(); i < size; i++)
-    {
-        BTGraphNode* bt_graph_node = Object::cast_to<BTGraphNode>(bt_graph_nodes[i]);
-        task_to_node[bt_graph_node->get_task()] = bt_graph_node;
-    }
-
     godot::Array children = parent_graph_node->get_task()->get_children();
     int size = children.size();
     godot::Vector<BTGraphNode*> nodes;
     nodes.resize(size);
     for (int i = 0; i < size; i++)
     {
-        BTGraphNode* graph_node = task_to_node[godot::Ref<BTTask>(children[i])];
+        BTGraphNode* graph_node = this->task_to_node[godot::Ref<BTTask>(children[i])];
         nodes.set(i, graph_node);
     }
 
@@ -106,14 +97,7 @@ int BTGraphEditor::get_node_insert_index_by_y_in_children(BTGraphNode* parent_gr
         godot::UtilityFunctions::printerr("Error: No way to insert - parent already has that task!");
         return -1;
     }
-    godot::HashMap<godot::Ref<BTTask>, BTGraphNode*> task_to_node;
-    godot::Array bt_graph_nodes = this->get_graph_nodes();
 
-    for (int i = 0, size = bt_graph_nodes.size(); i < size; i++)
-    {
-        BTGraphNode* bt_graph_node = Object::cast_to<BTGraphNode>(bt_graph_nodes[i]);
-        task_to_node[bt_graph_node->get_task()] = bt_graph_node;
-    }
     godot::Array all_children = parent_task->get_children();
     int size = all_children.size();
 
@@ -124,8 +108,8 @@ int BTGraphEditor::get_node_insert_index_by_y_in_children(BTGraphNode* parent_gr
 
     for (int i = 0; i < size - 1; i++)
     {
-        BTGraphNode* node1 = task_to_node[all_children[i]];
-        BTGraphNode* node2 = task_to_node[all_children[i + 1]];
+        BTGraphNode* node1 = this->task_to_node[all_children[i]];
+        BTGraphNode* node2 = this->task_to_node[all_children[i + 1]];
 
         if (graph_node->get_position_offset().y >= node1->get_position_offset().y &&
             graph_node->get_position_offset().y <= node2->get_position_offset().y)
@@ -133,7 +117,7 @@ int BTGraphEditor::get_node_insert_index_by_y_in_children(BTGraphNode* parent_gr
             return i + 1;
         }
     }
-    BTGraphNode* first_child_node = task_to_node[all_children[0]];
+    BTGraphNode* first_child_node = this->task_to_node[all_children[0]];
     if (graph_node->get_position_offset().y < first_child_node->get_position_offset().y)
     {
         return 0;
@@ -144,7 +128,7 @@ int BTGraphEditor::get_node_insert_index_by_y_in_children(BTGraphNode* parent_gr
 
 void BTGraphEditor::_node_dragged(const godot::Vector2 &_from, const godot::Vector2 &_to, godot::StringName node_name)
 {
-    ERR_FAIL_COND_MSG(!(this->node_map.has(node_name)), "Dragged an invalid node");
+    ERR_FAIL_COND_MSG(!(this->name_to_node.has(node_name)), "Dragged an invalid node");
 
     this->drag_buffer.push_back({_from, _to, node_name});
     if (!this->drag_called)
@@ -158,15 +142,6 @@ void BTGraphEditor::_move_nodes()
 {
     this->drag_called = false;
 
-    godot::HashMap<godot::Ref<BTTask>, BTGraphNode*> task_to_node;
-    godot::Array bt_graph_nodes = this->get_graph_nodes();
-
-    for (int i = 0, size = bt_graph_nodes.size(); i < size; i++)
-    {
-        BTGraphNode* bt_graph_node = Object::cast_to<BTGraphNode>(bt_graph_nodes[i]);
-        task_to_node[bt_graph_node->get_task()] = bt_graph_node;
-    }
-
     godot::EditorUndoRedoManager* undo_redo = this->editor_plugin->get_undo_redo();
 
     godot::HashSet<godot::Ref<BTTask>> sorted_parents;
@@ -175,7 +150,7 @@ void BTGraphEditor::_move_nodes()
 
     for (DragOperation operation : this->drag_buffer)
     {
-        godot::Ref<BTTask> parent = this->node_map[operation.node_name]->get_task()->get_parent();
+        godot::Ref<BTTask> parent = this->name_to_node[operation.node_name]->get_task()->get_parent();
         if (!parent.is_valid())
         {
             continue;
@@ -183,7 +158,7 @@ void BTGraphEditor::_move_nodes()
         if (!(sorted_parents.has(parent)))
         {
             godot::Array old_children = parent->get_children();
-            godot::Array new_children = this->get_sorted_by_y_children_of_parent(task_to_node[parent]);
+            godot::Array new_children = this->get_sorted_by_y_children_of_parent(this->task_to_node[parent]);
             undo_redo->add_do_method(this->behaviour_tree, "set_tasks_of_parent", parent, new_children);
             undo_redo->add_undo_method(this->behaviour_tree, "set_tasks_of_parent", parent, old_children);
             sorted_parents.insert(parent);
@@ -192,7 +167,7 @@ void BTGraphEditor::_move_nodes()
 
     for (DragOperation& operation : drag_buffer)
     {
-        BTGraphNode* dragged_graph_node = this->node_map[operation.node_name];
+        BTGraphNode* dragged_graph_node = this->name_to_node[operation.node_name];
 
         undo_redo->add_do_method(dragged_graph_node, "set_position_offset", operation.to_position);
         undo_redo->add_undo_method(dragged_graph_node, "set_position_offset", operation.from_position);
@@ -214,6 +189,7 @@ void BTGraphEditor::clear_graph_nodes()
 
         if (bt_graph_node != nullptr)
         {
+            this->erase_node(bt_graph_node);
             this->graph_editor->remove_child(bt_graph_node);
             bt_graph_node->queue_free();
         }
@@ -223,35 +199,30 @@ void BTGraphEditor::clear_graph_nodes()
 void BTGraphEditor::create_default_graph_nodes()
 {
     godot::Array tasks = this->behaviour_tree->get_tasks();
-
-    godot::HashMap<godot::Ref<BTTask>, BTGraphNode*> task_to_node;
+    this->task_to_node.clear();
     for (int i = 0, size = tasks.size(); i < size; i++)
     {
         BTGraphNode* bt_graph_node = new_bt_graph_node_from_task(godot::Ref<BTTask>(tasks[i]));
-
-        bt_graph_node->set_graph_editor(this->graph_editor);
 
         int id = this->behaviour_tree->get_task_id(godot::Ref<BTTask>(tasks[i]));
         bt_graph_node->set_title(godot::String("[") + godot::itos(id) + godot::String("]"));
         bt_graph_node->set_name(godot::itos(id));
 
-        this->node_map.insert(godot::itos(id), bt_graph_node);
+        this->insert_node(bt_graph_node);
 
         this->graph_editor->add_child(bt_graph_node);
 
-        bt_graph_node->connect("dragged", callable_mp(this, &BTGraphEditor::_node_dragged).bind(godot::itos(id)));
-
-        task_to_node.insert(tasks[i], bt_graph_node);
+        bt_graph_node->connect("dragged", callable_mp(this, &BTGraphEditor::_node_dragged).bind(bt_graph_node->get_name()));
     }
     
     for (int i = 0, size = tasks.size(); i < size; i++)
     {
-        BTGraphNode* parent_node = task_to_node[godot::Ref<BTTask>(tasks[i])];
+        BTGraphNode* parent_node = this->task_to_node[godot::Ref<BTTask>(tasks[i])];
         godot::Array children = parent_node->get_task()->get_children();
 
         for (int i = 0, size = children.size(); i < size; i++)
         {
-            BTGraphNode* child_node = task_to_node[godot::Ref<BTTask>(children[i])];
+            BTGraphNode* child_node = this->task_to_node[godot::Ref<BTTask>(children[i])];
             this->graph_editor->connect_node(parent_node->get_name(), 0, child_node->get_name(), 0);
         }
     }
@@ -262,7 +233,7 @@ void BTGraphEditor::create_default_graph_nodes()
 godot::Array BTGraphEditor::get_graph_nodes()
 {
     godot::Array result;
-    for (const godot::KeyValue<godot::StringName, BTGraphNode*>& element : this->node_map)
+    for (const godot::KeyValue<godot::StringName, BTGraphNode*>& element : this->name_to_node)
     {
         if (element.value == nullptr)
         {
@@ -274,11 +245,7 @@ godot::Array BTGraphEditor::get_graph_nodes()
     return result;
 }
 
-void BTGraphEditor::_extract_node_levels_into_stack(
-    BTGraphNode* root_node, 
-    godot::Vector<godot::Pair<BTGraphNode*, int>>& stack, 
-    godot::HashMap<godot::Ref<BTTask>, BTGraphNode*>& task_to_node, 
-    int current_level)
+void BTGraphEditor::_extract_node_levels_into_stack(BTGraphNode* root_node, godot::Vector<godot::Pair<BTGraphNode*, int>>& stack, int current_level)
 {
     stack.push_back(godot::Pair<BTGraphNode*, int>(root_node, current_level));
 
@@ -287,35 +254,28 @@ void BTGraphEditor::_extract_node_levels_into_stack(
     children.reverse(); 
     for (int i = 0, size = children.size(); i < size; i++)
     {
-        BTGraphNode* child_node = Object::cast_to<BTGraphNode>(task_to_node[children[i]]);
+        BTGraphNode* child_node = Object::cast_to<BTGraphNode>(this->task_to_node[children[i]]);
         if (child_node == nullptr)
         {
             godot::UtilityFunctions::printerr("Invalid node from reading. Key: ");
             godot::UtilityFunctions::printerr(godot::Variant(children[i]));
             continue;
         }
-        this->_extract_node_levels_into_stack(child_node, stack, task_to_node, current_level + 1);
+        this->_extract_node_levels_into_stack(child_node, stack, current_level + 1);
     }
 }
 
 void BTGraphEditor::arrange_nodes()
 {
-    godot::HashMap<godot::Ref<BTTask>, BTGraphNode*> task_to_node;
-    godot::Array bt_graph_nodes = this->get_graph_nodes();
-
-    if (bt_graph_nodes.size() == 0)
+    if (!(this->behaviour_tree->get_root_task().is_valid()))
     {
         return;
     }
-    for (int i = 0, size = bt_graph_nodes.size(); i < size; i++)
-    {
-        BTGraphNode* bt_graph_node = Object::cast_to<BTGraphNode>(bt_graph_nodes[i]);
-        task_to_node[bt_graph_node->get_task()] = bt_graph_node;
-    }
-    BTGraphNode* root_node = task_to_node[this->behaviour_tree->get_root_task()];
+
+    BTGraphNode* root_node = this->task_to_node[this->behaviour_tree->get_root_task()];
 
     godot::Vector<godot::Pair<BTGraphNode*, int>> stack;
-    this->_extract_node_levels_into_stack(root_node, stack, task_to_node);
+    this->_extract_node_levels_into_stack(root_node, stack);
 
     godot::HashMap<int, int> level_to_node_count;
     godot::Vector2 root_node_position = root_node->get_position_offset();
@@ -358,6 +318,7 @@ BTGraphNode* BTGraphEditor::new_bt_graph_node_from_task(godot::Ref<BTTask> bt_ta
     BTGraphNode* bt_graph_node = memnew(BTGraphNode);
 
     bt_graph_node->set_task(bt_task);
+    bt_graph_node->set_graph_editor(this->graph_editor);
 
     return bt_graph_node;
 }
@@ -372,26 +333,27 @@ BTGraphNode* BTGraphEditor::new_bt_graph_node()
 
 void BTGraphEditor::insert_node(BTGraphNode* bt_graph_node)
 {
-    this->node_map.insert(bt_graph_node->get_name(), bt_graph_node);
+    this->name_to_node.insert(bt_graph_node->get_name(), bt_graph_node);
+    this->task_to_node.insert(bt_graph_node->get_task(), bt_graph_node);
 }
 
 void BTGraphEditor::erase_node(BTGraphNode* bt_graph_node)
 {
-    this->node_map.erase(bt_graph_node->get_name());
+    this->name_to_node.erase(bt_graph_node->get_name());
+    this->task_to_node.erase(bt_graph_node->get_task());
 }
 
 void BTGraphEditor::_add_new_node_button_pressed()
 {
     BTGraphNode* bt_graph_node = this->new_bt_graph_node();
 
-    bt_graph_node->set_graph_editor(this->graph_editor);
 
     int id = this->behaviour_tree->get_valid_id();
     bt_graph_node->set_title(godot::String("[") + godot::itos(id) + godot::String("]"));
     bt_graph_node->set_name(godot::itos(id));
 
 
-    bt_graph_node->connect("dragged", callable_mp(this, &BTGraphEditor::_node_dragged).bind(godot::itos(id)));
+    bt_graph_node->connect("dragged", callable_mp(this, &BTGraphEditor::_node_dragged).bind(bt_graph_node->get_name()));
 
     /* TODO:
     /* bt_graph_node->connect("node_selected", callable_mp(this, &BTEditorPlugin::_node_selected).bind(id));
@@ -422,7 +384,7 @@ void BTGraphEditor::_clear_graph_button_pressed()
 {
     this->clear_graph_nodes();
     this->behaviour_tree->clear_tasks();
-    this->node_map.clear();
+    this->name_to_node.clear();
 }
 
 void BTGraphEditor::_bind_methods()
