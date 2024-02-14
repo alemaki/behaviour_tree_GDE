@@ -66,8 +66,8 @@ private:
     void _clear_graph_button_pressed();
     void _node_dragged(const godot::Vector2 &_from, const godot::Vector2 &_to, godot::StringName node_name);
     void _move_nodes();
-    void connection_request(godot::StringName from_node, int from_port, godot::StringName to_node, int to_port);
-
+    void connection_request(godot::StringName _from_node, int from_port, godot::StringName _to_node, int to_port);
+    void disconnection_request(godot::StringName _from_node, int from_port, godot::StringName _to_node, int to_port);
     void clear_graph_nodes();
     void create_default_graph_nodes();
     void _extract_node_levels_into_stack(BTGraphNode* root_node, godot::Vector<godot::Pair<BTGraphNode*, int>>& stack,  int current_level = 0);

@@ -58,6 +58,11 @@ public:
         
     }
 
+    _FORCE_INLINE_ bool can_disconnect(godot::Ref<BTTask> parent, godot::Ref<BTTask> child) const
+    {
+        return (parent.is_valid() && child.is_valid() && parent->has_child(child));
+    }
+
     void connect_tasks(godot::Ref<BTTask> parent, godot::Ref<BTTask> child, int child_pos = 0);
     void disconnect_tasks(godot::Ref<BTTask> parent, godot::Ref<BTTask> child);
     void move_task(godot::Ref<BTTask> child, int new_child_pos);

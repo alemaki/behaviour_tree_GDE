@@ -28,7 +28,6 @@ void BTGraphEditor::set_editor_plugin(godot::EditorPlugin* editor_plugin)
 
 void BTGraphEditor::connection_request(godot::StringName _from_node, int from_port, godot::StringName _to_node, int to_port)
 {
-
     ERR_FAIL_COND_MSG(!(this->name_to_node.has(_from_node)), "From_node doesn't exist.");
     ERR_FAIL_COND_MSG(!(this->name_to_node.has(_to_node)), "To_node doesn't exist.");
 
@@ -48,6 +47,33 @@ void BTGraphEditor::connection_request(godot::StringName _from_node, int from_po
 
         undo_redo_manager->add_do_method(this->graph_editor, "connect_node", from_node->get_name(), from_port, to_node->get_name(), to_port);
         undo_redo_manager->add_undo_method(this->graph_editor, "disconnect_node", from_node->get_name(), from_port, to_node->get_name(), to_port);
+
+        undo_redo_manager->commit_action();
+    }
+}
+
+void BTGraphEditor::disconnection_request(godot::StringName _from_node, int from_port, godot::StringName _to_node, int to_port)
+{
+    ERR_FAIL_COND_MSG(!(this->name_to_node.has(_from_node)), "From_node doesn't exist.");
+    ERR_FAIL_COND_MSG(!(this->name_to_node.has(_to_node)), "To_node doesn't exist.");
+
+    BTGraphNode* from_node = this->name_to_node[_from_node];
+    BTGraphNode* to_node = this->name_to_node[_to_node];
+
+    bool can_disconnect = this->behaviour_tree->can_disconnect(from_node->get_task(), to_node->get_task());
+    if (can_disconnect)
+    {
+        godot::EditorUndoRedoManager* undo_redo_manager = this->editor_plugin->get_undo_redo();
+
+        undo_redo_manager->create_action("Remove a connection.");
+
+        int index = from_node->get_task()->get_child_index(to_node->get_task());
+        undo_redo_manager->add_do_method(this->behaviour_tree, "disconnect_tasks", from_node->get_task(), to_node->get_task());
+        undo_redo_manager->add_undo_method(this->behaviour_tree, "connect_tasks", from_node->get_task(), to_node->get_task(), index);
+
+        
+        undo_redo_manager->add_do_method(this->graph_editor, "disconnect_node", from_node->get_name(), from_port, to_node->get_name(), to_port);
+        undo_redo_manager->add_undo_method(this->graph_editor, "connect_node", from_node->get_name(), from_port, to_node->get_name(), to_port);
 
         undo_redo_manager->commit_action();
     }
