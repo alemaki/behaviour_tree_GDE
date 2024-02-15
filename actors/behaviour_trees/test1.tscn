@@ -1,13 +1,31 @@
-[gd_scene load_steps=5 format=3 uid="uid://dwjfyblb4kvpf"]
+[gd_scene load_steps=13 format=3 uid="uid://dwjfyblb4kvpf"]
+
+[sub_resource type="BTTask" id="BTTask_eonhl"]
 
 [sub_resource type="BTTask" id="BTTask_jpfdi"]
 
 [sub_resource type="BTTask" id="BTTask_7q8jj"]
+children = [SubResource("BTTask_eonhl"), SubResource("BTTask_jpfdi")]
+
+[sub_resource type="BTTask" id="BTTask_1mg5p"]
+
+[sub_resource type="BTTask" id="BTTask_ry1hv"]
+
+[sub_resource type="BTTask" id="BTTask_45yi4"]
+
+[sub_resource type="BTTask" id="BTTask_raisc"]
+
+[sub_resource type="BTTask" id="BTTask_vho2k"]
+
+[sub_resource type="BTTask" id="BTTask_8n3iw"]
 
 [sub_resource type="BTTask" id="BTTask_ck7r8"]
+children = [SubResource("BTTask_vho2k"), SubResource("BTTask_8n3iw")]
+
+[sub_resource type="BTTask" id="BTTask_qg1m4"]
 
 [sub_resource type="BTTask" id="BTTask_nxjyp"]
-children = [SubResource("BTTask_jpfdi"), SubResource("BTTask_7q8jj"), SubResource("BTTask_ck7r8")]
+children = [SubResource("BTTask_7q8jj"), SubResource("BTTask_1mg5p"), SubResource("BTTask_ry1hv"), SubResource("BTTask_45yi4"), SubResource("BTTask_raisc"), SubResource("BTTask_ck7r8"), SubResource("BTTask_qg1m4")]
 
 [node name="BehaviourTree" type="BehaviourTree"]
 description = "alabala"
@@ -16,5 +34,13 @@ task_map = {
 1: SubResource("BTTask_nxjyp"),
 2: SubResource("BTTask_jpfdi"),
 3: SubResource("BTTask_7q8jj"),
-4: SubResource("BTTask_ck7r8")
+4: SubResource("BTTask_ck7r8"),
+5: SubResource("BTTask_45yi4"),
+6: SubResource("BTTask_1mg5p"),
+7: SubResource("BTTask_eonhl"),
+8: SubResource("BTTask_ry1hv"),
+9: SubResource("BTTask_raisc"),
+10: SubResource("BTTask_qg1m4"),
+11: SubResource("BTTask_vho2k"),
+12: SubResource("BTTask_8n3iw")
 }

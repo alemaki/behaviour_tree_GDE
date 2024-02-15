@@ -12,7 +12,7 @@ void BTGraphNode::setup_default()
     this->add_child(control);
 
     this->set_slot(0, true, 0, godot::Color::named("WHITE"),
-                               true, 1, godot::Color::named("WHITE"));
+                      true, 1, godot::Color::named("WHITE"));
 
     this->set_resizable(false);
     this->set_custom_minimum_size(godot::Size2(100, 10));
