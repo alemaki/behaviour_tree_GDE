@@ -28,6 +28,7 @@ private:
     godot::GraphEdit* graph_editor;
 
     BehaviourTree* behaviour_tree;
+
     godot::HashMap<godot::StringName, BTGraphNode*> name_to_node;
     godot::HashMap<godot::Ref<BTTask>, BTGraphNode*> task_to_node;
 
@@ -37,7 +38,6 @@ private:
         godot::Vector2 to_position;
         godot::StringName node_name;
     };
-
     godot::Vector<DragOperation> drag_buffer;
     bool drag_called;
 
@@ -63,6 +63,7 @@ private:
     int get_node_insert_index_by_y_in_children(BTGraphNode* parent_graph_node, BTGraphNode* graph_node);
     void _add_new_node_button_pressed();
     void _arrange_nodes_button_pressed();
+    void _set_root_button_pressed();
     void _clear_graph_button_pressed();
     void _node_dragged(const godot::Vector2 &_from, const godot::Vector2 &_to, godot::StringName node_name);
     void _move_nodes();
@@ -73,6 +74,7 @@ private:
     void create_default_graph_nodes();
     void _extract_node_levels_into_stack(BTGraphNode* root_node, godot::Vector<godot::Pair<BTGraphNode*, int>>& stack,  int current_level = 0);
     void arrange_nodes();
+    void evaluate_root_node();
 
 public:
     BTGraphEditor();

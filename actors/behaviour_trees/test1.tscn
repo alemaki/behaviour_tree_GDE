@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3 uid="uid://dwjfyblb4kvpf"]
+[gd_scene load_steps=20 format=3 uid="uid://dwjfyblb4kvpf"]
 
 [sub_resource type="BTTask" id="BTTask_eonhl"]
 
@@ -19,8 +19,22 @@ children = [SubResource("BTTask_eonhl"), SubResource("BTTask_jpfdi")]
 
 [sub_resource type="BTTask" id="BTTask_8n3iw"]
 
+[sub_resource type="BTTask" id="BTTask_3v87g"]
+
+[sub_resource type="BTTask" id="BTTask_6ndaf"]
+
+[sub_resource type="BTTask" id="BTTask_5yhdb"]
+
+[sub_resource type="BTTask" id="BTTask_fj0k1"]
+
+[sub_resource type="BTTask" id="BTTask_b4mjb"]
+
+[sub_resource type="BTTask" id="BTTask_pddk5"]
+
+[sub_resource type="BTTask" id="BTTask_tajac"]
+
 [sub_resource type="BTTask" id="BTTask_ck7r8"]
-children = [SubResource("BTTask_vho2k"), SubResource("BTTask_8n3iw")]
+children = [SubResource("BTTask_vho2k"), SubResource("BTTask_8n3iw"), SubResource("BTTask_3v87g"), SubResource("BTTask_6ndaf"), SubResource("BTTask_5yhdb"), SubResource("BTTask_fj0k1"), SubResource("BTTask_b4mjb"), SubResource("BTTask_pddk5"), SubResource("BTTask_tajac")]
 
 [sub_resource type="BTTask" id="BTTask_qg1m4"]
 
@@ -42,5 +56,12 @@ task_map = {
 9: SubResource("BTTask_raisc"),
 10: SubResource("BTTask_qg1m4"),
 11: SubResource("BTTask_vho2k"),
-12: SubResource("BTTask_8n3iw")
+12: SubResource("BTTask_8n3iw"),
+13: SubResource("BTTask_3v87g"),
+14: SubResource("BTTask_6ndaf"),
+15: SubResource("BTTask_5yhdb"),
+16: SubResource("BTTask_fj0k1"),
+17: SubResource("BTTask_b4mjb"),
+18: SubResource("BTTask_pddk5"),
+19: SubResource("BTTask_tajac")
 }

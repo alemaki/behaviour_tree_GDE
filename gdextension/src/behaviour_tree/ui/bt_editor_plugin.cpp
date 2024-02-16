@@ -19,12 +19,17 @@ BTEditorPlugin::BTEditorPlugin()
     this->arrange_nodes_button->set_text("Arrange nodes");
     this->arrange_nodes_button->connect("pressed", callable_mp(this->graph_editor.ptr(), &BTGraphEditor::_arrange_nodes_button_pressed));
 
+    this->set_root_button = memnew(godot::Button);
+    this->set_root_button->set_text("Set root");
+    this->set_root_button->connect("pressed", callable_mp(this->graph_editor.ptr(), &BTGraphEditor::_set_root_button_pressed));
+
     this->clear_nodes_button = memnew(godot::Button);
     this->clear_nodes_button->set_text("Clear nodes");
     this->clear_nodes_button->connect("pressed", callable_mp(this->graph_editor.ptr(), &BTGraphEditor::_clear_graph_button_pressed));
 
     this->button_continer->add_child(this->add_new_node_button);
     this->button_continer->add_child(this->arrange_nodes_button);
+    this->button_continer->add_child(this->set_root_button);
     this->button_continer->add_child(this->clear_nodes_button);
 
     this->main_container->add_child(this->graph_editor->get_graph_edit());
