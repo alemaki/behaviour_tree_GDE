@@ -15,7 +15,7 @@ void BTGraphNode::setup_default()
                       true, 1, godot::Color::named("WHITE"));
 
     this->set_resizable(false);
-    this->set_custom_minimum_size(godot::Size2(100, 10));
+    this->set_custom_minimum_size(godot::Size2(100, 30));
 
     this->set_position_offset(godot::Vector2(100, 100));
 }

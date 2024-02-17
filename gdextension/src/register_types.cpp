@@ -47,10 +47,10 @@ void initialize_gdextension_module(ModuleInitializationLevel p_level)
 		//ClassDB::register_class<BTCondition>();
 		//ClassDB::register_class<BTAction>();
 		ClassDB::register_class<BehaviourTree>();
-
 	}
 	if (p_level == MODULE_INITIALIZATION_LEVEL_EDITOR)
 	{
+		
 		ClassDB::register_internal_class<BTGraphNode>();
 		ClassDB::register_internal_class<BTGraphEditor>();
 		ClassDB::register_internal_class<BTEditorPlugin>();
