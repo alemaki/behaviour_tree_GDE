@@ -1,7 +1,6 @@
 #include "behaviour_tree.hpp"
 #include <godot_cpp/variant/utility_functions.hpp>
 
-
 godot::Dictionary BehaviourTree::get_task_map()
 { 
     godot::Dictionary dict;
@@ -157,14 +156,6 @@ void BehaviourTree::disconnect_tasks(godot::Ref<BTTask> parent, godot::Ref<BTTas
     parent->remove_child(child);
 }
 
-void BehaviourTree::move_task(godot::Ref<BTTask> child, int new_pos)
-{
-    godot::Ref<BTTask> parent = child->get_parent();
-    int child_index = parent->get_child_index(child);
-    parent->remove_child(child);
-    parent->add_child_at_index(child, new_pos - (child_index < new_pos ? 1 : 0));
-}
-
 void BehaviourTree::set_tasks_of_parent(godot::Ref<BTTask> parent, godot::Array new_children)
 {
     ERR_FAIL_COND_MSG(!(this->has_task(parent)), "Parent not in tree.");
@@ -195,7 +186,6 @@ void BehaviourTree::_bind_methods()
     ClassDB::bind_method(D_METHOD("get_tasks"), &BehaviourTree::get_tasks);
     ClassDB::bind_method(D_METHOD("connect_tasks", "parent", "child", "child_pos"), &BehaviourTree::connect_tasks);
     ClassDB::bind_method(D_METHOD("disconnect_tasks", "parent", "child"), &BehaviourTree::disconnect_tasks);
-    ClassDB::bind_method(D_METHOD("move_task", "child", "new_pos"), &BehaviourTree::move_task);
     ClassDB::bind_method(D_METHOD("set_tasks_of_parent", "parent", "new_children"), &BehaviourTree::set_tasks_of_parent);
     
     ClassDB::bind_method(D_METHOD("set_description", "description"), &BehaviourTree::set_description);
@@ -207,6 +197,6 @@ void BehaviourTree::_bind_methods()
 
     ADD_PROPERTY(PropertyInfo(Variant::STRING, "description"), "set_description", "get_description");
     /* TODO: show or no show? , PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NO_EDITOR */
-    ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "root_task"), "set_root_task", "get_root_task");
     ADD_PROPERTY(PropertyInfo(Variant::DICTIONARY, "task_map"), "set_task_map", "get_task_map");
+    ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "root_task"), "set_root_task", "get_root_task");
 }

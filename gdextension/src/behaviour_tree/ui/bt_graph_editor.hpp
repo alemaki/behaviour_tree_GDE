@@ -16,9 +16,9 @@ class BTEditorPlugin;
 #endif //BT_EDITOR_PLUGIN_FORWARD
 
 
-class BTGraphEditor : public godot::RefCounted
+class BTGraphEditor : public godot::Object
 {
-    GDCLASS(BTGraphEditor, godot::RefCounted)
+    GDCLASS(BTGraphEditor, godot::Object)
 
     friend BTEditorPlugin;
 

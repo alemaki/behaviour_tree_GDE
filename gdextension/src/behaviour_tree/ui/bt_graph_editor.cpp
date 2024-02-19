@@ -232,6 +232,7 @@ void BTGraphEditor::create_default_graph_nodes()
 {
     godot::Array tasks = this->behaviour_tree->get_tasks();
     this->task_to_node.clear();
+    this->name_to_node.clear();
     for (int i = 0, size = tasks.size(); i < size; i++)
     {
         BTGraphNode* bt_graph_node = new_bt_graph_node_from_task(godot::Ref<BTTask>(tasks[i]));
@@ -516,13 +517,20 @@ void BTGraphEditor::_set_root_button_pressed()
 
 void BTGraphEditor::evaluate_root_node()
 {
-    BTGraphNode* root_node = task_to_node[this->behaviour_tree->get_root_task()];
+    godot::Ref<BTTask> root = this->behaviour_tree->get_root_task();
 
     for (const godot::KeyValue<godot::Ref<BTTask>, BTGraphNode*>& element : task_to_node)
     {
         element.value->set_self_modulate(godot::Color::named("WHITE"));
     }
-    root_node->set_self_modulate(godot::Color::named("BLUE"));
+
+    if (root.is_valid())
+    {
+        BTGraphNode* root_node = task_to_node[this->behaviour_tree->get_root_task()];
+
+        ERR_FAIL_COND_MSG(root_node == nullptr, "Invalid root node for coloring.");
+        root_node->set_self_modulate(godot::Color::named("BLUE"));
+    }
 }
 
 void BTGraphEditor::_clear_graph_button_pressed()
