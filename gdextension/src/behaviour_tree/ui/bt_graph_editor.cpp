@@ -414,7 +414,6 @@ void BTGraphEditor::set_behaviour_tree(BehaviourTree* new_tree)
 BTGraphNode* BTGraphEditor::new_bt_graph_node_from_task(godot::Ref<BTTask> bt_task)
 {
     BTGraphNode* bt_graph_node = memnew(BTGraphNode);
-
     bt_graph_node->set_task(bt_task);
     bt_graph_node->set_graph_editor(this->graph_editor);
 
