@@ -573,6 +573,4 @@ void BTGraphEditor::_bind_methods()
     ClassDB::bind_method(D_METHOD("set_behaviour_tree", "behaviour_tree"), &BTGraphEditor::set_behaviour_tree);
     ClassDB::bind_method(D_METHOD("get_behaviour_tree"), &BTGraphEditor::get_behaviour_tree);
 
-    ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "behaviour_tree"), "set_behaviour_tree", "get_behaviour_tree");
-
 }

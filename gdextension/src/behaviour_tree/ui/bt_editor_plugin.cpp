@@ -89,8 +89,7 @@ void BTEditorPlugin::_edit(Object* object)
 
 bool BTEditorPlugin::_handles(Object* object) const
 {
-    bool visible = ((godot::Object::cast_to<BehaviourTree>(object) != nullptr) ||
-                   (godot::Object::cast_to<BTTask>(object)!= nullptr));
+    bool visible = ((godot::Object::cast_to<BehaviourTree>(object) != nullptr));
 
     return visible;
 }
