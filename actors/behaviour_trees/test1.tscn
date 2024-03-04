@@ -1,6 +1,11 @@
-[gd_scene load_steps=8 format=3 uid="uid://b3uh7josmqno4"]
+[gd_scene load_steps=10 format=3 uid="uid://b3uh7josmqno4"]
+
+[sub_resource type="BTTask" id="BTTask_jdlk5"]
+
+[sub_resource type="BTTask" id="BTTask_k684p"]
 
 [sub_resource type="BTTask" id="BTTask_xm3am"]
+children = [SubResource("BTTask_jdlk5"), SubResource("BTTask_k684p")]
 
 [sub_resource type="BTTask" id="BTTask_pnfea"]
 children = [SubResource("BTTask_xm3am")]
@@ -19,6 +24,7 @@ children = [SubResource("BTTask_bxpov")]
 children = [SubResource("BTTask_pnfea"), SubResource("BTTask_b7iqa"), SubResource("BTTask_o7yke")]
 
 [node name="BehaviourTree" type="BehaviourTree"]
+root_task = SubResource("BTTask_6e5cu")
 task_map = {
 1: SubResource("BTTask_6e5cu"),
 2: SubResource("BTTask_o7yke"),
@@ -26,6 +32,7 @@ task_map = {
 4: SubResource("BTTask_pnfea"),
 5: SubResource("BTTask_bykqx"),
 6: SubResource("BTTask_bxpov"),
-7: SubResource("BTTask_xm3am")
+7: SubResource("BTTask_xm3am"),
+8: SubResource("BTTask_k684p"),
+9: SubResource("BTTask_jdlk5")
 }
-root_task = SubResource("BTTask_6e5cu")

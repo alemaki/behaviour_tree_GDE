@@ -20,9 +20,9 @@ void BTGraphNode::setup_default()
     this->set_position_offset(godot::Vector2(100, 100));
 
     this->rename_edit = memnew(godot::LineEdit);
-
-    this->rename_edit->connect("text_submitted", callable_mp(this, &BTGraphNode::_on_rename_edit_text_submitted));
-    this->connect("gui_input", callable_mp(this, &BTGraphNode::_on_gui_input));
+    this->rename_edit->set_visible(false);
+    this->rename_edit->call_deferred("connect", "text_submitted", callable_mp(this, &BTGraphNode::_on_rename_edit_text_submitted));
+    this->call_deferred("connect", "gui_input", callable_mp(this, &BTGraphNode::_on_gui_input));
 }
 
 void BTGraphNode::set_graph_editor(godot::GraphEdit* graph_editor)

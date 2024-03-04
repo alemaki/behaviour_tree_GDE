@@ -12,19 +12,24 @@ BTEditorPlugin::BTEditorPlugin()
 
     this->add_new_node_button = memnew(godot::Button);
     this->add_new_node_button->set_text("Insert node");
-    this->add_new_node_button->connect("pressed", callable_mp(this->graph_editor, &BTGraphEditor::_add_new_node_button_pressed));
+    this->add_new_node_button->call_deferred("connect", "pressed", callable_mp(this->graph_editor, &BTGraphEditor::_add_new_node_button_pressed));
+
+    /* NOTE: call_deffered on connect function when in constructor ALWAYS, because it messes up the creation process of the object.
+     * explanation: The process of creating an object in godot has two parts. The first is the creation of the object with the constructor.
+     * At this point, the engine isn't aware of the object's bound methods.
+     * After that the object enters the second phase where it gets the context of the bound methods.*/
 
     this->arrange_nodes_button = memnew(godot::Button);
     this->arrange_nodes_button->set_text("Arrange nodes");
-    this->arrange_nodes_button->connect("pressed", callable_mp(this->graph_editor, &BTGraphEditor::_arrange_nodes_button_pressed));
+    this->arrange_nodes_button->call_deferred("connect", "pressed", callable_mp(this->graph_editor, &BTGraphEditor::_arrange_nodes_button_pressed));
 
     this->set_root_button = memnew(godot::Button);
     this->set_root_button->set_text("Set root");
-    this->set_root_button->connect("pressed", callable_mp(this->graph_editor, &BTGraphEditor::_set_root_button_pressed));
+    this->set_root_button->call_deferred("connect", "pressed", callable_mp(this->graph_editor, &BTGraphEditor::_set_root_button_pressed));
 
     this->clear_nodes_button = memnew(godot::Button);
     this->clear_nodes_button->set_text("Clear nodes");
-    this->clear_nodes_button->connect("pressed", callable_mp(this->graph_editor, &BTGraphEditor::_clear_graph_button_pressed));
+    this->clear_nodes_button->call_deferred("connect", "pressed", callable_mp(this->graph_editor, &BTGraphEditor::_clear_graph_button_pressed));
 
     this->button_continer->add_child(this->add_new_node_button);
     this->button_continer->add_child(this->arrange_nodes_button);
