@@ -30,6 +30,7 @@ public:
     {
         return this->root_task;
     }
+    void set_custom_name_task_by_ref(godot::Ref<BTTask> task, const godot::String& new_name);
     int get_valid_id() const;
     int get_task_id(godot::Ref<BTTask> task) const;
     godot::Ref<BTTask> get_task_by_id(int id) const;

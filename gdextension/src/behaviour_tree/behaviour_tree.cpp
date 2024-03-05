@@ -32,6 +32,12 @@ void BehaviourTree::set_root_task(godot::Ref<BTTask> task)
     this->root_task = task;
 }
 
+void BehaviourTree::set_custom_name_task_by_ref(godot::Ref<BTTask> task, const godot::String& new_name)
+{
+    ERR_FAIL_COND_MSG(!(this->has_task(task)), "Task not found.");
+    task->set_custom_name(new_name);
+}
+
 int BehaviourTree::get_valid_id() const
 {
     return (this->task_map.size() > 0) ? (this->task_map.back()->key() + 1) : 1;
@@ -187,7 +193,8 @@ void BehaviourTree::_bind_methods()
     ClassDB::bind_method(D_METHOD("connect_tasks", "parent", "child", "child_pos"), &BehaviourTree::connect_tasks);
     ClassDB::bind_method(D_METHOD("disconnect_tasks", "parent", "child"), &BehaviourTree::disconnect_tasks);
     ClassDB::bind_method(D_METHOD("set_tasks_of_parent", "parent", "new_children"), &BehaviourTree::set_tasks_of_parent);
-    
+    ClassDB::bind_method(D_METHOD("set_custom_name_task_by_ref", "task", "task_name"), &BehaviourTree::set_custom_name_task_by_ref);
+
     ClassDB::bind_method(D_METHOD("set_description", "description"), &BehaviourTree::set_description);
     ClassDB::bind_method(D_METHOD("get_description"), &BehaviourTree::get_description);
     ClassDB::bind_method(D_METHOD("set_root_task", "task"), &BehaviourTree::set_root_task);

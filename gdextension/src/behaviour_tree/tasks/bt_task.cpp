@@ -1,5 +1,5 @@
 #include "bt_task.hpp"
-
+#include <godot_cpp/variant/utility_functions.hpp>
 BTTask::BTTask()
 {
     this->actor = nullptr;

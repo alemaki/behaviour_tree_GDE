@@ -45,7 +45,6 @@ public:
     virtual void _edit(Object *object) override;
     virtual bool _handles(Object *object) const override;
 
-
 protected:
     static void _bind_methods();
 };

@@ -13,21 +13,19 @@ class BTGraphNode : public godot::GraphNode
     GDCLASS(BTGraphNode, godot::GraphNode)
 
 private:
-    godot::GraphEdit* graph_editor;
-    godot::LineEdit* rename_edit;
+    godot::GraphEdit* graph_edit;
     godot::Ref<BTTask> task;
     
 private:
     void setup_default();
-    void _on_rename_edit_text_submitted(const godot::String& new_text);
     void _on_gui_input(const godot::Ref<godot::InputEvent>& event);
 
 public:
     BTGraphNode();
-    void set_graph_editor(godot::GraphEdit* graph_editor);
+    void set_graph_edit(godot::GraphEdit* graph_edit);
     _FORCE_INLINE_ godot::GraphEdit* get_graph_editor() const
     {
-        return this->graph_editor;
+        return this->graph_edit;
     }
 
     void set_task(godot::Ref<BTTask> task);
