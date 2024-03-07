@@ -28,13 +28,13 @@ private:
 
     godot::Button* bottom_panel_button;
     godot::HSplitContainer* main_container;
-    godot::Ref<BTGraphEditor> graph_editor;
+    BTGraphEditor* graph_editor;
 
 private:
     void set_graph_editor(BTGraphEditor* graph_editor);
     _FORCE_INLINE_ BTGraphEditor* get_graph_editor()
     {
-        return this->graph_editor.ptr();
+        return this->graph_editor;
     }
 
 public:
@@ -44,7 +44,6 @@ public:
 
     virtual void _edit(Object *object) override;
     virtual bool _handles(Object *object) const override;
-
 
 protected:
     static void _bind_methods();

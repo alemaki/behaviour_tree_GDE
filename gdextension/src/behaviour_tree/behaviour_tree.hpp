@@ -30,10 +30,12 @@ public:
     {
         return this->root_task;
     }
+    void set_custom_name_task_by_ref(godot::Ref<BTTask> task, const godot::String& new_name);
     int get_valid_id() const;
     int get_task_id(godot::Ref<BTTask> task) const;
-    godot::Ref<BTTask> get_task(int id) const;
+    godot::Ref<BTTask> get_task_by_id(int id) const;
     bool has_task(godot::Ref<BTTask> task) const;
+    void add_task_by_ref(godot::Ref<BTTask> task);
     void add_task(int id, godot::Ref<BTTask> task);
     void remove_task_by_ref(godot::Ref<BTTask> task);
     void remove_task(int id);
@@ -65,7 +67,6 @@ public:
 
     void connect_tasks(godot::Ref<BTTask> parent, godot::Ref<BTTask> child, int child_pos = 0);
     void disconnect_tasks(godot::Ref<BTTask> parent, godot::Ref<BTTask> child);
-    void move_task(godot::Ref<BTTask> child, int new_child_pos);
     void set_tasks_of_parent(godot::Ref<BTTask> parent, godot::Array new_children);
 
     _FORCE_INLINE_ int get_task_count()

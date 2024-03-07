@@ -1,7 +1,6 @@
 #include "behaviour_tree.hpp"
 #include <godot_cpp/variant/utility_functions.hpp>
 
-
 godot::Dictionary BehaviourTree::get_task_map()
 { 
     godot::Dictionary dict;
@@ -11,6 +10,7 @@ godot::Dictionary BehaviourTree::get_task_map()
     }
     return dict;
 }
+
 void BehaviourTree::set_task_map(godot::Dictionary dict)
 {
     this->task_map.clear();
@@ -20,6 +20,7 @@ void BehaviourTree::set_task_map(godot::Dictionary dict)
         this->task_map.insert(keys[i], dict[keys[i]]);
     }
 }
+
 void BehaviourTree::set_description(const godot::String &description)
 {
     this->description = description;
@@ -27,7 +28,14 @@ void BehaviourTree::set_description(const godot::String &description)
 
 void BehaviourTree::set_root_task(godot::Ref<BTTask> task)
 {
+    ERR_FAIL_COND_MSG(!(this->has_task(task)), "Task not found.");
     this->root_task = task;
+}
+
+void BehaviourTree::set_custom_name_task_by_ref(godot::Ref<BTTask> task, const godot::String& new_name)
+{
+    ERR_FAIL_COND_MSG(!(this->has_task(task)), "Task not found.");
+    task->set_custom_name(new_name);
 }
 
 int BehaviourTree::get_valid_id() const
@@ -47,7 +55,7 @@ int BehaviourTree::get_task_id(godot::Ref<BTTask> task) const
     return -1;
 }
 
-godot::Ref<BTTask> BehaviourTree::get_task(int id) const
+godot::Ref<BTTask> BehaviourTree::get_task_by_id(int id) const
 {
     if (this->task_map.find(id) == nullptr)
     {
@@ -56,15 +64,20 @@ godot::Ref<BTTask> BehaviourTree::get_task(int id) const
     return this->task_map[id];
 }
 
-
 bool BehaviourTree::has_task(godot::Ref<BTTask> task) const
 {
     return (this->get_task_id(task) != -1);
 }
 
+void BehaviourTree::add_task_by_ref(godot::Ref<BTTask> task)
+{
+    this->add_task(this->get_valid_id(), task);
+}
 void BehaviourTree::add_task(int id, godot::Ref<BTTask> task)
 {
-    ERR_FAIL_COND(task_map.has(id));
+    ERR_FAIL_COND_MSG(this->task_map.has(id), "ID already added.");
+    ERR_FAIL_COND_MSG(this->has_task(task), "Task already added.");
+
     this->task_map.insert(id, task);
 
     if (!(this->root_task.is_valid()))
@@ -75,12 +88,16 @@ void BehaviourTree::add_task(int id, godot::Ref<BTTask> task)
 
 void BehaviourTree::detach_task_by_ref(godot::Ref<BTTask> task)
 {
+    ERR_FAIL_COND_MSG(!(this->has_task(task)), "Task is not in tree.");
+
     int id = this->get_task_id(task);
     this->detach_task(id);
 }
 
 void BehaviourTree::detach_task(int id)
 {
+    ERR_FAIL_COND_MSG(!(this->task_map.has(id)), "Task id is not in tree.");
+
     godot::Ref<BTTask> task = this->task_map[id];
     if (task->get_parent().is_valid())
     {
@@ -89,6 +106,7 @@ void BehaviourTree::detach_task(int id)
 
     task->set_children({});
 }
+
 void BehaviourTree::remove_task_by_ref(godot::Ref<BTTask> task)
 {
     int id = this->get_task_id(task);
@@ -144,17 +162,10 @@ void BehaviourTree::disconnect_tasks(godot::Ref<BTTask> parent, godot::Ref<BTTas
     parent->remove_child(child);
 }
 
-void BehaviourTree::move_task(godot::Ref<BTTask> child, int new_pos)
-{
-    godot::Ref<BTTask> parent = child->get_parent();
-    int child_index = parent->get_child_index(child);
-    parent->remove_child(child);
-    parent->add_child_at_index(child, new_pos - (child_index < new_pos ? 1 : 0));
-}
-
 void BehaviourTree::set_tasks_of_parent(godot::Ref<BTTask> parent, godot::Array new_children)
 {
     ERR_FAIL_COND_MSG(!(this->has_task(parent)), "Parent not in tree.");
+
     for (int i = 0 , size = new_children.size(); i < size; i++)
     {
         godot::Ref<BTTask> task = godot::Ref<BTTask>(new_children[i]);
@@ -167,25 +178,32 @@ void BehaviourTree::_bind_methods()
 {
     using namespace godot;
     
-    ClassDB::bind_method(D_METHOD("add_task", "task"), &BehaviourTree::add_task);
-    ClassDB::bind_method(D_METHOD("remove_task", "id"), &BehaviourTree::remove_task);
+    ClassDB::bind_method(D_METHOD("get_valid_id"), &BehaviourTree::get_valid_id);
+    ClassDB::bind_method(D_METHOD("get_task_id", "task"), &BehaviourTree::get_task_id);
+    ClassDB::bind_method(D_METHOD("get_task_by_id", "id"), &BehaviourTree::get_task_by_id);
+    ClassDB::bind_method(D_METHOD("has_task", "task"), &BehaviourTree::has_task);
+    ClassDB::bind_method(D_METHOD("add_task_by_ref", "task"), &BehaviourTree::add_task_by_ref);
+    ClassDB::bind_method(D_METHOD("add_task", "id", "task"), &BehaviourTree::add_task);
+    ClassDB::bind_method(D_METHOD("detach_task_by_ref", "task"), &BehaviourTree::detach_task_by_ref);
+    ClassDB::bind_method(D_METHOD("detach_task", "id"), &BehaviourTree::detach_task);
     ClassDB::bind_method(D_METHOD("remove_task_by_ref", "task"), &BehaviourTree::remove_task_by_ref);
+    ClassDB::bind_method(D_METHOD("remove_task", "id"), &BehaviourTree::remove_task);
     ClassDB::bind_method(D_METHOD("clear_tasks"), &BehaviourTree::clear_tasks);
+    ClassDB::bind_method(D_METHOD("get_tasks"), &BehaviourTree::get_tasks);
     ClassDB::bind_method(D_METHOD("connect_tasks", "parent", "child", "child_pos"), &BehaviourTree::connect_tasks);
     ClassDB::bind_method(D_METHOD("disconnect_tasks", "parent", "child"), &BehaviourTree::disconnect_tasks);
-    ClassDB::bind_method(D_METHOD("move_task", "child", "new_pos"), &BehaviourTree::move_task);
     ClassDB::bind_method(D_METHOD("set_tasks_of_parent", "parent", "new_children"), &BehaviourTree::set_tasks_of_parent);
+    ClassDB::bind_method(D_METHOD("set_custom_name_task_by_ref", "task", "task_name"), &BehaviourTree::set_custom_name_task_by_ref);
 
     ClassDB::bind_method(D_METHOD("set_description", "description"), &BehaviourTree::set_description);
     ClassDB::bind_method(D_METHOD("get_description"), &BehaviourTree::get_description);
     ClassDB::bind_method(D_METHOD("set_root_task", "task"), &BehaviourTree::set_root_task);
     ClassDB::bind_method(D_METHOD("get_root_task"), &BehaviourTree::get_root_task);
-    ClassDB::bind_method(D_METHOD("get_all_tasks"), &BehaviourTree::get_tasks);
     ClassDB::bind_method(D_METHOD("set_task_map", "task_map"), &BehaviourTree::set_task_map);
     ClassDB::bind_method(D_METHOD("get_task_map"), &BehaviourTree::get_task_map);
 
     ADD_PROPERTY(PropertyInfo(Variant::STRING, "description"), "set_description", "get_description");
     /* TODO: show or no show? , PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NO_EDITOR */
-    ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "root_task"), "set_root_task", "get_root_task");
     ADD_PROPERTY(PropertyInfo(Variant::DICTIONARY, "task_map"), "set_task_map", "get_task_map");
+    ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "root_task"), "set_root_task", "get_root_task");
 }

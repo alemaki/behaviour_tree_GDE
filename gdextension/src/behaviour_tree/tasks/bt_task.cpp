@@ -1,5 +1,5 @@
 #include "bt_task.hpp"
-
+#include <godot_cpp/variant/utility_functions.hpp>
 BTTask::BTTask()
 {
     this->actor = nullptr;
@@ -32,7 +32,7 @@ godot::Array BTTask::get_children() const
 
 void BTTask::set_custom_name(const godot::String& name)
 {
-    this->custom_name = custom_name;
+    this->custom_name = name;
 }
 
 void BTTask::set_children(const godot::Array& children)
@@ -247,7 +247,7 @@ void BTTask::_bind_methods()
     * Only happens when there are other registered objects that inherit from this class 
     */
     ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "parent", PROPERTY_HINT_NONE, "Parent of the task.", PROPERTY_USAGE_NONE), "set_parent", "get_parent");
-    ADD_PROPERTY(PropertyInfo(Variant::STRING, "custom_name", PROPERTY_HINT_RESOURCE_TYPE, "Name of the task.", PROPERTY_USAGE_NONE), "set_custom_name", "get_custom_name");
+    ADD_PROPERTY(PropertyInfo(Variant::STRING, "custom_name", PROPERTY_HINT_RESOURCE_TYPE, "Name of the task.", PROPERTY_USAGE_NO_EDITOR | PROPERTY_USAGE_INTERNAL), "set_custom_name", "get_custom_name");
     ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "actor", PROPERTY_HINT_RESOURCE_TYPE, "Actor to be controlled.", PROPERTY_USAGE_NONE), "set_actor", "get_actor");
     ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "children", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NO_EDITOR | PROPERTY_USAGE_INTERNAL), "set_children", "get_children");
     ADD_PROPERTY(PropertyInfo(Variant::INT, "status", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NONE), "", "get_status");

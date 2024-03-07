@@ -16,16 +16,16 @@ class BTEditorPlugin;
 #endif //BT_EDITOR_PLUGIN_FORWARD
 
 
-class BTGraphEditor : public godot::RefCounted
+class BTGraphEditor : public godot::Object
 {
-    GDCLASS(BTGraphEditor, godot::RefCounted)
+    GDCLASS(BTGraphEditor, godot::Object)
 
     friend BTEditorPlugin;
 
 private:
     godot::EditorPlugin* editor_plugin;
 
-    godot::GraphEdit* graph_editor;
+    godot::GraphEdit* graph_edit;
 
     BehaviourTree* behaviour_tree;
 
@@ -41,11 +41,14 @@ private:
     godot::Vector<DragOperation> drag_buffer;
     bool drag_called;
 
+    godot::LineEdit* rename_edit;
+    BTGraphNode* last_double_clicked_node;
+
 private:
     void set_editor_plugin(godot::EditorPlugin* editor_plugin);
     _FORCE_INLINE_ godot::GraphEdit* get_graph_edit()
     {
-        return this->graph_editor;
+        return this->graph_edit;
     }
     BTGraphNode* new_bt_graph_node();
     BTGraphNode* new_bt_graph_node_from_task(godot::Ref<BTTask> bt_task);
@@ -75,6 +78,9 @@ private:
     void _extract_node_levels_into_stack(BTGraphNode* root_node, godot::Vector<godot::Pair<BTGraphNode*, int>>& stack,  int current_level = 0);
     void arrange_nodes();
     void evaluate_root_node();
+    void _on_rename_edit_text_submitted(const godot::String& new_text);
+    void _on_rename_edit_focus_exited();
+    void _on_node_double_clicked(BTGraphNode* clicked_node);
 
 public:
     BTGraphEditor();
