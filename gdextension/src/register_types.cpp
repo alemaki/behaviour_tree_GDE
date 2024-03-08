@@ -46,6 +46,8 @@ void initialize_gdextension_module(ModuleInitializationLevel p_level)
 		//ClassDB::register_class<BTComposite>();
 		//ClassDB::register_class<BTCondition>();
 		//ClassDB::register_class<BTAction>();
+
+		ClassDB::register_class<BehaviourTree>();
 	}
 	if (p_level == MODULE_INITIALIZATION_LEVEL_EDITOR)
 	{

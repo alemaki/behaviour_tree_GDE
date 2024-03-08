@@ -1,11 +1,16 @@
 #include "bt_graph_node.hpp"
 #include <godot_cpp/variant/utility_functions.hpp>
+#include <behaviour_tree/tasks/bt_task.hpp>
+#include <behaviour_tree/tasks/composites/bt_selector.hpp>
+#include <behaviour_tree/tasks/composites/bt_sequence.hpp>
+#include <behaviour_tree/tasks/composites/bt_random_selector.hpp>
+#include <behaviour_tree/tasks/composites/bt_random_sequence.hpp>
 BTGraphNode::BTGraphNode()
 {
     this->setup_default();
 }
 
-void BTGraphNode::setup_default()
+void BTGraphNode::_setup_connections_ui()
 {
     godot::Control* control = memnew(godot::Control);
     /* TODO: make it look better */
@@ -13,6 +18,33 @@ void BTGraphNode::setup_default()
 
     this->set_slot(0, true, 0, godot::Color::named("WHITE"),
                       true, 1, godot::Color::named("WHITE"));
+
+}
+
+void BTGraphNode::_setup_task_type_option_button()
+{
+    this->task_type_opition_button = memnew(godot::OptionButton);
+    this->add_child(this->task_type_opition_button);
+
+    this->task_type_opition_button->add_item(BTSelector::get_class_static());
+    this->task_type_opition_button->add_item(BTSequence::get_class_static());
+    this->task_type_opition_button->add_item(BTRandomSelector::get_class_static());
+    this->task_type_opition_button->add_item(BTRandomSequence::get_class_static());
+
+    this->task_type_opition_button->call_deferred("connect", "item_selected", this, "_task_type_item_selected");
+}
+
+void BTGraphNode::_task_type_item_selected(int id)
+{
+    int index = this->task_type_opition_button->get_item_index(id);
+    godot::String class_name = this->task_type_opition_button->get_item_text(index);
+    godot::Ref<BTTask> result = godot::ClassDB::instantiate(class_name);
+}
+
+void BTGraphNode::setup_default()
+{
+    this->_setup_connections_ui();
+    this->_setup_task_type_option_button();
 
     this->set_resizable(false);
     this->set_custom_minimum_size(godot::Size2(100, 30));

@@ -459,6 +459,7 @@ void BTGraphEditor::_add_new_node_button_pressed()
     int id = this->behaviour_tree->get_valid_id();
     bt_graph_node->set_title(godot::itos(id));
     bt_graph_node->set_name(godot::itos(id));
+    bt_graph_node->get_task()->set_custom_name(godot::itos(id));
 
     godot::EditorUndoRedoManager* undo_redo_manager = this->editor_plugin->get_undo_redo();
 
@@ -623,18 +624,8 @@ void BTGraphEditor::_bind_methods()
 
      /* TODO: Can't pass godot::Vectpr<>& as variant. Check*/
     /*ClassDB::bind_method(D_METHOD("_extract_node_levels_into_stack", "root_node", "stack", "current_level"), &BTGraphEditor::_extract_node_levels_into_stack);*/
-<<<<<<< HEAD
-    
-
-=======
->>>>>>> 60c08886fd8dfff692a1387f701d452f3401e071
 
     ClassDB::bind_method(D_METHOD("set_behaviour_tree", "behaviour_tree"), &BTGraphEditor::set_behaviour_tree);
     ClassDB::bind_method(D_METHOD("get_behaviour_tree"), &BTGraphEditor::get_behaviour_tree);
 
-<<<<<<< HEAD
-    ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "behaviour_tree"), "set_behaviour_tree", "get_behaviour_tree");
-
-=======
->>>>>>> 60c08886fd8dfff692a1387f701d452f3401e071
 }
