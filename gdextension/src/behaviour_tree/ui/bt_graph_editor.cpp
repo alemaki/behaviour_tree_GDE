@@ -443,12 +443,18 @@ void BTGraphEditor::insert_node(BTGraphNode* bt_graph_node)
 
     this->name_to_node.insert(bt_graph_node->get_name(), bt_graph_node);
     this->task_to_node.insert(bt_graph_node->get_task(), bt_graph_node);
+
+    bt_graph_node->call_deferred("connect", "dragged", callable_mp(this, &BTGraphEditor::_node_dragged).bind(bt_graph_node->get_name()));
+    bt_graph_node->call_deferred("connect", "double_clicked", callable_mp(this, &BTGraphEditor::_on_node_double_clicked));
 }
 
 void BTGraphEditor::erase_node(BTGraphNode* bt_graph_node)
 {
     this->name_to_node.erase(bt_graph_node->get_name());
     this->task_to_node.erase(bt_graph_node->get_task());
+
+    bt_graph_node->call_deferred("disconnect", "dragged", callable_mp(this, &BTGraphEditor::_node_dragged).bind(bt_graph_node->get_name()));
+    bt_graph_node->call_deferred("disconnect", "double_clicked", callable_mp(this, &BTGraphEditor::_on_node_double_clicked));
 }
 
 void BTGraphEditor::_add_new_node_button_pressed()
@@ -480,9 +486,6 @@ void BTGraphEditor::_add_new_node_button_pressed()
     /* TODO:
     /* bt_graph_node->connect("node_selected", callable_mp(this, &BTEditorPlugin::_node_selected).bind(id));
     /* bt_graph_node->connect("node_deselected", callable_mp(this, &BTEditorPlugin::_node_deselected).bind(id)); */
-    
-    bt_graph_node->call_deferred("connect", "dragged", callable_mp(this, &BTGraphEditor::_node_dragged).bind(bt_graph_node->get_name()));
-    bt_graph_node->call_deferred("connect", "double_clicked", callable_mp(this, &BTGraphEditor::_on_node_double_clicked));
 }
 
 void BTGraphEditor::_arrange_nodes_button_pressed()
@@ -564,7 +567,7 @@ void BTGraphEditor::_on_rename_edit_text_submitted(const godot::String& new_text
 
     undo_redo_manager->add_do_method(this->behaviour_tree, "set_custom_name_task_by_ref", this->last_double_clicked_node->get_task(), new_text);
     undo_redo_manager->add_do_method(this->last_double_clicked_node, "set_title", new_text);
-
+    
     undo_redo_manager->add_undo_method(this->last_double_clicked_node, "set_title", old_text);
     undo_redo_manager->add_undo_method(this->behaviour_tree, "set_custom_name_task_by_ref", this->last_double_clicked_node->get_task(), old_text);
 
@@ -594,6 +597,35 @@ void BTGraphEditor::_on_node_double_clicked(BTGraphNode* clicked_node)
     /* show up on front not behind */
     this->rename_edit->set_z_index(clicked_node->get_z_index() + 1);
 }
+
+void BTGraphEditor::_task_type_item_selected(int id, godot::StringName node_name)
+{
+    BTGraphNode* node = this->name_to_node[node_name];
+
+    ERR_FAIL_COND_MSG(node == nullptr, vformat("Node name not found: %s", node_name));
+
+    int index = node->get_task_type_opition_button()->get_item_index(id);
+    godot::String class_name = node->get_task_type_opition_button()->get_item_text(index);
+
+    if (node->get_task()->get_class_static() == class_name)
+    {
+        return;
+    }
+
+    godot::Ref<BTTask> new_task = godot::ClassDB::instantiate(class_name);
+    godot::Ref<BTTask> old_task = node->get_task();
+    new_task->set_custom_name(node->get_task()->get_custom_name());
+    
+    godot::EditorUndoRedoManager* undo_redo_manager = this->editor_plugin->get_undo_redo();
+
+    undo_redo_manager->create_action("Change task type.");
+
+    undo_redo_manager->add_do_method(this->behaviour_tree, "swap_tasks", old_task, new_task);
+    undo_redo_manager->add_undo_method(this->behaviour_tree, "swap_tasks", new_task, old_task);
+
+    undo_redo_manager->commit_action();
+}
+
 
 void BTGraphEditor::_bind_methods()
 {

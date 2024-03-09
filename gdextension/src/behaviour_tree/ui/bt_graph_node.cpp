@@ -1,10 +1,17 @@
 #include "bt_graph_node.hpp"
 #include <godot_cpp/variant/utility_functions.hpp>
-#include <behaviour_tree/tasks/bt_task.hpp>
-#include <behaviour_tree/tasks/composites/bt_selector.hpp>
-#include <behaviour_tree/tasks/composites/bt_sequence.hpp>
-#include <behaviour_tree/tasks/composites/bt_random_selector.hpp>
-#include <behaviour_tree/tasks/composites/bt_random_sequence.hpp>
+#include "behaviour_tree/tasks/bt_task.hpp"
+#include "behaviour_tree/tasks/composites/bt_selector.hpp"
+#include "behaviour_tree/tasks/composites/bt_sequence.hpp"
+#include "behaviour_tree/tasks/composites/bt_random_selector.hpp"
+#include "behaviour_tree/tasks/composites/bt_random_sequence.hpp"
+#include "behaviour_tree/tasks/decorators/bt_always_fail.hpp"
+#include "behaviour_tree/tasks/decorators/bt_always_succeed.hpp"
+#include "behaviour_tree/tasks/decorators/bt_invert.hpp"
+#include "behaviour_tree/tasks/decorators/bt_probability.hpp"
+#include "behaviour_tree/tasks/decorators/bt_repeat.hpp"
+#include "behaviour_tree/tasks/bt_action.hpp"
+
 BTGraphNode::BTGraphNode()
 {
     this->setup_default();
@@ -31,6 +38,15 @@ void BTGraphNode::_setup_task_type_option_button()
     this->task_type_opition_button->add_item(BTRandomSelector::get_class_static());
     this->task_type_opition_button->add_item(BTRandomSequence::get_class_static());
 
+    this->task_type_opition_button->add_item(BTAlwaysFail::get_class_static());
+    this->task_type_opition_button->add_item(BTAlwaysSucceed::get_class_static());
+    this->task_type_opition_button->add_item(BTInvert::get_class_static());
+    this->task_type_opition_button->add_item(BTProbability::get_class_static());
+    this->task_type_opition_button->add_item(BTRepeat::get_class_static());
+
+    this->task_type_opition_button->add_item(BTAction::get_class_static());
+
+
     this->task_type_opition_button->call_deferred("connect", "item_selected", this, "_task_type_item_selected");
 }
 
@@ -38,7 +54,17 @@ void BTGraphNode::_task_type_item_selected(int id)
 {
     int index = this->task_type_opition_button->get_item_index(id);
     godot::String class_name = this->task_type_opition_button->get_item_text(index);
-    godot::Ref<BTTask> result = godot::ClassDB::instantiate(class_name);
+
+    ERR_FAIL_COND_MSG(this->task.is_null(), "No task.");
+    if (this->task->get_class_static() != class_name)
+    {
+        godot::Ref<BTTask> new_task = godot::ClassDB::instantiate(class_name);
+        new_task->set_custom_name(this->task->get_custom_name());
+        new_task->set_children(this->task->get_children());
+        new_task->set_parent(this->task->get_parent());
+        
+    }
+
 }
 
 void BTGraphNode::setup_default()

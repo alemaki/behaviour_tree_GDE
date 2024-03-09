@@ -148,6 +148,21 @@ void BTTask::remove_child_at_index(int index)
     this->children.remove_at(index);
 }
 
+void BTTask::swap_child(godot::Ref<BTTask> old_child, godot::Ref<BTTask> new_child)
+{
+    int index = this->children.find(old_child);
+    ERR_FAIL_COND(index == -1);
+
+    godot::Array children_of_child = this->children[index]->get_children();
+
+    this->children[index]->parent = nullptr;
+    this->children[index]->set_children(godot::Array());
+
+    this->children.set(index, new_child);
+    this->children[index]->parent = this;
+    this->children[index]->set_children(children_of_child);
+}
+
 bool BTTask::has_running_child() const
 {
     for (godot::Ref<BTTask> child : this->children)
@@ -231,6 +246,7 @@ void BTTask::_bind_methods()
 	ClassDB::bind_method(D_METHOD("remove_child", "child"), &BTTask::remove_child);
 	ClassDB::bind_method(D_METHOD("remove_child_at_index", "index"), &BTTask::remove_child_at_index);
 	ClassDB::bind_method(D_METHOD("has_child", "child"), &BTTask::has_child);
+    ClassDB::bind_method(D_METHOD("swap_child", "old_child", "new_child"), &BTTask::swap_child);
 
     ClassDB::bind_method(D_METHOD("set_parent", "parent"), &BTTask::set_parent);
     ClassDB::bind_method(D_METHOD("get_parent"), &BTTask::get_parent);

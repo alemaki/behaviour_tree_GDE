@@ -30,6 +30,11 @@ public:
         return this->graph_edit;
     }
 
+    _FORCE_INLINE_ godot::OptionButton* get_task_type_opition_button() const
+    {
+        return this->task_type_opition_button;
+    }
+
     void set_task(godot::Ref<BTTask> task);
 
     _FORCE_INLINE_ godot::Ref<BTTask> get_task() const
@@ -41,4 +46,4 @@ protected:
     static void _bind_methods();
 };
 
-#endif //BT_GRAPH_NODE_HPP
+#endif /* BT_GRAPH_NODE_HPP */

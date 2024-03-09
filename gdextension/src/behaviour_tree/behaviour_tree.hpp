@@ -68,6 +68,7 @@ public:
     void connect_tasks(godot::Ref<BTTask> parent, godot::Ref<BTTask> child, int child_pos = 0);
     void disconnect_tasks(godot::Ref<BTTask> parent, godot::Ref<BTTask> child);
     void set_tasks_of_parent(godot::Ref<BTTask> parent, godot::Array new_children);
+    void swap_tasks(godot::Ref<BTTask> old_task, godot::Ref<BTTask> new_task);
 
     _FORCE_INLINE_ int get_task_count()
     {

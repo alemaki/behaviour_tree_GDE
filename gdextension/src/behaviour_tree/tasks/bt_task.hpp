@@ -74,6 +74,7 @@ public:
 	void add_child_at_index(godot::Ref<BTTask> child, int index);
 	void remove_child(godot::Ref<BTTask> child);
 	void remove_child_at_index(int index);
+    void swap_child(godot::Ref<BTTask> old_child, godot::Ref<BTTask> new_child);
 
 	_FORCE_INLINE_ bool has_child(const godot::Ref<BTTask> child) const
     {

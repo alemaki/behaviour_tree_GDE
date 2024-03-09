@@ -174,6 +174,29 @@ void BehaviourTree::set_tasks_of_parent(godot::Ref<BTTask> parent, godot::Array 
     parent->set_children(new_children);
 }
 
+void BehaviourTree::swap_tasks(godot::Ref<BTTask> old_task, godot::Ref<BTTask> new_task)
+{
+    ERR_FAIL_COND_MSG(!(this->has_task(old_task)), "Old task not in tree.");
+    if (old_task->get_parent().is_valid())
+    {
+        godot::Ref<BTTask> parent = old_task->get_parent();
+        parent->swap_child(old_task, new_task);
+    }
+    else
+    {
+        godot::Array children = old_task->get_children();
+        old_task->set_children(godot::Array());
+        new_task->set_children(children);
+    }
+
+    if (this->root_task == old_task)
+    {
+        this->root_task = new_task;
+    }
+
+    this->remove_task_by_ref(old_task);
+}
+
 void BehaviourTree::_bind_methods()
 {
     using namespace godot;

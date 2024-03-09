@@ -5,15 +5,15 @@
 #include <godot_cpp/classes/editor_undo_redo_manager.hpp>
 #include <godot_cpp/classes/editor_plugin.hpp>
 #include <godot_cpp/classes/graph_edit.hpp>
+#include <godot_cpp/classes/line_edit.hpp>
 #include <godot_cpp/templates/hash_map.hpp>
 #include "behaviour_tree/behaviour_tree.hpp"
 #include "behaviour_tree/ui/bt_graph_node.hpp"
 
 #ifndef BT_EDITOR_PLUGIN_FORWARD
 #define BT_EDITOR_PLUGIN_FORWARD
-/* forward */
 class BTEditorPlugin;
-#endif //BT_EDITOR_PLUGIN_FORWARD
+#endif /* BT_EDITOR_PLUGIN_FORWARD */
 
 
 class BTGraphEditor : public godot::Object
@@ -68,7 +68,7 @@ private:
     void _arrange_nodes_button_pressed();
     void _set_root_button_pressed();
     void _clear_graph_button_pressed();
-    void _node_dragged(const godot::Vector2 &_from, const godot::Vector2 &_to, godot::StringName node_name);
+    void _node_dragged(const godot::Vector2 &_from, const godot::Vector2 &_to, godot::StringName node_name); //todo: fix node renaming
     void _move_nodes();
     void connection_request(godot::StringName _from_node, int from_port, godot::StringName _to_node, int to_port);
     void disconnection_request(godot::StringName _from_node, int from_port, godot::StringName _to_node, int to_port);
@@ -81,6 +81,7 @@ private:
     void _on_rename_edit_text_submitted(const godot::String& new_text);
     void _on_rename_edit_focus_exited();
     void _on_node_double_clicked(BTGraphNode* clicked_node);
+    void _task_type_item_selected(int id, godot::StringName node_name);
 
 public:
     BTGraphEditor();
