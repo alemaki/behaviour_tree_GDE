@@ -174,9 +174,11 @@ void BehaviourTree::set_tasks_of_parent(godot::Ref<BTTask> parent, godot::Array 
     parent->set_children(new_children);
 }
 
-void BehaviourTree::swap_tasks(godot::Ref<BTTask> old_task, godot::Ref<BTTask> new_task)
+void BehaviourTree::swap_task_in(godot::Ref<BTTask> old_task, godot::Ref<BTTask> new_task)
 {
-    ERR_FAIL_COND_MSG(!(this->has_task(old_task)), "Old task not in tree.");
+    int id = this->get_task_id(old_task);
+    ERR_FAIL_COND_MSG(id == -1, "Old task not in tree.");
+
     if (old_task->get_parent().is_valid())
     {
         godot::Ref<BTTask> parent = old_task->get_parent();
@@ -195,6 +197,7 @@ void BehaviourTree::swap_tasks(godot::Ref<BTTask> old_task, godot::Ref<BTTask> n
     }
 
     this->remove_task_by_ref(old_task);
+    this->add_task(id, new_task);
 }
 
 void BehaviourTree::_bind_methods()
@@ -217,6 +220,7 @@ void BehaviourTree::_bind_methods()
     ClassDB::bind_method(D_METHOD("disconnect_tasks", "parent", "child"), &BehaviourTree::disconnect_tasks);
     ClassDB::bind_method(D_METHOD("set_tasks_of_parent", "parent", "new_children"), &BehaviourTree::set_tasks_of_parent);
     ClassDB::bind_method(D_METHOD("set_custom_name_task_by_ref", "task", "task_name"), &BehaviourTree::set_custom_name_task_by_ref);
+    ClassDB::bind_method(D_METHOD("swap_task_in", "old_task", "new_task"), &BehaviourTree::swap_task_in);
 
     ClassDB::bind_method(D_METHOD("set_description", "description"), &BehaviourTree::set_description);
     ClassDB::bind_method(D_METHOD("get_description"), &BehaviourTree::get_description);

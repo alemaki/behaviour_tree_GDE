@@ -30,40 +30,41 @@ void BTGraphNode::_setup_connections_ui()
 
 void BTGraphNode::_setup_task_type_option_button()
 {
+    const godot::Vector<godot::StringName> task_names =
+    {
+        BTTask::get_class_static(),
+        BTSelector::get_class_static(),
+        BTSequence::get_class_static(),
+        BTRandomSelector::get_class_static(),
+        BTRandomSequence::get_class_static(),
+        BTAlwaysFail::get_class_static(),
+        BTAlwaysSucceed::get_class_static(),
+        BTInvert::get_class_static(),
+        BTProbability::get_class_static(),
+        BTRepeat::get_class_static(),
+        BTAction::get_class_static()
+    };
+
     this->task_type_opition_button = memnew(godot::OptionButton);
     this->add_child(this->task_type_opition_button);
 
-    this->task_type_opition_button->add_item(BTSelector::get_class_static());
-    this->task_type_opition_button->add_item(BTSequence::get_class_static());
-    this->task_type_opition_button->add_item(BTRandomSelector::get_class_static());
-    this->task_type_opition_button->add_item(BTRandomSequence::get_class_static());
+    this->task_type_opition_button->add_item(task_names[0]);
 
-    this->task_type_opition_button->add_item(BTAlwaysFail::get_class_static());
-    this->task_type_opition_button->add_item(BTAlwaysSucceed::get_class_static());
-    this->task_type_opition_button->add_item(BTInvert::get_class_static());
-    this->task_type_opition_button->add_item(BTProbability::get_class_static());
-    this->task_type_opition_button->add_item(BTRepeat::get_class_static());
+    /* composites */
+    this->task_type_opition_button->add_item(task_names[1]);
+    this->task_type_opition_button->add_item(task_names[2]);
+    this->task_type_opition_button->add_item(task_names[3]);
+    this->task_type_opition_button->add_item(task_names[4]);
 
-    this->task_type_opition_button->add_item(BTAction::get_class_static());
+    /* decorators */
+    this->task_type_opition_button->add_item(task_names[5]);
+    this->task_type_opition_button->add_item(task_names[6]);
+    this->task_type_opition_button->add_item(task_names[7]);
+    this->task_type_opition_button->add_item(task_names[8]);
+    this->task_type_opition_button->add_item(task_names[9]);
 
-
-    this->task_type_opition_button->call_deferred("connect", "item_selected", this, "_task_type_item_selected");
-}
-
-void BTGraphNode::_task_type_item_selected(int id)
-{
-    int index = this->task_type_opition_button->get_item_index(id);
-    godot::String class_name = this->task_type_opition_button->get_item_text(index);
-
-    ERR_FAIL_COND_MSG(this->task.is_null(), "No task.");
-    if (this->task->get_class_static() != class_name)
-    {
-        godot::Ref<BTTask> new_task = godot::ClassDB::instantiate(class_name);
-        new_task->set_custom_name(this->task->get_custom_name());
-        new_task->set_children(this->task->get_children());
-        new_task->set_parent(this->task->get_parent());
-        
-    }
+    /* actions */
+    this->task_type_opition_button->add_item(task_names[10]);
 
 }
 
@@ -91,6 +92,26 @@ void BTGraphNode::set_graph_edit(godot::GraphEdit* graph_edit)
 
 void BTGraphNode::set_task(godot::Ref<BTTask> task)
 {
+    const godot::Vector<godot::StringName> task_names =
+    {
+        BTTask::get_class_static(),
+        BTSelector::get_class_static(),
+        BTSequence::get_class_static(),
+        BTRandomSelector::get_class_static(),
+        BTRandomSequence::get_class_static(),
+        BTAlwaysFail::get_class_static(),
+        BTAlwaysSucceed::get_class_static(),
+        BTInvert::get_class_static(),
+        BTProbability::get_class_static(),
+        BTRepeat::get_class_static(),
+        BTAction::get_class_static()
+    };
+
+    godot::StringName class_name = task->get_class();
+    int id = task_names.find(class_name);
+    ERR_FAIL_COND_MSG(id == -1, "Task name doesn't exist.");
+    this->task_type_opition_button->select(id);
+
     this->task = task;
 }
 
@@ -112,8 +133,6 @@ void BTGraphNode::_bind_methods()
     ClassDB::bind_method(D_METHOD("get_graph_editor"), &BTGraphNode::get_graph_editor);
     ClassDB::bind_method(D_METHOD("set_task", "task"), &BTGraphNode::set_task);
     ClassDB::bind_method(D_METHOD("get_task"), &BTGraphNode::get_task);
-
-    ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "task"), "set_task", "get_task");
 
     ADD_SIGNAL(MethodInfo("double_clicked", PropertyInfo(Variant::OBJECT, "BTGraphNode", PROPERTY_HINT_NONE, "Control")));
 }

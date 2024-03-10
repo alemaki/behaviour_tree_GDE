@@ -7,6 +7,8 @@
 #include <godot_cpp/classes/option_button.hpp>
 #include <godot_cpp/templates/hash_map.hpp>
 
+#include "behaviour_tree/tasks/bt_task.hpp"
+
 class BTGraphNode : public godot::GraphNode
 {
     GDCLASS(BTGraphNode, godot::GraphNode)
@@ -21,7 +23,7 @@ private:
     void _on_gui_input(const godot::Ref<godot::InputEvent>& event);
     void _setup_connections_ui();
     void _setup_task_type_option_button();
-    void _task_type_item_selected(int index);
+
 public:
     BTGraphNode();
     void set_graph_edit(godot::GraphEdit* graph_edit);

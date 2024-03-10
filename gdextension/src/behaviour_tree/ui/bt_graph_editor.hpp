@@ -68,7 +68,7 @@ private:
     void _arrange_nodes_button_pressed();
     void _set_root_button_pressed();
     void _clear_graph_button_pressed();
-    void _node_dragged(const godot::Vector2 &_from, const godot::Vector2 &_to, godot::StringName node_name); //todo: fix node renaming
+    void _node_dragged(const godot::Vector2 &_from, const godot::Vector2 &_to, godot::StringName node_name);
     void _move_nodes();
     void connection_request(godot::StringName _from_node, int from_port, godot::StringName _to_node, int to_port);
     void disconnection_request(godot::StringName _from_node, int from_port, godot::StringName _to_node, int to_port);
