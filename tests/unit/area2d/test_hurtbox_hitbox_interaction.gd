@@ -14,10 +14,10 @@ func test_hitbox_and_hurtbox_interaction():
 	watch_signals(hitbox)
 	watch_signals(hurtbox)
 	
-	hitbox.set_monitoring (true)
+	hitbox.set_monitoring(true)
 	hitbox.area_entered.emit(hurtbox)
 	
-	# Check if signals were emitted wiith right info
+	# Check if signals were emitted with right info
 	assert_signal_emitted(hitbox, "area_entered")
 	assert_signal_emitted_with_parameters(hitbox, "hit_hurtbox", [hurtbox])
 	assert_signal_emitted_with_parameters(hurtbox, "hurtbox_hit", [hitbox])

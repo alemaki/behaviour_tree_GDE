@@ -2,7 +2,7 @@
 #include "components/area2d/hurtbox.hpp"
 Hitbox::Hitbox()
 {
-    this->call_deferred("connect", "area_entered", godot::Callable(this, "_on_area_entered"));
+    this->call_deferred("connect", "area_entered", callable_mp(this, &Hitbox::_on_area_entered));
 }
 
 void Hitbox::_on_area_entered(godot::Area2D* area2d)
