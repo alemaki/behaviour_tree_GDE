@@ -1,9 +1,5 @@
 #include "hitbox.hpp"
 #include "components/area2d/hurtbox.hpp"
-Hitbox::Hitbox()
-{
-    this->call_deferred("connect", "area_entered", callable_mp(this, &Hitbox::_on_area_entered));
-}
 
 void Hitbox::_on_area_entered(godot::Area2D* area2d)
 {
@@ -14,6 +10,12 @@ void Hitbox::_on_area_entered(godot::Area2D* area2d)
         this->emit_signal("hit_hurtbox", hurtbox);
     }
 }
+
+void Hitbox::_ready()
+{
+    this->connect("area_entered", callable_mp(this, &Hitbox::_on_area_entered));
+}
+
 
 void Hitbox::_bind_methods()
 {

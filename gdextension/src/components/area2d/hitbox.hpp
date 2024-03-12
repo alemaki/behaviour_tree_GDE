@@ -11,8 +11,8 @@ protected:
     void _on_area_entered(godot::Area2D* area2d);
     static void _bind_methods();
 
-public: 
-    Hitbox();
+public:
+    virtual void _ready() override;
 };
 
 

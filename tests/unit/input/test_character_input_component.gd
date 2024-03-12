@@ -5,7 +5,7 @@ func after_all():
 
 func test_character_input_component():
 	# Add object as child so processing may be enabled.
-	var character_input_component: CharacterInputComponent = add_child_autoqfree(CharacterInputComponent.new())
+	var character_input_component: CharacterInputComponent = add_child_autofree(CharacterInputComponent.new())
 	
 	assert_eq(character_input_component.get_direction_input(), Vector2.ZERO, "Initial direction input should be Vector2.ZERO")
 	

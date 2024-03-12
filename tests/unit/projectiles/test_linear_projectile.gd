@@ -4,7 +4,7 @@ func after_all():
 	assert_no_new_orphans("Memory leak.")
 
 func test_linear_projectile_basic():
-	var projectile: LinearProjectile = add_child_autoqfree(LinearProjectile.new())
+	var projectile: LinearProjectile = add_child_autofree(LinearProjectile.new())
 	
 	assert_almost_eq(projectile.get_direction(), Vector2.ZERO, Vector2(0.001, 0.001), "Initial direction should be Vector2.ZERO")
 	assert_almost_eq(projectile.get_speed(), 0.0, 0.001, "Initial speed should be 0")
@@ -16,9 +16,9 @@ func test_linear_projectile_basic():
 	
 	assert_almost_eq(projectile.get_direction(), direction.normalized(), Vector2(0.001, 0.001), "Direction should be set to normalized value")
 	assert_almost_eq(projectile.get_speed(), speed, 0.001, "Speed should be set to 100")
-	
+
 func test_linear_projectile_movement():
-	var projectile: LinearProjectile = add_child_autoqfree(LinearProjectile.new())
+	var projectile: LinearProjectile = add_child_autofree(LinearProjectile.new())
 	
 	projectile.set_direction(Vector2.RIGHT)
 	projectile.set_speed(100)

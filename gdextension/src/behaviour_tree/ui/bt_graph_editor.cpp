@@ -632,14 +632,14 @@ void BTGraphEditor::_task_type_item_selected(int id, godot::StringName node_name
 
     undo_redo_manager->add_do_method(this->behaviour_tree, "swap_task_in", old_task, new_task);
     /* reset node */
-    undo_redo_manager->add_do_method(node, "set_task", new_task);
     undo_redo_manager->add_do_method(this, "erase_node", node);
+    undo_redo_manager->add_do_method(node, "set_task", new_task);
     undo_redo_manager->add_do_method(this, "insert_node", node);
 
     undo_redo_manager->add_undo_method(this->behaviour_tree, "swap_task_in", new_task, old_task);
     /* reset node */
-    undo_redo_manager->add_undo_method(node, "set_task", old_task);
     undo_redo_manager->add_undo_method(this, "erase_node", node);
+    undo_redo_manager->add_undo_method(node, "set_task", old_task);
     undo_redo_manager->add_undo_method(this, "insert_node", node);
 
     undo_redo_manager->commit_action();

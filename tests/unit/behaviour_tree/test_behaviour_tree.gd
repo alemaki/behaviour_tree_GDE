@@ -4,20 +4,20 @@ func after_all():
 	assert_no_new_orphans("Memory leak..")
 
 func test_set_and_get_description():
-	var tree = autofree(BehaviourTree.new())
+	var tree = add_child_autofree(BehaviourTree.new())
 	var description = "Test Behaviour Tree"
 	tree.set_description(description)
 	assert_eq(tree.get_description(), description, "Description should be set correctly.")
 
 func test_add_and_get_task():
-	var tree = autofree(BehaviourTree.new())
+	var tree = add_child_autofree(BehaviourTree.new())
 	var task = autofree(BTTask.new())
 	tree.add_task_by_ref(task)
 	var task_id = tree.get_task_id(task); 
 	assert_eq(tree.get_task_by_id(task_id), task, "Task should be retrievable by ID.")
 
 func test_has_task():
-	var tree = autofree(BehaviourTree.new())
+	var tree = add_child_autofree(BehaviourTree.new())
 	var task = autofree(BTTask.new())
 	assert_false(tree.has_task(task), "Tree should not have the task.")
 	tree.add_task_by_ref(task)
@@ -26,7 +26,7 @@ func test_has_task():
 	assert_false(tree.has_task(fake_task), "Tree should not have a task that wasn't added.")
 
 func test_remove_task():
-	var tree = autofree(BehaviourTree.new())
+	var tree = add_child_autofree(BehaviourTree.new())
 	var task = autofree(BTTask.new())
 
 	tree.add_task_by_ref(task)
@@ -41,7 +41,7 @@ func test_remove_task():
 	assert_false(tree.has_task(task), "Task should be removed by ref from the tree.")
 
 func test_remove_task_count():
-	var tree = autofree(BehaviourTree.new())
+	var tree = add_child_autofree(BehaviourTree.new())
 	var task = autofree(BTTask.new())
 	var task1 = autofree(BTTask.new())
 	var task2 = autofree(BTTask.new())
@@ -57,7 +57,7 @@ func test_remove_task_count():
 
 
 func test_connect_and_disconnect_tasks():
-	var tree = autofree(BehaviourTree.new())
+	var tree = add_child_autofree(BehaviourTree.new())
 	var parent_task = autofree(BTTask.new())
 	var child_task = autofree(BTTask.new())
 	tree.add_task_by_ref(parent_task)
@@ -72,7 +72,7 @@ func test_connect_and_disconnect_tasks():
 	assert_eq(child_task.get_parent(), null, "Child task's parent should be null after disconnecting.")
 
 func test_clear_tasks():
-	var tree = autofree(BehaviourTree.new())
+	var tree = add_child_autofree(BehaviourTree.new())
 	var task1 = autofree(BTTask.new())
 	var task2 = autofree(BTTask.new())
 	tree.add_task_by_ref(task1)
@@ -82,14 +82,14 @@ func test_clear_tasks():
 	assert_eq(tree.get_root_task(), null, "Root task should be null after clearing tasks.")
 
 func test_set_and_get_root_task():
-	var tree = autofree(BehaviourTree.new())
+	var tree = add_child_autofree(BehaviourTree.new())
 	var root_task = autofree(BTTask.new())
 	tree.add_task_by_ref(root_task)
 	tree.set_root_task(root_task)
 	assert_eq(tree.get_root_task(), root_task, "Root task shouldn't be set.")
 
 func test_detach_task():
-	var tree = autofree(BehaviourTree.new())
+	var tree = add_child_autofree(BehaviourTree.new())
 	var root_task = autofree(BTTask.new())
 	var child_task = autofree(BTTask.new())
 	tree.add_task_by_ref(root_task)
@@ -100,7 +100,7 @@ func test_detach_task():
 	assert_eq(child_task.get_parent(), null, "Detached child task should have no parent.")
 
 func test_set_tasks_of_parent():
-	var tree = autofree(BehaviourTree.new())
+	var tree = add_child_autofree(BehaviourTree.new())
 	var parent_task = autofree(BTTask.new())
 	var child_task1 = autofree(BTTask.new())
 	var child_task2 = autofree(BTTask.new())
@@ -115,11 +115,11 @@ func test_set_tasks_of_parent():
 	assert_eq(children[1], child_task2, "Second child should be child_task2.")
 
 func test_root_task_initially_null():
-	var tree = autofree(BehaviourTree.new())
+	var tree = add_child_autofree(BehaviourTree.new())
 	assert_eq(tree.get_root_task(), null, "Root task should initially be null.")
 
 func test_added_task_becomes_root():
-	var tree = autofree(BehaviourTree.new())
+	var tree = add_child_autofree(BehaviourTree.new())
 	var task = autofree(BTTask.new())
 	var task1 = autofree(BTTask.new())
 	tree.add_task_by_ref(task)
@@ -128,7 +128,7 @@ func test_added_task_becomes_root():
 	assert_eq(tree.get_root_task(), task, "First task should stay root.")
 
 func test_set_root_task():
-	var tree = autofree(BehaviourTree.new())
+	var tree = add_child_autofree(BehaviourTree.new())
 	var root_task1 = autofree(BTTask.new())
 	var root_task2 = autofree(BTTask.new())
 	tree.add_task_by_ref(root_task1)
@@ -137,7 +137,7 @@ func test_set_root_task():
 	assert_eq(tree.get_root_task(), root_task2, "Root task should be the last one set.")
 
 func test_remove_root_task():
-	var tree = autofree(BehaviourTree.new())
+	var tree = add_child_autofree(BehaviourTree.new())
 	var task = autofree(BTTask.new())
 	var task1 = autofree(BTTask.new())
 	tree.add_task_by_ref(task)
@@ -148,7 +148,7 @@ func test_remove_root_task():
 	assert_false(tree.get_root_task() == null, "Root task should change and not null")
 
 func test_get_valid_id_increment():
-	var tree = autofree(BehaviourTree.new())
+	var tree = add_child_autofree(BehaviourTree.new())
 	var first_id = tree.get_valid_id()
 	var task = autofree(BTTask.new())
 	tree.add_task_by_ref(task)
@@ -156,7 +156,7 @@ func test_get_valid_id_increment():
 	assert_eq(second_id, first_id + 1, "Each call to get_valid_id should return a unique, incrementing ID.")
 
 func test_task_hierarchy():
-	var tree = autofree(BehaviourTree.new())
+	var tree = add_child_autofree(BehaviourTree.new())
 	var root_task = autofree(BTTask.new())
 	var child_task1 = autofree(BTTask.new())
 	var child_task2 = autofree(BTTask.new())
@@ -178,7 +178,7 @@ func test_task_hierarchy():
 	assert_eq(grandchild_task.get_parent(), child_task1, "Parent of grandchild_task should be child_task1.")
 
 func test_set_custom_name_task_by_ref():
-	var behaviour_tree = autofree(BehaviourTree.new())
+	var behaviour_tree = add_child_autofree(BehaviourTree.new())
 	var task = autofree(BTTask.new())
 	behaviour_tree.add_task_by_ref(task)
 	var new_name = "New Task Name"
@@ -186,8 +186,8 @@ func test_set_custom_name_task_by_ref():
 
 	assert_eq(task.get_custom_name(), new_name, "Task custom name should be updated.")
 
-func test_swap_task_in():
-	var behaviour_tree = autofree(BehaviourTree.new())
+func test_swap_root_task_in():
+	var behaviour_tree = add_child_autofree(BehaviourTree.new())
 	var old_task = autofree(BTTask.new())
 	var new_task = autofree(BTTask.new())
 
@@ -200,10 +200,43 @@ func test_swap_task_in():
 	behaviour_tree.swap_task_in(old_task, new_task)
 
 	assert_true(behaviour_tree.has_task(new_task), "New task should be in the tree.")
-	assert_true(behaviour_tree.get_root_task() == new_task, "New task should be the root now.")
 	assert_false(behaviour_tree.has_task(old_task), "Old task should be removed from the tree.")
+	assert_eq(behaviour_tree.get_root_task(), new_task, "New task should be the root now.")
 	assert_eq(new_task.get_children().size(), 1, "New task should inherit old task's children.")
-	assert_eq(new_task.get_children()[0], child_task, "Child task should be correctly reassigned.")
+	assert_true(new_task.has_child(child_task), "Child task should be correctly reassigned.")
+	assert_eq(child_task.get_parent(), new_task, "Child task should have correctly reassigned parent.")
+
+
+func test_swap_non_root_task_in():
+	var behaviour_tree = add_child_autofree(BehaviourTree.new())
+	var old_task = autofree(BTTask.new())
+	var new_task = autofree(BTTask.new())
+	var root_task = autofree(BTTask.new())
+	var child1 = autofree(BTTask.new())
+	var child2 = autofree(BTTask.new())
+
+	behaviour_tree.add_task_by_ref(root_task)
+	behaviour_tree.add_task_by_ref(old_task)
+	behaviour_tree.add_task_by_ref(child1)
+	behaviour_tree.add_task_by_ref(child2)
+
+	behaviour_tree.connect_tasks(old_task, child1, 0)
+	behaviour_tree.connect_tasks(old_task, child2, 1)
+	behaviour_tree.connect_tasks(root_task, old_task, 0)
+
+	behaviour_tree.swap_task_in(old_task, new_task)
+
+	assert_true(behaviour_tree.has_task(new_task), "New task should be in the tree.")
+	assert_false(behaviour_tree.has_task(old_task), "Old task should be removed from the tree.")
+	assert_eq(behaviour_tree.get_root_task(), root_task, "Old sroot should stay root.")
+	assert_eq(new_task.get_children().size(), 2, "New task should inherit old task's children.")
+	assert_true(new_task.has_child(child1), "Child task should be correctly reassigned.")
+	assert_true(new_task.has_child(child1), "Child task should be correctly reassigned.")
+	assert_eq(child1.get_parent(), new_task, "Child task should have correctly reassigned parent.")
+	assert_eq(child2.get_parent(), new_task, "Child task should have correctly reassigned parent.")
+	assert_eq(new_task.get_parent(),  root_task, "New task should inherit parent.")
+	assert_eq(root_task.get_children().size(), 1, "Root task should still have only one child.")
+	assert_true(root_task.has_child(new_task), "Root task should have updated child.")
 
 
 

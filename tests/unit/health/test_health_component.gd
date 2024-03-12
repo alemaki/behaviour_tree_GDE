@@ -5,7 +5,7 @@ func after_all():
 	
 
 func test_health_component_basics():
-	var health_component: HealthComponent = autoqfree(HealthComponent.new())
+	var health_component: HealthComponent = add_child_autofree(HealthComponent.new())
 	
 	assert_eq(health_component.get_max_hp(), 0, "Initial max_hp should be 0.")
 	assert_eq(health_component.get_current_hp(), 0, "Initial current_hp should be 0.")
@@ -32,7 +32,7 @@ func test_health_component_basics():
 	assert_eq(health_component.get_current_hp(), 0, "Current_hp should not be set to negative value.")
 
 func test_health_component_take_damage():
-	var health_component: HealthComponent = autoqfree(HealthComponent.new())
+	var health_component: HealthComponent = add_child_autofree(HealthComponent.new())
 	
 	health_component.set_max_hp(100)
 	health_component.set_current_hp(50)
@@ -47,7 +47,7 @@ func test_health_component_take_damage():
 	assert_eq(health_component.get_current_hp(), 0, "Current_hp should shouldn't change on negative damage.")
 
 func test_health_component_heal():
-	var health_component: HealthComponent = autoqfree(HealthComponent.new())
+	var health_component: HealthComponent = add_child_autofree(HealthComponent.new())
 	
 	health_component.set_max_hp(100)
 	health_component.set_current_hp(50)
@@ -63,7 +63,7 @@ func test_health_component_heal():
 	assert_eq(health_component.get_current_hp(), 50, "Current_hp should shouldn't change on negative heal.")
 	
 func test_health_component_health_depleted_signal():
-	var health_component: HealthComponent = autoqfree(HealthComponent.new())
+	var health_component: HealthComponent = add_child_autofree(HealthComponent.new())
 	health_component.set_max_hp(10)
 	health_component.set_current_hp(2)
 	watch_signals(health_component)
