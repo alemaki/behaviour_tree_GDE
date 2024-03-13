@@ -6,6 +6,7 @@
 #include <godot_cpp/classes/editor_plugin.hpp>
 #include <godot_cpp/classes/graph_edit.hpp>
 #include <godot_cpp/classes/line_edit.hpp>
+#include <godot_cpp/classes/popup_menu.hpp>
 #include <godot_cpp/templates/hash_map.hpp>
 #include "behaviour_tree/behaviour_tree.hpp"
 #include "behaviour_tree/ui/bt_graph_node.hpp"
@@ -42,8 +43,14 @@ private:
     bool drag_called;
 
     godot::LineEdit* rename_edit;
+    godot::PopupMenu* main_popup_menu;
+    godot::PopupMenu* task_type_popup_menu;
+
     BTGraphNode* last_double_clicked_node;
 
+private:
+    void _setup_popup_menu();
+    void _setup_rename_edit();
 private:
     void set_editor_plugin(godot::EditorPlugin* editor_plugin);
     _FORCE_INLINE_ godot::GraphEdit* get_graph_edit()
@@ -81,6 +88,7 @@ private:
     void _on_rename_edit_text_submitted(const godot::String& new_text);
     void _on_rename_edit_focus_exited();
     void _on_node_double_clicked(BTGraphNode* clicked_node);
+    void _on_node_right_clicked(BTGraphNode* clicked_node);
     void _task_type_item_selected(int id, godot::StringName node_name);
 
 public:

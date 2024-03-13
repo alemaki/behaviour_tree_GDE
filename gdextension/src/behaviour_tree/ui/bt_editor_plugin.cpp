@@ -1,5 +1,4 @@
 #include "bt_editor_plugin.hpp"
-#include <godot_cpp/variant/color.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
 
 BTEditorPlugin::BTEditorPlugin()

@@ -21,12 +21,40 @@ BTGraphEditor::BTGraphEditor()
 
     this->graph_edit->set_right_disconnects(true);
 
+    this->_setup_rename_edit();
+    this->_setup_popup_menu();
+}
+
+
+void BTGraphEditor::_setup_rename_edit()
+{
+    ERR_FAIL_COND(this->graph_edit == nullptr);
+
     this->rename_edit = memnew(godot::LineEdit);
     this->rename_edit->set_visible(false);
     this->graph_edit->add_child(this->rename_edit);
 
     this->rename_edit->call_deferred("connect", "text_submitted", callable_mp(this, &BTGraphEditor::_on_rename_edit_text_submitted));
     this->rename_edit->call_deferred("connect", "focus_exited", callable_mp(this, &BTGraphEditor::_on_rename_edit_focus_exited));
+}
+
+void BTGraphEditor::_setup_popup_menu()
+{
+    ERR_FAIL_COND(this->graph_edit == nullptr);
+
+    this->main_popup_menu = memnew(godot::PopupMenu);
+    this->main_popup_menu->set_name("MainPopupMenu");
+    this->main_popup_menu->set_allow_search(false);
+
+    this->task_type_popup_menu = memnew(godot::PopupMenu);
+    this->task_type_popup_menu->set_name("TaskTypePopupMenu");
+
+    this->main_popup_menu->add_child(this->task_type_popup_menu);
+
+    this->main_popup_menu->add_item("Change name");
+    this->main_popup_menu->add_submenu_item("Change task type", "TaskTypePopupMenu");
+
+    this->editor_plugin->add_child(this->main_popup_menu);
 }
 
 BTGraphEditor:: ~BTGraphEditor()
@@ -255,6 +283,7 @@ void BTGraphEditor::create_default_graph_nodes()
 
         bt_graph_node->call_deferred("connect", "dragged", callable_mp(this, &BTGraphEditor::_node_dragged).bind(bt_graph_node->get_name()));
         bt_graph_node->call_deferred("connect", "double_clicked", callable_mp(this, &BTGraphEditor::_on_node_double_clicked));
+        bt_graph_node->call_deferred("connect", "right_clicked", callable_mp(this, &BTGraphEditor::_on_node_right_clicked));
         godot::OptionButton* option_button = bt_graph_node->get_task_type_opition_button();
         option_button->call_deferred("connect", "item_selected", callable_mp(this, &BTGraphEditor::_task_type_item_selected).bind(bt_graph_node->get_name()));
     }
@@ -487,6 +516,7 @@ void BTGraphEditor::_add_new_node_button_pressed()
 
     bt_graph_node->call_deferred("connect", "dragged", callable_mp(this, &BTGraphEditor::_node_dragged).bind(bt_graph_node->get_name()));
     bt_graph_node->call_deferred("connect", "double_clicked", callable_mp(this, &BTGraphEditor::_on_node_double_clicked));
+    bt_graph_node->call_deferred("connect", "right_clicked", callable_mp(this, &BTGraphEditor::_on_node_right_clicked));
     godot::OptionButton* option_button = bt_graph_node->get_task_type_opition_button();
     option_button->call_deferred("connect", "item_selected", callable_mp(this, &BTGraphEditor::_task_type_item_selected).bind(bt_graph_node->get_name()));
 
@@ -601,11 +631,19 @@ void BTGraphEditor::_on_node_double_clicked(BTGraphNode* clicked_node)
     /* grab_focus should be a deferred call. See:
      * https://docs.godotengine.org/en/stable/classes/class_control.html#class-control-method-grab-focus */
     this->rename_edit->call_deferred("grab_focus");
-    this->rename_edit->set_position(godot::Vector2(this->last_double_clicked_node->get_position().x, 
-                                                   this->last_double_clicked_node->get_position().y - this->rename_edit->get_size().y));
+    this->rename_edit->set_position(godot::Vector2(clicked_node->get_position().x, 
+                                                   clicked_node->get_position().y - this->rename_edit->get_size().y));
     
     /* show up on front not behind */
     this->rename_edit->set_z_index(clicked_node->get_z_index() + 1);
+}
+
+void BTGraphEditor::_on_node_right_clicked(BTGraphNode* clicked_node)
+{
+    this->main_popup_menu->set_visible(true);
+    this->main_popup_menu->set_position(godot::Vector2(clicked_node->get_global_position().x,
+                                                       clicked_node->get_global_position().y));
+    this->main_popup_menu->call_deferred("grab_focus");
 }
 
 void BTGraphEditor::_task_type_item_selected(int id, godot::StringName node_name)

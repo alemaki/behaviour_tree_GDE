@@ -1,16 +1,5 @@
 #include "bt_graph_node.hpp"
 #include <godot_cpp/variant/utility_functions.hpp>
-#include "behaviour_tree/tasks/bt_task.hpp"
-#include "behaviour_tree/tasks/composites/bt_selector.hpp"
-#include "behaviour_tree/tasks/composites/bt_sequence.hpp"
-#include "behaviour_tree/tasks/composites/bt_random_selector.hpp"
-#include "behaviour_tree/tasks/composites/bt_random_sequence.hpp"
-#include "behaviour_tree/tasks/decorators/bt_always_fail.hpp"
-#include "behaviour_tree/tasks/decorators/bt_always_succeed.hpp"
-#include "behaviour_tree/tasks/decorators/bt_invert.hpp"
-#include "behaviour_tree/tasks/decorators/bt_probability.hpp"
-#include "behaviour_tree/tasks/decorators/bt_repeat.hpp"
-#include "behaviour_tree/tasks/bt_action.hpp"
 
 BTGraphNode::BTGraphNode()
 {
@@ -30,7 +19,10 @@ void BTGraphNode::_setup_connections_ui()
 
 void BTGraphNode::_setup_task_type_option_button()
 {
-    const godot::Vector<godot::StringName> task_names =
+    this->task_type_opition_button = memnew(godot::OptionButton);
+    this->add_child(this->task_type_opition_button);
+
+    godot::Vector<godot::StringName> task_names = 
     {
         BTTask::get_class_static(),
         BTSelector::get_class_static(),
@@ -42,11 +34,8 @@ void BTGraphNode::_setup_task_type_option_button()
         BTInvert::get_class_static(),
         BTProbability::get_class_static(),
         BTRepeat::get_class_static(),
-        BTAction::get_class_static()
+        BTAction::get_class_static(),
     };
-
-    this->task_type_opition_button = memnew(godot::OptionButton);
-    this->add_child(this->task_type_opition_button);
 
     this->task_type_opition_button->add_item(task_names[0]);
 
@@ -92,7 +81,9 @@ void BTGraphNode::set_graph_edit(godot::GraphEdit* graph_edit)
 
 void BTGraphNode::set_task(godot::Ref<BTTask> task)
 {
-    const godot::Vector<godot::StringName> task_names =
+    godot::StringName class_name = task->get_class();
+
+    godot::Vector<godot::StringName> task_names = 
     {
         BTTask::get_class_static(),
         BTSelector::get_class_static(),
@@ -104,10 +95,9 @@ void BTGraphNode::set_task(godot::Ref<BTTask> task)
         BTInvert::get_class_static(),
         BTProbability::get_class_static(),
         BTRepeat::get_class_static(),
-        BTAction::get_class_static()
+        BTAction::get_class_static(),
     };
 
-    godot::StringName class_name = task->get_class();
     int id = task_names.find(class_name);
     ERR_FAIL_COND_MSG(id == -1, "Task name doesn't exist.");
     this->task_type_opition_button->select(id);
@@ -122,6 +112,10 @@ void BTGraphNode::_on_gui_input(const godot::Ref<godot::InputEvent>& event)
     {
         this->emit_signal("double_clicked", this);
     }
+    if (click_event != nullptr && click_event->get_button_index() == godot::MOUSE_BUTTON_RIGHT)
+    {
+        this->emit_signal("right_clicked", this);
+    }
 }
 
 void BTGraphNode::_bind_methods()
@@ -135,4 +129,5 @@ void BTGraphNode::_bind_methods()
     ClassDB::bind_method(D_METHOD("get_task"), &BTGraphNode::get_task);
 
     ADD_SIGNAL(MethodInfo("double_clicked", PropertyInfo(Variant::OBJECT, "BTGraphNode", PROPERTY_HINT_NONE, "Control")));
+    ADD_SIGNAL(MethodInfo("right_clicked", PropertyInfo(Variant::OBJECT, "BTGraphNode", PROPERTY_HINT_NONE, "Control")));
 }
