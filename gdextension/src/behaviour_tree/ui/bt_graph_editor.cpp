@@ -11,7 +11,7 @@ BTGraphEditor::BTGraphEditor()
 
     this->graph_edit->call_deferred("connect", "connection_request", callable_mp(this, &BTGraphEditor::connection_request));
     this->graph_edit->call_deferred("connect", "disconnection_request", callable_mp(this, &BTGraphEditor::disconnection_request));
-    this->graph_edit->call_deferred("connect", "delete_nodes_request", callable_mp(this, &BTGraphEditor::delete_nodes_request));
+    this->graph_edit->call_deferred("connect", "delete_nodes_request", callable_mp(this, &BTGraphEditor::_delete_nodes_request));
 
     /* right to left */
     this->graph_edit->add_valid_connection_type(1, 0);
@@ -49,12 +49,37 @@ void BTGraphEditor::_setup_popup_menu()
     this->task_type_popup_menu = memnew(godot::PopupMenu);
     this->task_type_popup_menu->set_name("TaskTypePopupMenu");
 
+    godot::Vector<godot::StringName> task_names = 
+    {
+        BTTask::get_class_static(),
+        BTSelector::get_class_static(),
+        BTSequence::get_class_static(),
+        BTRandomSelector::get_class_static(),
+        BTRandomSequence::get_class_static(),
+        BTAlwaysFail::get_class_static(),
+        BTAlwaysSucceed::get_class_static(),
+        BTInvert::get_class_static(),
+        BTProbability::get_class_static(),
+        BTRepeat::get_class_static(),
+        BTAction::get_class_static(),
+    };
+
+    for (const godot::StringName& task_name : task_names)
+    {
+        this->task_type_popup_menu->add_radio_check_item(task_name);
+    }
+
     this->main_popup_menu->add_child(this->task_type_popup_menu);
 
     this->main_popup_menu->add_item("Change name");
+    this->main_popup_menu->add_item("Set root");
+    this->main_popup_menu->add_item("Delete");
     this->main_popup_menu->add_submenu_item("Change task type", "TaskTypePopupMenu");
 
-    this->editor_plugin->add_child(this->main_popup_menu);
+    this->graph_edit->add_child(this->main_popup_menu);
+
+    this->task_type_popup_menu->call_deferred("connect", "id_pressed", callable_mp(this, &BTGraphEditor::_on_task_type_popup_menu_item_selected));
+    this->main_popup_menu->call_deferred("connect", "id_pressed", callable_mp(this, &BTGraphEditor::_on_main_popup_menu_item_selected));
 }
 
 BTGraphEditor:: ~BTGraphEditor()
@@ -377,22 +402,9 @@ void BTGraphEditor::arrange_nodes()
     undo_redo_manager->commit_action();
 }
 
-void BTGraphEditor::delete_nodes_request(godot::TypedArray<godot::StringName> _nodes_to_delete)
+void BTGraphEditor::delete_nodes(const godot::Vector<BTGraphNode*>& nodes_to_delete)
 {
-    godot::Vector<BTGraphNode*> nodes_to_delete;
-    int size = _nodes_to_delete.size();
-    nodes_to_delete.resize(size);
-
-    ERR_FAIL_COND(size == 0);
-
-    /* Honestly, the best solution I can think of right now is to just disable it. 
-     * https://en.wikipedia.org/wiki/Ostrich_algorithm .*/
-    ERR_FAIL_COND_EDMSG(size != 1, "Cannot delete mutliple nodes.");
-
-    for (int i = 0; i < size; i++)
-    {
-        nodes_to_delete.set(i, this->name_to_node[_nodes_to_delete[i]]);
-    }
+    int size = nodes_to_delete.size();
     godot::EditorUndoRedoManager* undo_redo_manager = this->editor_plugin->get_undo_redo();
 
     undo_redo_manager->create_action("Delete node(s)");
@@ -442,6 +454,28 @@ void BTGraphEditor::delete_nodes_request(godot::TypedArray<godot::StringName> _n
     }
 
     undo_redo_manager->commit_action();
+}
+
+void BTGraphEditor::_delete_nodes_request(godot::TypedArray<godot::StringName> _nodes_to_delete)
+{
+    godot::Vector<BTGraphNode*> nodes_to_delete;
+    int size = _nodes_to_delete.size();
+    nodes_to_delete.resize(size);
+
+    ERR_FAIL_COND(size == 0);
+
+    /* Honestly, the best solution I can think of right now is to just disable it,
+     * because undoing all the deleted connections will be a pain.
+     * https://en.wikipedia.org/wiki/Ostrich_algorithm .*/
+    ERR_FAIL_COND_EDMSG(size != 1, "Cannot delete mutliple nodes.");
+
+    for (int i = 0; i < size; i++)
+    {
+        nodes_to_delete.set(i, this->name_to_node[_nodes_to_delete[i]]);
+    }
+
+    this->delete_nodes(nodes_to_delete);
+    
 }
 
 void BTGraphEditor::set_behaviour_tree(BehaviourTree* new_tree)
@@ -527,23 +561,11 @@ void BTGraphEditor::_arrange_nodes_button_pressed()
     this->arrange_nodes();
 }
 
-void BTGraphEditor::_set_root_button_pressed()
+void BTGraphEditor::set_root_node(BTGraphNode* new_root_node)
 {
-    BTGraphNode* new_root;
-    BTGraphNode* old_root = task_to_node[this->behaviour_tree->get_root_task()];
-    bool found = false;
-
-    for (const godot::KeyValue<godot::Ref<BTTask>, BTGraphNode*>& element : task_to_node)
-    {
-        if (element.value->is_selected())
-        {
-            ERR_FAIL_COND_EDMSG(found, "Cannot set multiple root nodes.");
-            new_root = element.value;
-            found = true;
-        }
-    }
-
-    if (new_root == old_root)
+    BTGraphNode* old_root_node = task_to_node[this->behaviour_tree->get_root_task()];
+    
+    if (new_root_node == old_root_node)
     {
         return;
     }
@@ -552,13 +574,32 @@ void BTGraphEditor::_set_root_button_pressed()
 
     undo_redo_manager->create_action("Set root node.");
 
-    undo_redo_manager->add_do_method(this->behaviour_tree, "set_root_task", new_root->get_task());
+    undo_redo_manager->add_do_method(this->behaviour_tree, "set_root_task", new_root_node->get_task());
     undo_redo_manager->add_do_method(this, "evaluate_root_node");
 
-    undo_redo_manager->add_undo_method(this->behaviour_tree, "set_root_task", old_root->get_task());
+    undo_redo_manager->add_undo_method(this->behaviour_tree, "set_root_task", old_root_node->get_task());
     undo_redo_manager->add_undo_method(this, "evaluate_root_node");
 
     undo_redo_manager->commit_action();
+}
+
+void BTGraphEditor::_set_root_button_pressed()
+{
+    BTGraphNode* new_root_node;
+    bool found = false;
+
+    for (const godot::KeyValue<godot::Ref<BTTask>, BTGraphNode*>& element : task_to_node)
+    {
+        if (element.value->is_selected())
+        {
+            ERR_FAIL_COND_EDMSG(found, "Cannot set multiple root nodes.");
+            new_root_node = element.value;
+            found = true;
+        }
+    }
+
+    this->set_root_node(new_root_node);
+
     return;
 }
 
@@ -640,10 +681,41 @@ void BTGraphEditor::_on_node_double_clicked(BTGraphNode* clicked_node)
 
 void BTGraphEditor::_on_node_right_clicked(BTGraphNode* clicked_node)
 {
+    int current_screen = clicked_node->get_viewport()->get_window()->get_current_screen();
+    godot::Vector2 global_position = clicked_node->get_global_position();
+
     this->main_popup_menu->set_visible(true);
-    this->main_popup_menu->set_position(godot::Vector2(clicked_node->get_global_position().x,
-                                                       clicked_node->get_global_position().y));
+    this->main_popup_menu->set_current_screen(current_screen);
+    this->main_popup_menu->set_position(global_position);
     this->main_popup_menu->call_deferred("grab_focus");
+    
+    this->last_right_clicked_node = clicked_node;
+}
+
+void BTGraphEditor::_on_main_popup_menu_item_selected(int id)
+{
+    godot::String item = this->main_popup_menu->get_item_text(id);
+    if (item == "Change name")
+    {
+        /* TODO: fix this abomination*/
+        this->last_double_clicked_node = this->last_right_clicked_node;
+        this->_on_node_double_clicked(this->last_right_clicked_node);
+        return;
+    }
+    else if (item == "Set root")
+    {
+        this->set_root_node(this->last_right_clicked_node);
+        return;
+    }
+    else if (item == "Delete")
+    {
+        this->delete_nodes({this->last_right_clicked_node});
+    }
+}
+
+void _on_task_type_popup_menu_item_selected(int id)
+{
+    
 }
 
 void BTGraphEditor::_task_type_item_selected(int id, godot::StringName node_name)
@@ -707,7 +779,7 @@ void BTGraphEditor::_bind_methods()
     ClassDB::bind_method(D_METHOD("_node_dragged", "from", "to", "node_name"), &BTGraphEditor::_node_dragged);
     ClassDB::bind_method(D_METHOD("connection_request", "from_node", "from_port", "to_node", "to_port"), &BTGraphEditor::connection_request);
     ClassDB::bind_method(D_METHOD("disconnection_request", "from_node", "from_port", "to_node", "to_port"), &BTGraphEditor::disconnection_request);
-    ClassDB::bind_method(D_METHOD("delete_nodes_request", "nodes_to_delete"), &BTGraphEditor::delete_nodes_request);
+    ClassDB::bind_method(D_METHOD("_delete_nodes_request", "nodes_to_delete"), &BTGraphEditor::_delete_nodes_request);
     ClassDB::bind_method(D_METHOD("clear_graph_nodes"), &BTGraphEditor::clear_graph_nodes);
     ClassDB::bind_method(D_METHOD("create_default_graph_nodes"), &BTGraphEditor::create_default_graph_nodes);
     ClassDB::bind_method(D_METHOD("arrange_nodes"), &BTGraphEditor::arrange_nodes);

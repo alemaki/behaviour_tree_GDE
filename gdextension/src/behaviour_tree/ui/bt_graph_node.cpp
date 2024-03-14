@@ -21,7 +21,8 @@ void BTGraphNode::_setup_task_type_option_button()
 {
     this->task_type_opition_button = memnew(godot::OptionButton);
     this->add_child(this->task_type_opition_button);
-
+ 
+    /* TODO: Think of a better solution. */
     godot::Vector<godot::StringName> task_names = 
     {
         BTTask::get_class_static(),

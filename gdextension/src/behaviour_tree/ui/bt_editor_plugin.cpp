@@ -38,6 +38,7 @@ BTEditorPlugin::BTEditorPlugin()
                                     this->bottom_panel_button_name);
 
     this->_make_visible(false);
+
 }
 
 BTEditorPlugin::~BTEditorPlugin()

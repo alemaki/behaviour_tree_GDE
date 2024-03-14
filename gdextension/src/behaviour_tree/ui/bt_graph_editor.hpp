@@ -47,6 +47,7 @@ private:
     godot::PopupMenu* task_type_popup_menu;
 
     BTGraphNode* last_double_clicked_node;
+    BTGraphNode* last_right_clicked_node;
 
 private:
     void _setup_popup_menu();
@@ -73,13 +74,15 @@ private:
     int get_node_insert_index_by_y_in_children(BTGraphNode* parent_graph_node, BTGraphNode* graph_node);
     void _add_new_node_button_pressed();
     void _arrange_nodes_button_pressed();
+    void set_root_node(BTGraphNode* new_root_node);
     void _set_root_button_pressed();
     void _clear_graph_button_pressed();
     void _node_dragged(const godot::Vector2 &_from, const godot::Vector2 &_to, godot::StringName node_name);
     void _move_nodes();
     void connection_request(godot::StringName _from_node, int from_port, godot::StringName _to_node, int to_port);
     void disconnection_request(godot::StringName _from_node, int from_port, godot::StringName _to_node, int to_port);
-    void delete_nodes_request(godot::TypedArray<godot::StringName> _nodes_to_delete);
+    void delete_nodes(const godot::Vector<BTGraphNode*>& nodes_to_delete);
+    void _delete_nodes_request(godot::TypedArray<godot::StringName> _nodes_to_delete);
     void clear_graph_nodes();
     void create_default_graph_nodes();
     void _extract_node_levels_into_stack(BTGraphNode* root_node, godot::Vector<godot::Pair<BTGraphNode*, int>>& stack,  int current_level = 0);
@@ -89,6 +92,8 @@ private:
     void _on_rename_edit_focus_exited();
     void _on_node_double_clicked(BTGraphNode* clicked_node);
     void _on_node_right_clicked(BTGraphNode* clicked_node);
+    void _on_main_popup_menu_item_selected(int id);
+    void _on_task_type_popup_menu_item_selected(int id);
     void _task_type_item_selected(int id, godot::StringName node_name);
 
 public:
