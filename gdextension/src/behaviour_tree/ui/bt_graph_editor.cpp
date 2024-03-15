@@ -74,7 +74,7 @@ void BTGraphEditor::_setup_popup_menu()
     this->main_popup_menu->add_item("Change name");
     this->main_popup_menu->add_item("Set root");
     this->main_popup_menu->add_item("Delete");
-    this->main_popup_menu->add_submenu_item("Change task type", "TaskTypePopupMenu");
+    this->main_popup_menu->add_submenu_item("Task type", "TaskTypePopupMenu");
 
     this->graph_edit->add_child(this->main_popup_menu);
 
@@ -642,15 +642,9 @@ void BTGraphEditor::_on_rename_edit_text_submitted(const godot::String& new_text
 
     undo_redo_manager->add_do_method(this->behaviour_tree, "set_custom_name_task_by_ref", this->last_double_clicked_node->get_task(), new_text);
     undo_redo_manager->add_do_method(this->last_double_clicked_node, "set_title", new_text);
-    /* reset node */
-    undo_redo_manager->add_do_method(this, "erase_node", this->last_double_clicked_node);
-    undo_redo_manager->add_do_method(this, "insert_node", this->last_double_clicked_node);
 
     undo_redo_manager->add_undo_method(this->last_double_clicked_node, "set_title", old_text);
     undo_redo_manager->add_undo_method(this->behaviour_tree, "set_custom_name_task_by_ref", this->last_double_clicked_node->get_task(), old_text);
-    /* reset node */
-    undo_redo_manager->add_do_method(this, "erase_node", this->last_double_clicked_node);
-    undo_redo_manager->add_do_method(this, "insert_node", this->last_double_clicked_node);
 
     undo_redo_manager->commit_action();
 
@@ -690,6 +684,31 @@ void BTGraphEditor::_on_node_right_clicked(BTGraphNode* clicked_node)
     this->main_popup_menu->call_deferred("grab_focus");
     
     this->last_right_clicked_node = clicked_node;
+
+    godot::Vector<godot::StringName> task_names = 
+    {
+        BTTask::get_class_static(),
+        BTSelector::get_class_static(),
+        BTSequence::get_class_static(),
+        BTRandomSelector::get_class_static(),
+        BTRandomSequence::get_class_static(),
+        BTAlwaysFail::get_class_static(),
+        BTAlwaysSucceed::get_class_static(),
+        BTInvert::get_class_static(),
+        BTProbability::get_class_static(),
+        BTRepeat::get_class_static(),
+        BTAction::get_class_static(),
+    };
+    
+    /* TODO: find better solution. */
+    for (int i = 0, size = task_names.size(); i < size; i++)
+    {
+        this->task_type_popup_menu->set_item_checked(i, false);
+    }
+
+    godot::Ref<BTTask> task = clicked_node->get_task();
+    int id = task_names.find(task->get_class());
+    this->task_type_popup_menu->set_item_checked(id, true);
 }
 
 void BTGraphEditor::_on_main_popup_menu_item_selected(int id)
@@ -713,20 +732,15 @@ void BTGraphEditor::_on_main_popup_menu_item_selected(int id)
     }
 }
 
-void _on_task_type_popup_menu_item_selected(int id)
+void BTGraphEditor::_on_task_type_popup_menu_item_selected(int id)
 {
-    
+    godot::String item = this->task_type_popup_menu->get_item_text(id);
+
+    this->change_task_type(item, this->last_right_clicked_node);
 }
 
-void BTGraphEditor::_task_type_item_selected(int id, godot::StringName node_name)
+void BTGraphEditor::change_task_type(const godot::StringName& class_name, BTGraphNode* node)
 {
-    BTGraphNode* node = this->name_to_node[node_name];
-
-    ERR_FAIL_COND_MSG(node == nullptr, vformat("Node name not found: %s", node_name));
-
-    int index = node->get_task_type_opition_button()->get_item_index(id);
-    godot::String class_name = node->get_task_type_opition_button()->get_item_text(index);
-
     if (node->get_task()->get_class() == class_name)
     {
         return;
@@ -753,7 +767,18 @@ void BTGraphEditor::_task_type_item_selected(int id, godot::StringName node_name
     undo_redo_manager->add_undo_method(this, "insert_node", node);
 
     undo_redo_manager->commit_action();
+}
 
+void BTGraphEditor::_task_type_item_selected(int id, godot::StringName node_name)
+{
+    BTGraphNode* node = this->name_to_node[node_name];
+
+    ERR_FAIL_COND_MSG(node == nullptr, vformat("Node name not found: %s", node_name));
+
+    int index = node->get_task_type_opition_button()->get_item_index(id);
+    godot::String class_name = node->get_task_type_opition_button()->get_item_text(index);
+
+    this->change_task_type(class_name, node);
 }
 
 

@@ -94,6 +94,7 @@ private:
     void _on_node_right_clicked(BTGraphNode* clicked_node);
     void _on_main_popup_menu_item_selected(int id);
     void _on_task_type_popup_menu_item_selected(int id);
+    void change_task_type(const godot::StringName& class_name, BTGraphNode* node);
     void _task_type_item_selected(int id, godot::StringName node_name);
 
 public:
