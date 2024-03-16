@@ -3,7 +3,15 @@
 
 BTGraphNode::BTGraphNode()
 {
-    this->setup_default();
+    this->_setup_connections_ui();
+    this->_setup_task_type_label();
+
+    this->set_resizable(false);
+    this->set_custom_minimum_size(godot::Size2(100, 30));
+
+    this->set_position_offset(godot::Vector2(100, 100));
+
+    this->call_deferred("connect", "gui_input", callable_mp(this, &BTGraphNode::_on_gui_input));
 }
 
 void BTGraphNode::_setup_connections_ui()
@@ -17,58 +25,10 @@ void BTGraphNode::_setup_connections_ui()
 
 }
 
-void BTGraphNode::_setup_task_type_option_button()
+void BTGraphNode::_setup_task_type_label()
 {
-    this->task_type_opition_button = memnew(godot::OptionButton);
-    this->add_child(this->task_type_opition_button);
- 
-    /* TODO: Think of a better solution. */
-    godot::Vector<godot::StringName> task_names = 
-    {
-        BTTask::get_class_static(),
-        BTSelector::get_class_static(),
-        BTSequence::get_class_static(),
-        BTRandomSelector::get_class_static(),
-        BTRandomSequence::get_class_static(),
-        BTAlwaysFail::get_class_static(),
-        BTAlwaysSucceed::get_class_static(),
-        BTInvert::get_class_static(),
-        BTProbability::get_class_static(),
-        BTRepeat::get_class_static(),
-        BTAction::get_class_static(),
-    };
-
-    this->task_type_opition_button->add_item(task_names[0]);
-
-    /* composites */
-    this->task_type_opition_button->add_item(task_names[1]);
-    this->task_type_opition_button->add_item(task_names[2]);
-    this->task_type_opition_button->add_item(task_names[3]);
-    this->task_type_opition_button->add_item(task_names[4]);
-
-    /* decorators */
-    this->task_type_opition_button->add_item(task_names[5]);
-    this->task_type_opition_button->add_item(task_names[6]);
-    this->task_type_opition_button->add_item(task_names[7]);
-    this->task_type_opition_button->add_item(task_names[8]);
-    this->task_type_opition_button->add_item(task_names[9]);
-
-    /* actions */
-    this->task_type_opition_button->add_item(task_names[10]);
-
-}
-
-void BTGraphNode::setup_default()
-{
-    this->_setup_connections_ui();
-    this->_setup_task_type_option_button();
-
-    this->set_resizable(false);
-    this->set_custom_minimum_size(godot::Size2(100, 30));
-
-    this->set_position_offset(godot::Vector2(100, 100));
-
-    this->call_deferred("connect", "gui_input", callable_mp(this, &BTGraphNode::_on_gui_input));
+    this->task_type_label = memnew(godot::Label);
+    this->add_child(this->task_type_label);
 }
 
 void BTGraphNode::set_graph_edit(godot::GraphEdit* graph_edit)
@@ -101,8 +61,8 @@ void BTGraphNode::set_task(godot::Ref<BTTask> task)
 
     int id = task_names.find(class_name);
     ERR_FAIL_COND_MSG(id == -1, "Task name doesn't exist.");
-    this->task_type_opition_button->select(id);
 
+    this->task_type_label->set_text(class_name);
     this->task = task;
 }
 

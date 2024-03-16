@@ -309,8 +309,6 @@ void BTGraphEditor::create_default_graph_nodes()
         bt_graph_node->call_deferred("connect", "dragged", callable_mp(this, &BTGraphEditor::_node_dragged).bind(bt_graph_node->get_name()));
         bt_graph_node->call_deferred("connect", "double_clicked", callable_mp(this, &BTGraphEditor::_on_node_double_clicked));
         bt_graph_node->call_deferred("connect", "right_clicked", callable_mp(this, &BTGraphEditor::_on_node_right_clicked));
-        godot::OptionButton* option_button = bt_graph_node->get_task_type_opition_button();
-        option_button->call_deferred("connect", "item_selected", callable_mp(this, &BTGraphEditor::_task_type_item_selected).bind(bt_graph_node->get_name()));
     }
 
     for (int i = 0, size = tasks.size(); i < size; i++)
@@ -551,8 +549,6 @@ void BTGraphEditor::_add_new_node_button_pressed()
     bt_graph_node->call_deferred("connect", "dragged", callable_mp(this, &BTGraphEditor::_node_dragged).bind(bt_graph_node->get_name()));
     bt_graph_node->call_deferred("connect", "double_clicked", callable_mp(this, &BTGraphEditor::_on_node_double_clicked));
     bt_graph_node->call_deferred("connect", "right_clicked", callable_mp(this, &BTGraphEditor::_on_node_right_clicked));
-    godot::OptionButton* option_button = bt_graph_node->get_task_type_opition_button();
-    option_button->call_deferred("connect", "item_selected", callable_mp(this, &BTGraphEditor::_task_type_item_selected).bind(bt_graph_node->get_name()));
 
 }
 
@@ -675,12 +671,12 @@ void BTGraphEditor::_on_node_double_clicked(BTGraphNode* clicked_node)
 
 void BTGraphEditor::_on_node_right_clicked(BTGraphNode* clicked_node)
 {
-    int current_screen = clicked_node->get_viewport()->get_window()->get_current_screen();
     godot::Vector2 global_position = clicked_node->get_global_position();
+    int current_screen = clicked_node->get_viewport()->get_window()->get_current_screen();
 
     this->main_popup_menu->set_visible(true);
-    this->main_popup_menu->set_current_screen(current_screen);
     this->main_popup_menu->set_position(global_position);
+    this->main_popup_menu->set_current_screen(current_screen);
     this->main_popup_menu->call_deferred("grab_focus");
     
     this->last_right_clicked_node = clicked_node;
@@ -699,7 +695,7 @@ void BTGraphEditor::_on_node_right_clicked(BTGraphNode* clicked_node)
         BTRepeat::get_class_static(),
         BTAction::get_class_static(),
     };
-    
+
     /* TODO: find better solution. */
     for (int i = 0, size = task_names.size(); i < size; i++)
     {
@@ -768,19 +764,6 @@ void BTGraphEditor::change_task_type(const godot::StringName& class_name, BTGrap
 
     undo_redo_manager->commit_action();
 }
-
-void BTGraphEditor::_task_type_item_selected(int id, godot::StringName node_name)
-{
-    BTGraphNode* node = this->name_to_node[node_name];
-
-    ERR_FAIL_COND_MSG(node == nullptr, vformat("Node name not found: %s", node_name));
-
-    int index = node->get_task_type_opition_button()->get_item_index(id);
-    godot::String class_name = node->get_task_type_opition_button()->get_item_text(index);
-
-    this->change_task_type(class_name, node);
-}
-
 
 void BTGraphEditor::_bind_methods()
 {
