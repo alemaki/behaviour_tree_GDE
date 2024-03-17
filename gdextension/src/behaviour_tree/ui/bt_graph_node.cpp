@@ -73,7 +73,7 @@ void BTGraphNode::_on_gui_input(const godot::Ref<godot::InputEvent>& event)
     {
         this->emit_signal("double_clicked", this);
     }
-    if (click_event != nullptr && click_event->get_button_index() == godot::MOUSE_BUTTON_RIGHT)
+    if (click_event != nullptr && click_event->get_button_index() == godot::MOUSE_BUTTON_RIGHT && click_event->is_released())
     {
         this->emit_signal("right_clicked", this);
     }

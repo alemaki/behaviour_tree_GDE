@@ -52,16 +52,17 @@ void initialize_gdextension_module(ModuleInitializationLevel p_level)
 		ClassDB::register_class<BTTask>();
 		ClassDB::register_class<BTDecorator>();
 		ClassDB::register_class<BTComposite>();
-		ClassDB::register_class<BTCondition>();
-		ClassDB::register_class<BTAction>();
 		ClassDB::register_class<BTSelector>();
 		ClassDB::register_class<BTSequence>();
 		ClassDB::register_class<BTRandomSequence>();
 		ClassDB::register_class<BTRandomSelector>();
+		ClassDB::register_class<BTCondition>();
 		ClassDB::register_class<BTAlwaysSucceed>();
 		ClassDB::register_class<BTAlwaysFail>();
 		ClassDB::register_class<BTInvert>();
 		ClassDB::register_class<BTProbability>();
+		ClassDB::register_class<BTRepeat>();
+		ClassDB::register_class<BTAction>();
 
 		ClassDB::register_class<BehaviourTree>();
 	}

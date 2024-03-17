@@ -16,7 +16,6 @@
 class BTEditorPlugin;
 #endif /* BT_EDITOR_PLUGIN_FORWARD */
 
-
 class BTGraphEditor : public godot::Object
 {
     GDCLASS(BTGraphEditor, godot::Object)
@@ -25,11 +24,9 @@ class BTGraphEditor : public godot::Object
 
 private:
     godot::EditorPlugin* editor_plugin;
-
     godot::GraphEdit* graph_edit;
-
     BehaviourTree* behaviour_tree;
-
+    
     godot::HashMap<godot::StringName, BTGraphNode*> name_to_node;
     godot::HashMap<godot::Ref<BTTask>, BTGraphNode*> task_to_node;
 
@@ -50,58 +47,71 @@ private:
     BTGraphNode* last_right_clicked_node;
 
 private:
+    /* Setup Methods */
     void _setup_popup_menu();
     void _setup_rename_edit();
-private:
-    void set_editor_plugin(godot::EditorPlugin* editor_plugin);
-    _FORCE_INLINE_ godot::GraphEdit* get_graph_edit()
-    {
-        return this->graph_edit;
-    }
+
+    /* Utility Methods */
     BTGraphNode* new_bt_graph_node();
     BTGraphNode* new_bt_graph_node_from_task(godot::Ref<BTTask> bt_task);
-
     godot::Array get_graph_nodes();
-
-    void set_behaviour_tree(BehaviourTree* new_tree);
-    _FORCE_INLINE_ BehaviourTree* get_behaviour_tree()
-    {
-        return this->behaviour_tree;
-    }
-    void insert_node(BTGraphNode* bt_graph_node);
-    void erase_node(BTGraphNode* bt_graph_node);
     godot::Array get_sorted_by_y_children_of_parent(BTGraphNode* parent_graph_node);
     int get_node_insert_index_by_y_in_children(BTGraphNode* parent_graph_node, BTGraphNode* graph_node);
-    void _add_new_node_button_pressed();
-    void _arrange_nodes_button_pressed();
-    void set_root_node(BTGraphNode* new_root_node);
-    void _set_root_button_pressed();
-    void _clear_graph_button_pressed();
-    void _node_dragged(const godot::Vector2 &_from, const godot::Vector2 &_to, godot::StringName node_name);
-    void _move_nodes();
-    void connection_request(godot::StringName _from_node, int from_port, godot::StringName _to_node, int to_port);
-    void disconnection_request(godot::StringName _from_node, int from_port, godot::StringName _to_node, int to_port);
+    void _extract_node_levels_into_stack(BTGraphNode* root_node, godot::Vector<godot::Pair<BTGraphNode*, int>>& stack, int current_level = 0);
+
+    /* Node Management */
+    void insert_node(BTGraphNode* bt_graph_node);
+    void erase_node(BTGraphNode* bt_graph_node);
     void delete_nodes(const godot::Vector<BTGraphNode*>& nodes_to_delete);
-    void _delete_nodes_request(godot::TypedArray<godot::StringName> _nodes_to_delete);
     void clear_graph_nodes();
     void create_default_graph_nodes();
-    void _extract_node_levels_into_stack(BTGraphNode* root_node, godot::Vector<godot::Pair<BTGraphNode*, int>>& stack,  int current_level = 0);
+    void set_root_node(BTGraphNode* new_root_node);
     void arrange_nodes();
     void evaluate_root_node();
+
+    /* Drag and Drop */
+    void _node_dragged(const godot::Vector2& _from, const godot::Vector2& _to, godot::StringName node_name);
+    void _move_nodes();
+
+    /* Event Handlers */
+    void _add_new_node_button_pressed();
+    void _arrange_nodes_button_pressed();
+    void _set_root_button_pressed();
+    void _clear_graph_button_pressed();
     void _on_rename_edit_text_submitted(const godot::String& new_text);
     void _on_rename_edit_focus_exited();
     void _on_node_double_clicked(BTGraphNode* clicked_node);
     void _on_node_right_clicked(BTGraphNode* clicked_node);
     void _on_main_popup_menu_item_selected(int id);
     void _on_task_type_popup_menu_item_selected(int id);
+    void _on_main_popup_menu_close_requested();
+
+    /* Connection Handling */
+    void connection_request(godot::StringName _from_node, int from_port, godot::StringName _to_node, int to_port);
+    void disconnection_request(godot::StringName _from_node, int from_port, godot::StringName _to_node, int to_port);
+    void _delete_nodes_request(godot::TypedArray<godot::StringName> _nodes_to_delete);
+
+    /* Task Management */
     void change_task_type(const godot::StringName& class_name, BTGraphNode* node);
+
+    /* Getters and Setters */
+    void set_editor_plugin(godot::EditorPlugin* editor_plugin);
+    _FORCE_INLINE_ godot::GraphEdit* get_graph_edit()
+    {
+        return this->graph_edit;
+        }
+    void set_behaviour_tree(BehaviourTree* new_tree);
+    _FORCE_INLINE_ BehaviourTree* get_behaviour_tree()
+    {
+        return this->behaviour_tree; 
+    }
+
 public:
     BTGraphEditor();
     ~BTGraphEditor();
-
 
 protected:
     static void _bind_methods();
 };
 
-#endif //BT_GRAPH_EDIT_HPP
+#endif /* BT_GRAPH_EDIT_HPP */
