@@ -85,11 +85,11 @@ private:
     void _on_main_popup_menu_item_selected(int id);
     void _on_task_type_popup_menu_item_selected(int id);
     void _on_main_popup_menu_close_requested();
+    void _delete_nodes_request(godot::TypedArray<godot::StringName> _nodes_to_delete);
 
     /* Connection Handling */
     void connection_request(godot::StringName _from_node, int from_port, godot::StringName _to_node, int to_port);
     void disconnection_request(godot::StringName _from_node, int from_port, godot::StringName _to_node, int to_port);
-    void _delete_nodes_request(godot::TypedArray<godot::StringName> _nodes_to_delete);
 
     /* Task Management */
     void change_task_type(const godot::StringName& class_name, BTGraphNode* node);
