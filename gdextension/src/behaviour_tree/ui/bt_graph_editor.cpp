@@ -376,6 +376,7 @@ void BTGraphEditor::arrange_nodes()
 
     BTGraphNode* root_node = this->task_to_node[this->behaviour_tree->get_root_task()];
     ERR_FAIL_COND(root_node == nullptr);
+
     godot::Vector<godot::Pair<BTGraphNode*, int>> stack;
     this->_extract_node_levels_into_stack(root_node, stack);
 
@@ -485,6 +486,7 @@ void BTGraphEditor::_move_nodes()
 void BTGraphEditor::_add_new_node_button_pressed()
 {
     BTGraphNode* bt_graph_node = this->new_bt_graph_node();
+    ERR_FAIL_COND(bt_graph_node == nullptr);
 
 
     int id = this->behaviour_tree->get_valid_id();
@@ -523,33 +525,6 @@ void BTGraphEditor::_arrange_nodes_button_pressed()
     this->arrange_nodes();
 }
 
-void BTGraphEditor::_set_root_button_pressed()
-{
-    BTGraphNode* new_root_node;
-    bool found = false;
-
-    for (const godot::KeyValue<godot::Ref<BTTask>, BTGraphNode*>& element : task_to_node)
-    {
-        if (element.value->is_selected())
-        {
-            ERR_FAIL_COND_EDMSG(found, "Cannot set multiple root nodes.");
-            new_root_node = element.value;
-            found = true;
-        }
-    }
-
-    this->set_root_node(new_root_node);
-
-    return;
-}
-
-void BTGraphEditor::_clear_graph_button_pressed()
-{
-    this->clear_graph_nodes();
-    this->behaviour_tree->clear_tasks();
-    this->name_to_node.clear();
-}
-
 void BTGraphEditor::_on_rename_edit_text_submitted(const godot::String& new_text)
 {
     ERR_FAIL_COND(this->last_double_clicked_node == nullptr);
@@ -583,7 +558,7 @@ void BTGraphEditor::_on_node_double_clicked(BTGraphNode* clicked_node)
     ERR_FAIL_COND(clicked_node == nullptr);
 
     this->last_double_clicked_node = clicked_node;
-    this->rename_edit->set_text(this->last_double_clicked_node->get_title());
+    this->rename_edit->set_text(clicked_node->get_title());
     this->rename_edit->set_visible(true);
     /* grab_focus should be a deferred call. See:
      * https://docs.godotengine.org/en/stable/classes/class_control.html#class-control-method-grab-focus */
@@ -597,6 +572,8 @@ void BTGraphEditor::_on_node_double_clicked(BTGraphNode* clicked_node)
 
 void BTGraphEditor::_on_node_right_clicked(BTGraphNode* clicked_node)
 {
+    ERR_FAIL_COND(clicked_node == nullptr);
+
     this->last_right_clicked_node = clicked_node;
 
     godot::Vector2 global_position = clicked_node->get_global_position();
@@ -680,7 +657,9 @@ void BTGraphEditor::_delete_nodes_request(godot::TypedArray<godot::StringName> _
 
     for (int i = 0; i < size; i++)
     {
-        nodes_to_delete.set(i, this->name_to_node[_nodes_to_delete[i]]);
+        BTGraphNode* node_to_delete = this->name_to_node[_nodes_to_delete[i]];
+        ERR_FAIL_COND(node_to_delete == nullptr);
+        nodes_to_delete.set(i, node_to_delete);
     }
 
     this->delete_nodes(nodes_to_delete);
@@ -784,11 +763,13 @@ void BTGraphEditor::change_task_type(const godot::StringName& class_name, BTGrap
 
 void BTGraphEditor::set_editor_plugin(godot::EditorPlugin* editor_plugin)
 {
+    ERR_FAIL_COND(editor_plugin == nullptr);
     this->editor_plugin = editor_plugin;
 }
 
 void BTGraphEditor::set_behaviour_tree(BehaviourTree* new_tree)
 {
+    ERR_FAIL_COND(new_tree == nullptr);
     this->behaviour_tree = new_tree;
     this->clear_graph_nodes();
     this->create_default_graph_nodes();
@@ -811,8 +792,6 @@ void BTGraphEditor::_bind_methods()
     ClassDB::bind_method(D_METHOD("get_node_insert_index_by_y_in_children", "parent_graph_node", "graph_node"), &BTGraphEditor::get_node_insert_index_by_y_in_children);
     ClassDB::bind_method(D_METHOD("_add_new_node_button_pressed"), &BTGraphEditor::_add_new_node_button_pressed);
     ClassDB::bind_method(D_METHOD("_arrange_nodes_button_pressed"), &BTGraphEditor::_arrange_nodes_button_pressed);
-    ClassDB::bind_method(D_METHOD("_set_root_button_pressed"), &BTGraphEditor::_set_root_button_pressed);
-    ClassDB::bind_method(D_METHOD("_clear_graph_button_pressed"), &BTGraphEditor::_clear_graph_button_pressed);
     ClassDB::bind_method(D_METHOD("_node_dragged", "from", "to", "node_name"), &BTGraphEditor::_node_dragged);
     ClassDB::bind_method(D_METHOD("connection_request", "from_node", "from_port", "to_node", "to_port"), &BTGraphEditor::connection_request);
     ClassDB::bind_method(D_METHOD("disconnection_request", "from_node", "from_port", "to_node", "to_port"), &BTGraphEditor::disconnection_request);

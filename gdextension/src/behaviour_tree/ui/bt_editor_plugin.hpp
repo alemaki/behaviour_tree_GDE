@@ -24,7 +24,6 @@ private:
     godot::Button* add_new_node_button;
     godot::Button* arrange_nodes_button;
     godot::Button* set_root_button;
-    godot::Button* clear_nodes_button;
 
     godot::Button* bottom_panel_button;
     godot::HSplitContainer* main_container;

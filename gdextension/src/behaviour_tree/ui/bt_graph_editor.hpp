@@ -76,8 +76,6 @@ private:
     /* Event Handlers */
     void _add_new_node_button_pressed();
     void _arrange_nodes_button_pressed();
-    void _set_root_button_pressed();
-    void _clear_graph_button_pressed();
     void _on_rename_edit_text_submitted(const godot::String& new_text);
     void _on_rename_edit_focus_exited();
     void _on_node_double_clicked(BTGraphNode* clicked_node);
