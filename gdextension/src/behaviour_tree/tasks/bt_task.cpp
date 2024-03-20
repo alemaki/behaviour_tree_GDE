@@ -234,6 +234,27 @@ BTTask::Status BTTask::_tick(double delta)
     return Status::FAILURE;
 }
 
+godot::Ref<BTTask> BTTask::clone() const
+{
+    godot::Ref<BTTask> new_task = this->duplicate(false);
+
+    new_task->set_parent(nullptr);
+
+    godot::Array new_children;
+    new_children.resize(this->get_child_count());
+
+    for (int i = 0; i < this->get_child_count(); i++)
+    {
+        godot::Ref<BTTask> new_child = this->children[i]->clone();
+        new_child->set_parent(new_task);
+        new_children[i] = new_child;
+    }
+
+    new_task->set_children(new_children);
+
+    return new_task;
+}
+
 void BTTask::_bind_methods()
 {
     using namespace godot;
@@ -247,6 +268,7 @@ void BTTask::_bind_methods()
 	ClassDB::bind_method(D_METHOD("remove_child_at_index", "index"), &BTTask::remove_child_at_index);
 	ClassDB::bind_method(D_METHOD("has_child", "child"), &BTTask::has_child);
     ClassDB::bind_method(D_METHOD("swap_child", "old_child", "new_child"), &BTTask::swap_child);
+    ClassDB::bind_method(D_METHOD("clone"), &BTTask::clone);
 
     ClassDB::bind_method(D_METHOD("set_parent", "parent"), &BTTask::set_parent);
     ClassDB::bind_method(D_METHOD("get_parent"), &BTTask::get_parent);

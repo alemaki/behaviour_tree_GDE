@@ -88,6 +88,8 @@ public:
     virtual BTTask::Status execute(double delta);
     virtual void abort();
 
+    virtual godot::Ref<BTTask> clone() const;
+
 protected:
     static void _bind_methods();
 

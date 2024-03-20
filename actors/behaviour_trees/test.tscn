@@ -1,0 +1,20 @@
+[gd_scene load_steps=4 format=3 uid="uid://y3k3hwnrdmav"]
+
+[sub_resource type="BTInvert" id="BTInvert_babos"]
+custom_name = "45"
+
+[sub_resource type="BTSequence" id="BTSequence_vr4m5"]
+custom_name = "23"
+children = [SubResource("BTInvert_babos")]
+
+[sub_resource type="BTRandomSequence" id="BTRandomSequence_2oslm"]
+custom_name = "1"
+children = [SubResource("BTSequence_vr4m5")]
+
+[node name="Test" type="BehaviourTree"]
+task_map = {
+1: SubResource("BTSequence_vr4m5"),
+2: SubResource("BTInvert_babos"),
+3: SubResource("BTRandomSequence_2oslm")
+}
+root_task = SubResource("BTRandomSequence_2oslm")

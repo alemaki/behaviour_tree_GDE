@@ -576,11 +576,13 @@ void BTGraphEditor::_on_node_right_clicked(BTGraphNode* clicked_node)
 
     this->last_right_clicked_node = clicked_node;
 
-    godot::Vector2 global_position = clicked_node->get_global_position();
+    godot::Vector2 menu_position = clicked_node->get_global_position();
     int current_screen = clicked_node->get_viewport()->get_window()->get_current_screen();
 
+    menu_position.y += clicked_node->get_size().y;
+
     this->main_popup_menu->set_visible(true);
-    this->main_popup_menu->set_position(global_position);
+    this->main_popup_menu->set_position(menu_position);
     this->main_popup_menu->set_current_screen(current_screen);
     this->main_popup_menu->call_deferred("grab_focus");
 
