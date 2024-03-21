@@ -55,7 +55,7 @@ int BehaviourTree::get_task_id(godot::Ref<BTTask> task) const
     return -1;
 }
 
-godot::Ref<BTTask> BehaviourTree::get_task_by_id(int id) const
+godot::Ref<BTTask> BehaviourTree::get_task(int id) const
 {
     if (this->task_map.find(id) == nullptr)
     {
@@ -207,7 +207,7 @@ void BehaviourTree::_bind_methods()
     
     ClassDB::bind_method(D_METHOD("get_valid_id"), &BehaviourTree::get_valid_id);
     ClassDB::bind_method(D_METHOD("get_task_id", "task"), &BehaviourTree::get_task_id);
-    ClassDB::bind_method(D_METHOD("get_task_by_id", "id"), &BehaviourTree::get_task_by_id);
+    ClassDB::bind_method(D_METHOD("get_task", "id"), &BehaviourTree::get_task);
     ClassDB::bind_method(D_METHOD("has_task", "task"), &BehaviourTree::has_task);
     ClassDB::bind_method(D_METHOD("add_task_by_ref", "task"), &BehaviourTree::add_task_by_ref);
     ClassDB::bind_method(D_METHOD("add_task", "id", "task"), &BehaviourTree::add_task);
