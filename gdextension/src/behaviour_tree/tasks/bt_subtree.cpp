@@ -61,6 +61,8 @@ godot::Ref<BTTask> BTSubtree::clone() const
 
     godot::Ref<BTTask> subtree = behaviour_tree->get_root_task()->clone();
     
+    memfree(behaviour_tree);
+
     return subtree;
 }
 

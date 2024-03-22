@@ -12,11 +12,12 @@
 #include <godot_cpp/godot.hpp>
 
 #include "behaviour_tree/behaviour_tree.hpp"
-#include "behaviour_tree/tasks/bt_task.hpp"
 #include "behaviour_tree/tasks/bt_action.hpp"
 #include "behaviour_tree/tasks/bt_composite.hpp"
 #include "behaviour_tree/tasks/bt_condition.hpp"
 #include "behaviour_tree/tasks/bt_decorator.hpp"
+#include "behaviour_tree/tasks/bt_subtree.hpp"
+#include "behaviour_tree/tasks/bt_task.hpp"
 #include "behaviour_tree/tasks/composites/bt_selector.hpp"
 #include "behaviour_tree/tasks/composites/bt_sequence.hpp"
 #include "behaviour_tree/tasks/composites/bt_random_sequence.hpp"
@@ -64,6 +65,7 @@ void initialize_gdextension_module(ModuleInitializationLevel p_level)
 		ClassDB::register_class<BTRepeat>();
 		ClassDB::register_class<BTAction>();
 
+		ClassDB::register_class<BTSubtree>();
 		ClassDB::register_class<BehaviourTree>();
 	}
 	if (p_level == MODULE_INITIALIZATION_LEVEL_EDITOR)

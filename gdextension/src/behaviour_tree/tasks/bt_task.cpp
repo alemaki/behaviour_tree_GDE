@@ -262,6 +262,7 @@ void BTTask::_bind_methods()
     ClassDB::bind_method(D_METHOD("is_root"), &BTTask::is_root);
 	ClassDB::bind_method(D_METHOD("get_root"), &BTTask::get_root);
 	ClassDB::bind_method(D_METHOD("get_child_count"), &BTTask::get_child_count);
+    ClassDB::bind_method(D_METHOD("get_child", "index"), &BTTask::get_child);
 	ClassDB::bind_method(D_METHOD("add_child", "child"), &BTTask::add_child);
 	ClassDB::bind_method(D_METHOD("add_child_at_index", "child", "index"), &BTTask::add_child_at_index);
 	ClassDB::bind_method(D_METHOD("remove_child", "child"), &BTTask::remove_child);
