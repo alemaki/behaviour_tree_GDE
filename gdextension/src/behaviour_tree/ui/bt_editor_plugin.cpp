@@ -19,7 +19,6 @@ BTEditorPlugin::BTEditorPlugin()
 
     this->button_continer->add_child(this->add_new_node_button);
     this->button_continer->add_child(this->arrange_nodes_button);
-    this->button_continer->add_child(this->set_root_button);
 
     this->main_container->add_child(this->graph_editor->get_graph_edit());
     this->main_container->add_child(this->button_continer);
@@ -43,6 +42,7 @@ void BTEditorPlugin::set_graph_editor(BTGraphEditor* graph_editor)
     this->graph_editor = graph_editor;
     this->graph_editor->set_editor_plugin(this);
 }
+
 void BTEditorPlugin::_make_visible(bool visible)
 {
     if (visible)

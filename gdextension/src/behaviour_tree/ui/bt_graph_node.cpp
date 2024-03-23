@@ -4,7 +4,7 @@
 BTGraphNode::BTGraphNode()
 {
     this->_setup_connections_ui();
-    this->_setup_task_type_label();
+    this->_setup_labels();
 
     this->set_resizable(false);
     this->set_custom_minimum_size(godot::Size2(100, 30));
@@ -25,7 +25,7 @@ void BTGraphNode::_setup_connections_ui()
 
 }
 
-void BTGraphNode::_setup_task_type_label()
+void BTGraphNode::_setup_labels()
 {
     this->task_type_label = memnew(godot::Label);
     this->add_child(this->task_type_label);

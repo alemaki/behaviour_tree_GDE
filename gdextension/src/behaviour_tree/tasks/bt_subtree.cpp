@@ -47,21 +47,21 @@ BehaviourTree* BTSubtree::load_behavior_tree() const
 
 godot::Ref<BTTask> BTSubtree::clone() const
 {
-    BehaviourTree* behaviour_tree = this->load_behavior_tree();
-    if (behaviour_tree == nullptr)
+    BehaviourTree* temp_behaviour_tree = this->load_behavior_tree();
+    if (temp_behaviour_tree == nullptr)
     {
         return nullptr;
     }
 
-    if (behaviour_tree->get_root_task() == nullptr)
+    if (temp_behaviour_tree->get_root_task() == nullptr)
     {
         godot::UtilityFunctions::printerr("Behaviour tree doesn't have any tasks: ", this->file_path);
         return nullptr;
     }
 
-    godot::Ref<BTTask> subtree = behaviour_tree->get_root_task()->clone();
-    
-    memfree(behaviour_tree);
+    godot::Ref<BTTask> subtree = temp_behaviour_tree->get_root_task()->clone();
+
+    temp_behaviour_tree->queue_free();
 
     return subtree;
 }

@@ -5,7 +5,6 @@
 #include <godot_cpp/classes/graph_node.hpp>
 #include <godot_cpp/classes/input_event_mouse_button.hpp>
 #include <godot_cpp/classes/label.hpp>
-#include <godot_cpp/templates/hash_map.hpp>
 
 #include "behaviour_tree/tasks/bt_task.hpp"
 #include "behaviour_tree/tasks/composites/bt_selector.hpp"
@@ -29,9 +28,9 @@ private:
     godot::Ref<BTTask> task;
 
 private:
-    void _on_gui_input(const godot::Ref<godot::InputEvent>& event);
+    virtual void _on_gui_input(const godot::Ref<godot::InputEvent>& event);
     void _setup_connections_ui();
-    void _setup_task_type_label();
+    void _setup_labels();
 public:
     BTGraphNode();
     void set_graph_edit(godot::GraphEdit* graph_edit);
