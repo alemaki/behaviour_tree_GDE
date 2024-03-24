@@ -25,12 +25,18 @@ class BTGraphNode : public godot::GraphNode
 private:
     godot::Label* task_type_label;
     godot::GraphEdit* graph_edit;
+
+protected:
     godot::Ref<BTTask> task;
 
 private:
-    virtual void _on_gui_input(const godot::Ref<godot::InputEvent>& event);
+    void _on_gui_input(const godot::Ref<godot::InputEvent>& event);
+
+private:
+    void _set_default_properties();
     void _setup_connections_ui();
     void _setup_labels();
+
 public:
     BTGraphNode();
     void set_graph_edit(godot::GraphEdit* graph_edit);

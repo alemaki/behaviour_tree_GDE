@@ -28,6 +28,7 @@
 #include "behaviour_tree/tasks/decorators/bt_probability.hpp"
 #include "behaviour_tree/ui/bt_editor_plugin.hpp"
 #include "behaviour_tree/ui/bt_graph_node.hpp"
+#include "behaviour_tree/ui/bt_graph_node_subtree.hpp"
 #include "components/area2d/hitbox.hpp"
 #include "components/area2d/hurtbox.hpp"
 #include "components/health/health_component.hpp"
@@ -72,6 +73,7 @@ void initialize_gdextension_module(ModuleInitializationLevel p_level)
 	{
 		
 		ClassDB::register_internal_class<BTGraphNode>();
+		ClassDB::register_internal_class<BTGraphNodeSubtree>();
 		ClassDB::register_internal_class<BTGraphEditor>();
 		ClassDB::register_internal_class<BTEditorPlugin>();
 		

@@ -5,13 +5,17 @@ BTGraphNode::BTGraphNode()
 {
     this->_setup_connections_ui();
     this->_setup_labels();
+    this->_set_default_properties();
 
+    this->call_deferred("connect", "gui_input", callable_mp(this, &BTGraphNode::_on_gui_input));
+}
+
+void BTGraphNode::_set_default_properties()
+{
     this->set_resizable(false);
     this->set_custom_minimum_size(godot::Size2(100, 30));
 
     this->set_position_offset(godot::Vector2(100, 100));
-
-    this->call_deferred("connect", "gui_input", callable_mp(this, &BTGraphNode::_on_gui_input));
 }
 
 void BTGraphNode::_setup_connections_ui()
