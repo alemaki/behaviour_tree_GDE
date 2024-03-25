@@ -101,6 +101,14 @@ BTGraphNode* BTGraphEditor::new_bt_graph_node()
     return bt_graph_node;
 }
 
+BTGraphNodeSubtree* BTGraphEditor::new_bt_graph_node_subtree()
+{
+    godot::Ref<BTSubtree> bt_subtree = godot::Ref<BTSubtree>(memnew(BTSubtree));
+    BTGraphNodeSubtree* bt_graph_node = this->new_bt_graph_node_subtree_from_task(bt_subtree);
+
+    return bt_graph_node;
+}
+
 BTGraphNode* BTGraphEditor::new_bt_graph_node_from_task(godot::Ref<BTTask> bt_task)
 {
     BTGraphNode* bt_graph_node = memnew(BTGraphNode);
@@ -108,6 +116,15 @@ BTGraphNode* BTGraphEditor::new_bt_graph_node_from_task(godot::Ref<BTTask> bt_ta
     bt_graph_node->set_graph_edit(this->graph_edit);
 
     return bt_graph_node;
+}
+
+BTGraphNodeSubtree* BTGraphEditor::new_bt_graph_node_subtree_from_task(godot::Ref<BTSubtree> bt_subtree)
+{
+    BTGraphNodeSubtree* bt_graph_node_subtree = memnew(BTGraphNodeSubtree);
+    bt_graph_node_subtree->set_task(bt_subtree);
+    bt_graph_node_subtree->set_graph_edit(this->graph_edit);
+    
+    return bt_graph_node_subtree;
 }
 
 godot::Array BTGraphEditor::get_graph_nodes()
@@ -488,7 +505,6 @@ void BTGraphEditor::_add_new_node_button_pressed()
     BTGraphNode* bt_graph_node = this->new_bt_graph_node();
     ERR_FAIL_COND(bt_graph_node == nullptr);
 
-
     int id = this->behaviour_tree->get_valid_id();
     bt_graph_node->set_title(godot::itos(id));
     bt_graph_node->set_name(godot::itos(id));
@@ -517,6 +533,42 @@ void BTGraphEditor::_add_new_node_button_pressed()
     bt_graph_node->call_deferred("connect", "dragged", callable_mp(this, &BTGraphEditor::_node_dragged).bind(bt_graph_node->get_name()));
     bt_graph_node->call_deferred("connect", "double_clicked", callable_mp(this, &BTGraphEditor::_on_node_double_clicked));
     bt_graph_node->call_deferred("connect", "right_clicked", callable_mp(this, &BTGraphEditor::_on_node_right_clicked));
+
+}
+
+void BTGraphEditor::_add_new_subtree_node_button_pressed()
+{
+    BTGraphNode* bt_graph_node = this->new_bt_graph_node_subtree();
+    ERR_FAIL_COND(bt_graph_node == nullptr);
+
+    int id = this->behaviour_tree->get_valid_id();
+    bt_graph_node->set_title(godot::itos(id));
+    bt_graph_node->set_name(godot::itos(id));
+    bt_graph_node->get_task()->set_custom_name(godot::itos(id));
+
+    godot::EditorUndoRedoManager* undo_redo_manager = this->editor_plugin->get_undo_redo();
+
+    undo_redo_manager->create_action("Add a node.");
+
+    undo_redo_manager->add_do_method(this->behaviour_tree, "add_task", id, bt_graph_node->get_task());
+    undo_redo_manager->add_do_method(this->graph_edit, "add_child", bt_graph_node);
+    undo_redo_manager->add_do_method(this, "insert_node", bt_graph_node);
+    undo_redo_manager->add_do_method(this, "evaluate_root_node");
+
+    undo_redo_manager->add_undo_method(this, "erase_node", bt_graph_node);
+    undo_redo_manager->add_undo_method(this->graph_edit, "remove_child", bt_graph_node);
+    undo_redo_manager->add_undo_method(this->behaviour_tree, "remove_task", id);
+    undo_redo_manager->add_undo_method(this, "evaluate_root_node");
+
+    undo_redo_manager->commit_action();
+
+    /* TODO:
+    /* bt_graph_node->connect("node_selected", callable_mp(this, &BTEditorPlugin::_node_selected).bind(id));
+    /* bt_graph_node->connect("node_deselected", callable_mp(this, &BTEditorPlugin::_node_deselected).bind(id)); */
+
+    bt_graph_node->call_deferred("connect", "dragged", callable_mp(this, &BTGraphEditor::_node_dragged).bind(bt_graph_node->get_name()));
+    bt_graph_node->call_deferred("connect", "double_clicked", callable_mp(this, &BTGraphEditor::_on_node_subtree_double_clicked));
+    bt_graph_node->call_deferred("connect", "right_clicked", callable_mp(this, &BTGraphEditor::_on_node_subtree_right_clicked));
 
 }
 
@@ -610,6 +662,17 @@ void BTGraphEditor::_on_node_right_clicked(BTGraphNode* clicked_node)
     godot::Ref<BTTask> task = clicked_node->get_task();
     int id = task_names.find(task->get_class());
     this->task_type_popup_menu->set_item_checked(id, true);
+}
+
+
+void _on_node_subtree_double_clicked(BTGraphNodeSubtree* clicked_node)
+{
+
+}
+
+void _on_node_subtree_right_clicked(BTGraphNodeSubtree* clicked_node)
+{
+
 }
 
 void BTGraphEditor::_on_main_popup_menu_item_selected(int id)

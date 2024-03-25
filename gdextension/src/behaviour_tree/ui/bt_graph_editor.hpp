@@ -8,8 +8,10 @@
 #include <godot_cpp/classes/line_edit.hpp>
 #include <godot_cpp/classes/popup_menu.hpp>
 #include <godot_cpp/templates/hash_map.hpp>
+
 #include "behaviour_tree/behaviour_tree.hpp"
 #include "behaviour_tree/ui/bt_graph_node.hpp"
+#include "behaviour_tree/ui/bt_graph_node_subtree.hpp"
 
 #ifndef BT_EDITOR_PLUGIN_FORWARD
 #define BT_EDITOR_PLUGIN_FORWARD
@@ -53,7 +55,9 @@ private:
 
     /* Utility Methods */
     BTGraphNode* new_bt_graph_node();
+    BTGraphNodeSubtree* new_bt_graph_node_subtree();
     BTGraphNode* new_bt_graph_node_from_task(godot::Ref<BTTask> bt_task);
+    BTGraphNodeSubtree* new_bt_graph_node_subtree_from_task(godot::Ref<BTSubtree> bt_subtree);
     godot::Array get_graph_nodes();
     godot::Array get_sorted_by_y_children_of_parent(BTGraphNode* parent_graph_node);
     int get_node_insert_index_by_y_in_children(BTGraphNode* parent_graph_node, BTGraphNode* graph_node);
@@ -75,11 +79,14 @@ private:
 
     /* Event Handlers */
     void _add_new_node_button_pressed();
+    void _add_new_subtree_node_button_pressed();
     void _arrange_nodes_button_pressed();
     void _on_rename_edit_text_submitted(const godot::String& new_text);
     void _on_rename_edit_focus_exited();
     void _on_node_double_clicked(BTGraphNode* clicked_node);
     void _on_node_right_clicked(BTGraphNode* clicked_node);
+    void _on_node_subtree_double_clicked(BTGraphNodeSubtree* clicked_node);
+    void _on_node_subtree_right_clicked(BTGraphNodeSubtree* clicked_node);
     void _on_main_popup_menu_item_selected(int id);
     void _on_task_type_popup_menu_item_selected(int id);
     void _on_main_popup_menu_close_requested();

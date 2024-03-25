@@ -13,11 +13,16 @@ BTEditorPlugin::BTEditorPlugin()
     this->add_new_node_button->set_text("Insert node");
     this->add_new_node_button->call_deferred("connect", "pressed", callable_mp(this->graph_editor, &BTGraphEditor::_add_new_node_button_pressed));
 
+    this->add_new_subtree_button = memnew(godot::Button);
+    this->add_new_subtree_button->set_text("Insert subtree");
+    this->add_new_subtree_button->call_deferred("connect", "pressed", callable_mp(this->graph_editor, &BTGraphEditor::_add_new_subtree_node_button_pressed));
+
     this->arrange_nodes_button = memnew(godot::Button);
     this->arrange_nodes_button->set_text("Arrange nodes");
     this->arrange_nodes_button->call_deferred("connect", "pressed", callable_mp(this->graph_editor, &BTGraphEditor::_arrange_nodes_button_pressed));
 
     this->button_continer->add_child(this->add_new_node_button);
+    this->button_continer->add_child(this->add_new_subtree_button);
     this->button_continer->add_child(this->arrange_nodes_button);
 
     this->main_container->add_child(this->graph_editor->get_graph_edit());

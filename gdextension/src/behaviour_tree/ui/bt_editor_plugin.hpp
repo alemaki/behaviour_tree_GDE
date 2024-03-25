@@ -22,6 +22,7 @@ private:
     
     godot::VBoxContainer* button_continer;
     godot::Button* add_new_node_button;
+    godot::Button* add_new_subtree_button;
     godot::Button* arrange_nodes_button;
 
     godot::Button* bottom_panel_button;
