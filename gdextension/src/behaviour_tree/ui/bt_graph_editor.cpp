@@ -22,6 +22,7 @@ BTGraphEditor::BTGraphEditor()
     this->graph_edit->set_right_disconnects(true);
 
     this->_setup_rename_edit();
+    this->_setup_path_edit();
     this->_setup_popup_menu();
 }
 
@@ -41,6 +42,18 @@ void BTGraphEditor::_setup_rename_edit()
 
     this->rename_edit->call_deferred("connect", "text_submitted", callable_mp(this, &BTGraphEditor::_on_rename_edit_text_submitted));
     this->rename_edit->call_deferred("connect", "focus_exited", callable_mp(this, &BTGraphEditor::_on_rename_edit_focus_exited));
+}
+
+void BTGraphEditor::_setup_path_edit()
+{
+    ERR_FAIL_COND(this->graph_edit == nullptr);
+
+    this->path_edit = memnew(godot::LineEdit);
+    this->path_edit->set_visible(false);
+    this->graph_edit->add_child(this->path_edit);
+
+    this->path_edit->call_deferred("connect", "text_submitted", callable_mp(this, &BTGraphEditor::_on_path_edit_text_submitted));
+    this->path_edit->call_deferred("connect", "focus_exited", callable_mp(this, &BTGraphEditor::_on_path_edit_focus_exited));
 }
 
 void BTGraphEditor::_setup_popup_menu()
@@ -605,6 +618,39 @@ void BTGraphEditor::_on_rename_edit_focus_exited()
     this->rename_edit->set_visible(false);
 }
 
+void BTGraphEditor::_on_path_edit_text_submitted(const godot::String& new_path)
+{
+    ERR_FAIL_COND(this->last_double_clicked_node == nullptr);
+    ERR_FAIL_COND(godot::Object::cast_to<BTGraphNodeSubtree>(this->last_double_clicked_node) == nullptr);
+
+    ERR_FAIL_COND_EDMSG(new_path == "", "Path must not be empty.");
+
+    godot::Ref<BTSubtree> subtree_task = godot::Object::cast_to<BTGraphNodeSubtree>(this->last_double_clicked_node)->get_task();
+    const godot::String& old_path = subtree_task->get_file_path();
+
+    godot::EditorUndoRedoManager* undo_redo_manager = this->editor_plugin->get_undo_redo();
+
+    undo_redo_manager->create_action("Change path of subtree.");
+
+    /* register changes on scene. TODO: fix */
+    undo_redo_manager->add_do_method(this->behaviour_tree, "set_root_task", this->behaviour_tree->get_root_task());
+    undo_redo_manager->add_do_method(subtree_task.ptr(), "set_file_path", new_path);
+    undo_redo_manager->add_do_method(this->last_double_clicked_node, "set_file_path", new_path);
+
+    undo_redo_manager->add_undo_method(this->last_double_clicked_node, "set_file_path", old_path);
+    undo_redo_manager->add_undo_method(subtree_task.ptr(), "set_file_path", old_path);
+    undo_redo_manager->add_undo_method(this->behaviour_tree, "set_root_task", this->behaviour_tree->get_root_task());
+
+    undo_redo_manager->commit_action();
+
+    this->rename_edit->set_visible(false);
+}
+
+void BTGraphEditor::_on_path_edit_focus_exited()
+{
+    this->path_edit->set_visible(false);
+}
+
 void BTGraphEditor::_on_node_double_clicked(BTGraphNode* clicked_node)
 {
     ERR_FAIL_COND(clicked_node == nullptr);
@@ -664,13 +710,21 @@ void BTGraphEditor::_on_node_right_clicked(BTGraphNode* clicked_node)
     this->task_type_popup_menu->set_item_checked(id, true);
 }
 
-
-void _on_node_subtree_double_clicked(BTGraphNodeSubtree* clicked_node)
+void BTGraphEditor::_on_node_subtree_double_clicked(BTGraphNodeSubtree* clicked_node)
 {
+    ERR_FAIL_COND(clicked_node == nullptr);
 
+    this->last_double_clicked_node = clicked_node;
+    this->path_edit->set_text(clicked_node->get_title());
+    this->path_edit->set_visible(true);
+    this->path_edit->call_deferred("grab_focus");
+    this->path_edit->set_position(godot::Vector2(clicked_node->get_position().x, 
+                                                   clicked_node->get_position().y - this->path_edit->get_size().y));
+    
+    this->path_edit->set_z_index(clicked_node->get_z_index() + 1);
 }
 
-void _on_node_subtree_right_clicked(BTGraphNodeSubtree* clicked_node)
+void BTGraphEditor::_on_node_subtree_right_clicked(BTGraphNodeSubtree* clicked_node)
 {
 
 }

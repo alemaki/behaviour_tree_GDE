@@ -6,9 +6,9 @@
 #include <godot_cpp/core/class_db.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
 
-void BTSubtree::set_file_path(const godot::String& p_file_path)
+void BTSubtree::set_file_path(const godot::String& file_path)
 {
-    this->file_path = p_file_path;
+    this->file_path = file_path;
 }
 
 BehaviourTree* BTSubtree::load_behavior_tree() const

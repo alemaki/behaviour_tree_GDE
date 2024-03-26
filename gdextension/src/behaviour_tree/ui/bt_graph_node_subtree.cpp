@@ -22,7 +22,6 @@ void BTGraphNodeSubtree::set_file_path(const godot::String& path)
     ERR_FAIL_COND(subtree_task == nullptr);
 
     this->path_label->set_text(path);
-    subtree_task->set_file_path(path);
 
     BehaviourTree* behaviour_tree = subtree_task->load_behavior_tree();
     if (behaviour_tree == nullptr)

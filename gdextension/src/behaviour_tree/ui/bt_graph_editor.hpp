@@ -42,6 +42,7 @@ private:
     bool drag_called;
 
     godot::LineEdit* rename_edit;
+    godot::LineEdit* path_edit;
     godot::PopupMenu* main_popup_menu;
     godot::PopupMenu* task_type_popup_menu;
 
@@ -52,6 +53,7 @@ private:
     /* Setup Methods */
     void _setup_popup_menu();
     void _setup_rename_edit();
+    void _setup_path_edit();
 
     /* Utility Methods */
     BTGraphNode* new_bt_graph_node();
@@ -83,6 +85,8 @@ private:
     void _arrange_nodes_button_pressed();
     void _on_rename_edit_text_submitted(const godot::String& new_text);
     void _on_rename_edit_focus_exited();
+    void _on_path_edit_text_submitted(const godot::String& new_path);
+    void _on_path_edit_focus_exited();
     void _on_node_double_clicked(BTGraphNode* clicked_node);
     void _on_node_right_clicked(BTGraphNode* clicked_node);
     void _on_node_subtree_double_clicked(BTGraphNodeSubtree* clicked_node);
