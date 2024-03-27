@@ -23,10 +23,10 @@ class BTGraphNode : public godot::GraphNode
     GDCLASS(BTGraphNode, godot::GraphNode)
 
 private:
-    godot::Label* task_type_label;
     godot::GraphEdit* graph_edit;
 
 protected:
+    godot::Label* task_type_label;
     godot::Ref<BTTask> task;
 
 private:
@@ -45,7 +45,7 @@ public:
         return this->graph_edit;
     }
 
-    void set_task(godot::Ref<BTTask> task);
+    virtual void set_task(godot::Ref<BTTask> task);
 
     _FORCE_INLINE_ godot::Ref<BTTask> get_task() const
     {

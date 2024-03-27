@@ -20,6 +20,7 @@ private:
     void _setup_subtree_labels();
 public:
     BTGraphNodeSubtree();
+    void set_task(godot::Ref<BTTask> task) override;
     void set_file_path(const godot::String& path);
     _FORCE_INLINE_ godot::String get_file_path()
     {

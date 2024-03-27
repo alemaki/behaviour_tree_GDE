@@ -7,6 +7,8 @@ BTGraphNodeSubtree::BTGraphNodeSubtree() : BTGraphNode()
     
 
     this->_setup_subtree_labels();
+
+    this->set_self_modulate(godot::Color::named("YELLOW"));
 }
 
 void BTGraphNodeSubtree::_setup_subtree_labels()
@@ -15,6 +17,17 @@ void BTGraphNodeSubtree::_setup_subtree_labels()
     this->path_label->set_text("");
     this->add_child(this->path_label);
 }
+
+void BTGraphNodeSubtree::set_task(godot::Ref<BTTask> task)
+{
+    godot::Ref<BTSubtree> subtree = godot::Ref<BTSubtree>(task);
+
+    ERR_FAIL_COND_MSG(subtree == nullptr, "Not a subtree.");
+
+    this->task_type_label->set_text(BTSubtree::get_class_static());
+    this->task = task;
+}
+
 
 void BTGraphNodeSubtree::set_file_path(const godot::String& path)
 {

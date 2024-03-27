@@ -345,19 +345,38 @@ void BTGraphEditor::create_default_graph_nodes()
 
     for (int i = 0, size = tasks.size(); i < size; i++)
     {
-        BTGraphNode* bt_graph_node = new_bt_graph_node_from_task(godot::Ref<BTTask>(tasks[i]));
-        bt_graph_node->set_title(bt_graph_node->get_task()->get_custom_name());
+        if (godot::Ref<BTSubtree>(tasks[i]) != nullptr)
+        {
+            BTGraphNodeSubtree* bt_graph_node_subtree = new_bt_graph_node_subtree_from_task(godot::Ref<BTSubtree>(tasks[i]));
 
-        int id = this->behaviour_tree->get_task_id(godot::Ref<BTTask>(tasks[i]));
-        bt_graph_node->set_name(godot::itos(id));
+            int id = this->behaviour_tree->get_task_id(godot::Ref<BTSubtree>(tasks[i]));
+            bt_graph_node_subtree->set_name(godot::itos(id));
+            bt_graph_node_subtree->set_file_path(godot::Ref<BTSubtree>(tasks[i])->get_file_path());
 
-        this->insert_node(bt_graph_node);
+            this->insert_node(bt_graph_node_subtree);
 
-        this->graph_edit->add_child(bt_graph_node);
+            this->graph_edit->add_child(bt_graph_node_subtree);
 
-        bt_graph_node->call_deferred("connect", "dragged", callable_mp(this, &BTGraphEditor::_node_dragged).bind(bt_graph_node->get_name()));
-        bt_graph_node->call_deferred("connect", "double_clicked", callable_mp(this, &BTGraphEditor::_on_node_double_clicked));
-        bt_graph_node->call_deferred("connect", "right_clicked", callable_mp(this, &BTGraphEditor::_on_node_right_clicked));
+            bt_graph_node_subtree->call_deferred("connect", "dragged", callable_mp(this, &BTGraphEditor::_node_dragged).bind(bt_graph_node_subtree->get_name()));
+            bt_graph_node_subtree->call_deferred("connect", "double_clicked", callable_mp(this, &BTGraphEditor::_on_node_subtree_double_clicked));
+            bt_graph_node_subtree->call_deferred("connect", "right_clicked", callable_mp(this, &BTGraphEditor::_on_node_subtree_right_clicked));
+        }
+        else
+        {
+            BTGraphNode* bt_graph_node = new_bt_graph_node_from_task(godot::Ref<BTTask>(tasks[i]));
+            bt_graph_node->set_title(bt_graph_node->get_task()->get_custom_name());
+
+            int id = this->behaviour_tree->get_task_id(godot::Ref<BTTask>(tasks[i]));
+            bt_graph_node->set_name(godot::itos(id));
+
+            this->insert_node(bt_graph_node);
+
+            this->graph_edit->add_child(bt_graph_node);
+
+            bt_graph_node->call_deferred("connect", "dragged", callable_mp(this, &BTGraphEditor::_node_dragged).bind(bt_graph_node->get_name()));
+            bt_graph_node->call_deferred("connect", "double_clicked", callable_mp(this, &BTGraphEditor::_on_node_double_clicked));
+            bt_graph_node->call_deferred("connect", "right_clicked", callable_mp(this, &BTGraphEditor::_on_node_right_clicked));
+        }
     }
 
     for (int i = 0, size = tasks.size(); i < size; i++)
@@ -445,7 +464,15 @@ void BTGraphEditor::evaluate_root_node()
 
     for (const godot::KeyValue<godot::Ref<BTTask>, BTGraphNode*>& element : task_to_node)
     {
-        element.value->set_self_modulate(godot::Color::named("WHITE"));
+        //TODO: clean up
+        if (element.value->get_class() == BTGraphNodeSubtree::get_class_static())
+        {
+            element.value->set_self_modulate(godot::Color::named("YELLOW"));
+        }
+        else 
+        {
+            element.value->set_self_modulate(godot::Color::named("WHITE"));
+        }
     }
 
     if (root.is_valid())
@@ -555,9 +582,7 @@ void BTGraphEditor::_add_new_subtree_node_button_pressed()
     ERR_FAIL_COND(bt_graph_node == nullptr);
 
     int id = this->behaviour_tree->get_valid_id();
-    bt_graph_node->set_title(godot::itos(id));
     bt_graph_node->set_name(godot::itos(id));
-    bt_graph_node->get_task()->set_custom_name(godot::itos(id));
 
     godot::EditorUndoRedoManager* undo_redo_manager = this->editor_plugin->get_undo_redo();
 
@@ -898,30 +923,63 @@ void BTGraphEditor::_bind_methods()
 {
     using namespace godot;
 
-    ClassDB::bind_method(D_METHOD("insert_node", "bt_graph_node"), &BTGraphEditor::insert_node);
-    ClassDB::bind_method(D_METHOD("erase_node", "bt_graph_node"), &BTGraphEditor::erase_node);
-    ClassDB::bind_method(D_METHOD("_move_nodes"), &BTGraphEditor::_move_nodes);
-    ClassDB::bind_method(D_METHOD("evaluate_root_node"), &BTGraphEditor::evaluate_root_node);
-    ClassDB::bind_method(D_METHOD("set_editor_plugin", "editor_plugin"), &BTGraphEditor::set_editor_plugin);
-    ClassDB::bind_method(D_METHOD("get_graph_edit"), &BTGraphEditor::get_graph_edit);
+    // Setup Methods
+    ClassDB::bind_method(D_METHOD("_setup_popup_menu"), &BTGraphEditor::_setup_popup_menu);
+    ClassDB::bind_method(D_METHOD("_setup_rename_edit"), &BTGraphEditor::_setup_rename_edit);
+    ClassDB::bind_method(D_METHOD("_setup_path_edit"), &BTGraphEditor::_setup_path_edit);
+
+    // Utility Methods
     ClassDB::bind_method(D_METHOD("new_bt_graph_node"), &BTGraphEditor::new_bt_graph_node);
+    ClassDB::bind_method(D_METHOD("new_bt_graph_node_subtree"), &BTGraphEditor::new_bt_graph_node_subtree);
     ClassDB::bind_method(D_METHOD("new_bt_graph_node_from_task", "bt_task"), &BTGraphEditor::new_bt_graph_node_from_task);
+    ClassDB::bind_method(D_METHOD("new_bt_graph_node_subtree_from_task", "bt_subtree"), &BTGraphEditor::new_bt_graph_node_subtree_from_task);
     ClassDB::bind_method(D_METHOD("get_graph_nodes"), &BTGraphEditor::get_graph_nodes);
     ClassDB::bind_method(D_METHOD("get_sorted_by_y_children_of_parent", "parent_graph_node"), &BTGraphEditor::get_sorted_by_y_children_of_parent);
     ClassDB::bind_method(D_METHOD("get_node_insert_index_by_y_in_children", "parent_graph_node", "graph_node"), &BTGraphEditor::get_node_insert_index_by_y_in_children);
-    ClassDB::bind_method(D_METHOD("_add_new_node_button_pressed"), &BTGraphEditor::_add_new_node_button_pressed);
-    ClassDB::bind_method(D_METHOD("_arrange_nodes_button_pressed"), &BTGraphEditor::_arrange_nodes_button_pressed);
-    ClassDB::bind_method(D_METHOD("_node_dragged", "from", "to", "node_name"), &BTGraphEditor::_node_dragged);
-    ClassDB::bind_method(D_METHOD("connection_request", "from_node", "from_port", "to_node", "to_port"), &BTGraphEditor::connection_request);
-    ClassDB::bind_method(D_METHOD("disconnection_request", "from_node", "from_port", "to_node", "to_port"), &BTGraphEditor::disconnection_request);
-    ClassDB::bind_method(D_METHOD("_delete_nodes_request", "nodes_to_delete"), &BTGraphEditor::_delete_nodes_request);
-    ClassDB::bind_method(D_METHOD("clear_graph_nodes"), &BTGraphEditor::clear_graph_nodes);
-    ClassDB::bind_method(D_METHOD("create_default_graph_nodes"), &BTGraphEditor::create_default_graph_nodes);
-    ClassDB::bind_method(D_METHOD("arrange_nodes"), &BTGraphEditor::arrange_nodes);
-
-     /* TODO: Can't pass godot::Vectpr<>& as variant. Check*/
+    /* TODO: can't pass Vector<>& check.*/
     /*ClassDB::bind_method(D_METHOD("_extract_node_levels_into_stack", "root_node", "stack", "current_level"), &BTGraphEditor::_extract_node_levels_into_stack);*/
 
+    // Node Management
+    ClassDB::bind_method(D_METHOD("insert_node", "bt_graph_node"), &BTGraphEditor::insert_node);
+    ClassDB::bind_method(D_METHOD("erase_node", "bt_graph_node"), &BTGraphEditor::erase_node);
+    /*ClassDB::bind_method(D_METHOD("delete_nodes", "nodes_to_delete"), &BTGraphEditor::delete_nodes);*/
+    ClassDB::bind_method(D_METHOD("clear_graph_nodes"), &BTGraphEditor::clear_graph_nodes);
+    ClassDB::bind_method(D_METHOD("create_default_graph_nodes"), &BTGraphEditor::create_default_graph_nodes);
+    ClassDB::bind_method(D_METHOD("set_root_node", "new_root_node"), &BTGraphEditor::set_root_node);
+    ClassDB::bind_method(D_METHOD("arrange_nodes"), &BTGraphEditor::arrange_nodes);
+    ClassDB::bind_method(D_METHOD("evaluate_root_node"), &BTGraphEditor::evaluate_root_node);
+
+    // Drag and Drop
+    ClassDB::bind_method(D_METHOD("_node_dragged", "from", "to", "node_name"), &BTGraphEditor::_node_dragged);
+    ClassDB::bind_method(D_METHOD("_move_nodes"), &BTGraphEditor::_move_nodes);
+
+    // Event Handlers
+    ClassDB::bind_method(D_METHOD("_add_new_node_button_pressed"), &BTGraphEditor::_add_new_node_button_pressed);
+    ClassDB::bind_method(D_METHOD("_add_new_subtree_node_button_pressed"), &BTGraphEditor::_add_new_subtree_node_button_pressed);
+    ClassDB::bind_method(D_METHOD("_arrange_nodes_button_pressed"), &BTGraphEditor::_arrange_nodes_button_pressed);
+    ClassDB::bind_method(D_METHOD("_on_rename_edit_text_submitted", "new_text"), &BTGraphEditor::_on_rename_edit_text_submitted);
+    ClassDB::bind_method(D_METHOD("_on_rename_edit_focus_exited"), &BTGraphEditor::_on_rename_edit_focus_exited);
+    ClassDB::bind_method(D_METHOD("_on_path_edit_text_submitted", "new_path"), &BTGraphEditor::_on_path_edit_text_submitted);
+    ClassDB::bind_method(D_METHOD("_on_path_edit_focus_exited"), &BTGraphEditor::_on_path_edit_focus_exited);
+    ClassDB::bind_method(D_METHOD("_on_node_double_clicked", "clicked_node"), &BTGraphEditor::_on_node_double_clicked);
+    ClassDB::bind_method(D_METHOD("_on_node_right_clicked", "clicked_node"), &BTGraphEditor::_on_node_right_clicked);
+    ClassDB::bind_method(D_METHOD("_on_node_subtree_double_clicked", "clicked_node"), &BTGraphEditor::_on_node_subtree_double_clicked);
+    ClassDB::bind_method(D_METHOD("_on_node_subtree_right_clicked", "clicked_node"), &BTGraphEditor::_on_node_subtree_right_clicked);
+    ClassDB::bind_method(D_METHOD("_on_main_popup_menu_item_selected", "id"), &BTGraphEditor::_on_main_popup_menu_item_selected);
+    ClassDB::bind_method(D_METHOD("_on_task_type_popup_menu_item_selected", "id"), &BTGraphEditor::_on_task_type_popup_menu_item_selected);
+    ClassDB::bind_method(D_METHOD("_on_main_popup_menu_close_requested"), &BTGraphEditor::_on_main_popup_menu_close_requested);
+    ClassDB::bind_method(D_METHOD("_delete_nodes_request", "nodes_to_delete"), &BTGraphEditor::_delete_nodes_request);
+
+    // Connection Handling
+    ClassDB::bind_method(D_METHOD("connection_request", "from_node", "from_port", "to_node", "to_port"), &BTGraphEditor::connection_request);
+    ClassDB::bind_method(D_METHOD("disconnection_request", "from_node", "from_port", "to_node", "to_port"), &BTGraphEditor::disconnection_request);
+
+    // Task Management
+    ClassDB::bind_method(D_METHOD("change_task_type", "class_name", "node"), &BTGraphEditor::change_task_type);
+
+    // Getters and Setters
+    ClassDB::bind_method(D_METHOD("set_editor_plugin", "editor_plugin"), &BTGraphEditor::set_editor_plugin);
+    ClassDB::bind_method(D_METHOD("get_graph_edit"), &BTGraphEditor::get_graph_edit);
     ClassDB::bind_method(D_METHOD("set_behaviour_tree", "behaviour_tree"), &BTGraphEditor::set_behaviour_tree);
     ClassDB::bind_method(D_METHOD("get_behaviour_tree"), &BTGraphEditor::get_behaviour_tree);
 
