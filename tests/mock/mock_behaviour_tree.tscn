@@ -10,7 +10,7 @@ custom_name = "3"
 custom_name = "1"
 children = [SubResource("BTAlwaysFail_wvggc"), SubResource("BTAlwaysSucceed_o2loq")]
 
-[node name="MockBehaviourTree1" type="BehaviourTree"]
+[node name="MockBehaviourTree" type="BehaviourTree"]
 task_map = {
 1: SubResource("BTSelector_58hfo"),
 2: SubResource("BTAlwaysFail_wvggc"),

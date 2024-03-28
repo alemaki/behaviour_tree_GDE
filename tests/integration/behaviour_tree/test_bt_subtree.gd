@@ -2,7 +2,7 @@ extends GutTest
 
 func after_all():
 	mock_behaviour_tree.free()
-	assert_no_new_orphans("Memory leak..")
+	assert_no_new_orphans("Memory leak.")
 
 const mock_behaviour_tree_path: String = "res://tests/mock/mock_behaviour_tree.tscn"
 var mock_behaviour_tree: BehaviourTree = preload(mock_behaviour_tree_path).instantiate();
@@ -16,7 +16,7 @@ func test_mock_tree_valid_for_testing():
 	assert_eq(mock_behaviour_tree.get_root_task().get_child(1).get_child_count(), 0, "Root children should be empty.")
 
 func test_load_behavior_tree():
-	var subtree_task: BTSubtree = autofree(BTSubtree.new())
+	var subtree_task: BTSubtree = BTSubtree.new()
 	subtree_task.set_file_path(mock_behaviour_tree_path)
 
 	var sub_behaviour_tree: BehaviourTree = autofree(subtree_task.load_behavior_tree())
@@ -25,7 +25,7 @@ func test_load_behavior_tree():
 	assert_ne(sub_behaviour_tree.get_root_task(), null, "Loaded behaviour tree should have a root task.")
 
 func test_clone_subtree_task():
-	var subtree_task: BTSubtree = autofree(BTSubtree.new())
+	var subtree_task: BTSubtree = BTSubtree.new()
 	subtree_task.set_file_path(mock_behaviour_tree_path)
 	
 	var tree_root_task: BTTask = mock_behaviour_tree.get_root_task()

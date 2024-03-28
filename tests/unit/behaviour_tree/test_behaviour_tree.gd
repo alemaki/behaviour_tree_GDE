@@ -14,7 +14,7 @@ func test_add_and_get_task():
 	var task = autofree(BTTask.new())
 	tree.add_task_by_ref(task)
 	var task_id = tree.get_task_id(task); 
-	assert_eq(tree.get_task_by_id(task_id), task, "Task should be retrievable by ID.")
+	assert_eq(tree.get_task(task_id), task, "Task should be retrievable by ID.")
 
 func test_has_task():
 	var tree = add_child_autofree(BehaviourTree.new())
@@ -34,7 +34,7 @@ func test_remove_task():
 	tree.remove_task(task_id)
 
 	assert_false(tree.has_task(task), "Task should be removed from the tree.")
-	assert_eq(tree.get_task_by_id(task_id), null, "Removed task should not be retrievable.")
+	assert_eq(tree.get_task(task_id), null, "Removed task should not be retrievable.")
 
 	tree.add_task_by_ref(task)
 	tree.remove_task_by_ref(task)
