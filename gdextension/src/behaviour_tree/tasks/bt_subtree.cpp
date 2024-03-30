@@ -20,10 +20,15 @@ BehaviourTree* BTSubtree::load_behavior_tree() const
     }
 
     godot::Ref<godot::PackedScene> packed_scene = godot::ResourceLoader::get_singleton()->load(this->file_path);
-
     if (packed_scene.is_null())
     {
         godot::UtilityFunctions::printerr("Failed to load scene: ", this->file_path);
+        return nullptr;
+    }
+
+    if(!(packed_scene->can_instantiate()))
+    {
+        godot::UtilityFunctions::printerr("Cannot instantiate scene: ", this->file_path);
         return nullptr;
     }
 
@@ -42,7 +47,6 @@ BehaviourTree* BTSubtree::load_behavior_tree() const
     }
 
     return behaviour_tree;
-
 }
 
 godot::Ref<BTTask> BTSubtree::clone() const
@@ -61,7 +65,7 @@ godot::Ref<BTTask> BTSubtree::clone() const
 
     godot::Ref<BTTask> subtree = temp_behaviour_tree->get_root_task()->clone();
 
-    temp_behaviour_tree->queue_free();
+    memfree(temp_behaviour_tree);
 
     return subtree;
 }

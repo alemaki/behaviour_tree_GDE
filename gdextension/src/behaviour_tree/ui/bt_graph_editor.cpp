@@ -5,6 +5,23 @@
 
 BTGraphEditor::BTGraphEditor()
 {
+    this->_setup_graph_edit();
+
+    this->_setup_rename_edit();
+    this->_setup_path_edit();
+    this->_setup_popup_menu();
+
+    this->drag_called = false;
+}
+
+BTGraphEditor::~BTGraphEditor()
+{
+    this->clear_graph_nodes();
+}
+
+/* Setup Methods */
+void BTGraphEditor::_setup_graph_edit()
+{
     this->graph_edit = memnew(godot::GraphEdit);
     this->graph_edit->set_h_size_flags(godot::Control::SizeFlags::SIZE_EXPAND_FILL);
     this->graph_edit->set_v_size_flags(godot::Control::SizeFlags::SIZE_EXPAND_FILL);
@@ -17,21 +34,9 @@ BTGraphEditor::BTGraphEditor()
     this->graph_edit->add_valid_connection_type(1, 0);
     this->graph_edit->add_valid_left_disconnect_type(0);
 
-    this->drag_called = false;
-
     this->graph_edit->set_right_disconnects(true);
-
-    this->_setup_rename_edit();
-    this->_setup_path_edit();
-    this->_setup_popup_menu();
 }
 
-BTGraphEditor:: ~BTGraphEditor()
-{
-    
-}
-
-/* Setup Methods */
 void BTGraphEditor::_setup_rename_edit()
 {
     ERR_FAIL_COND(this->graph_edit == nullptr);
@@ -106,7 +111,24 @@ void BTGraphEditor::_setup_popup_menu()
 
 /* Utility Methods */
 
-BTGraphNode* BTGraphEditor::new_bt_graph_node()
+void BTGraphEditor::connect_graph_node_signals(BTGraphNode *node)
+{
+    ERR_FAIL_COND(node == nullptr);
+    node->call_deferred("connect", "dragged", callable_mp(this, &BTGraphEditor::_node_dragged).bind(node->get_name()));
+
+    if (godot::Object::cast_to<BTGraphNodeSubtree>(node) != nullptr)
+    {
+        node->call_deferred("connect", "double_clicked", callable_mp(this, &BTGraphEditor::_on_node_subtree_double_clicked));
+        node->call_deferred("connect", "right_clicked", callable_mp(this, &BTGraphEditor::_on_node_subtree_right_clicked));
+    }
+    else
+    {
+        node->call_deferred("connect", "double_clicked", callable_mp(this, &BTGraphEditor::_on_node_double_clicked));
+        node->call_deferred("connect", "right_clicked", callable_mp(this, &BTGraphEditor::_on_node_right_clicked));
+    }
+}
+
+BTGraphNode* BTGraphEditor::new_graph_node()
 {
     godot::Ref<BTTask> bt_task = godot::Ref<BTTask>(memnew(BTTask));
     BTGraphNode* bt_graph_node = this->new_bt_graph_node_from_task(bt_task);
@@ -114,7 +136,7 @@ BTGraphNode* BTGraphEditor::new_bt_graph_node()
     return bt_graph_node;
 }
 
-BTGraphNodeSubtree* BTGraphEditor::new_bt_graph_node_subtree()
+BTGraphNodeSubtree* BTGraphEditor::new_graph_node_subtree()
 {
     godot::Ref<BTSubtree> bt_subtree = godot::Ref<BTSubtree>(memnew(BTSubtree));
     BTGraphNodeSubtree* bt_graph_node = this->new_bt_graph_node_subtree_from_task(bt_subtree);
@@ -335,48 +357,40 @@ void BTGraphEditor::clear_graph_nodes()
             bt_graph_node->queue_free();
         }
     }
+
+    this->task_to_node.clear();
+    this->name_to_node.clear();
 }
 
 void BTGraphEditor::create_default_graph_nodes()
 {
     godot::Array tasks = this->behaviour_tree->get_tasks();
-    this->task_to_node.clear();
-    this->name_to_node.clear();
+    ERR_FAIL_COND(!(this->task_to_node.is_empty()));
+    ERR_FAIL_COND(!(this->name_to_node.is_empty()));
 
     for (int i = 0, size = tasks.size(); i < size; i++)
-    {
+    {   
+        BTGraphNode* bt_graph_node;
         if (godot::Ref<BTSubtree>(tasks[i]) != nullptr)
         {
             BTGraphNodeSubtree* bt_graph_node_subtree = new_bt_graph_node_subtree_from_task(godot::Ref<BTSubtree>(tasks[i]));
-
-            int id = this->behaviour_tree->get_task_id(godot::Ref<BTSubtree>(tasks[i]));
-            bt_graph_node_subtree->set_name(godot::itos(id));
+            bt_graph_node = bt_graph_node_subtree;
+            
             bt_graph_node_subtree->set_file_path(godot::Ref<BTSubtree>(tasks[i])->get_file_path());
-
-            this->insert_node(bt_graph_node_subtree);
-
-            this->graph_edit->add_child(bt_graph_node_subtree);
-
-            bt_graph_node_subtree->call_deferred("connect", "dragged", callable_mp(this, &BTGraphEditor::_node_dragged).bind(bt_graph_node_subtree->get_name()));
-            bt_graph_node_subtree->call_deferred("connect", "double_clicked", callable_mp(this, &BTGraphEditor::_on_node_subtree_double_clicked));
-            bt_graph_node_subtree->call_deferred("connect", "right_clicked", callable_mp(this, &BTGraphEditor::_on_node_subtree_right_clicked));
         }
         else
         {
-            BTGraphNode* bt_graph_node = new_bt_graph_node_from_task(godot::Ref<BTTask>(tasks[i]));
+            bt_graph_node = new_bt_graph_node_from_task(godot::Ref<BTTask>(tasks[i]));
             bt_graph_node->set_title(bt_graph_node->get_task()->get_custom_name());
-
-            int id = this->behaviour_tree->get_task_id(godot::Ref<BTTask>(tasks[i]));
-            bt_graph_node->set_name(godot::itos(id));
-
-            this->insert_node(bt_graph_node);
-
-            this->graph_edit->add_child(bt_graph_node);
-
-            bt_graph_node->call_deferred("connect", "dragged", callable_mp(this, &BTGraphEditor::_node_dragged).bind(bt_graph_node->get_name()));
-            bt_graph_node->call_deferred("connect", "double_clicked", callable_mp(this, &BTGraphEditor::_on_node_double_clicked));
-            bt_graph_node->call_deferred("connect", "right_clicked", callable_mp(this, &BTGraphEditor::_on_node_right_clicked));
         }
+
+        int id = this->behaviour_tree->get_task_id(godot::Ref<BTTask>(tasks[i]));
+        bt_graph_node->set_name(godot::itos(id));
+
+        this->insert_node(bt_graph_node);
+
+        this->graph_edit->add_child(bt_graph_node);
+        this->connect_graph_node_signals(bt_graph_node);
     }
 
     for (int i = 0, size = tasks.size(); i < size; i++)
@@ -434,10 +448,6 @@ void BTGraphEditor::arrange_nodes()
     godot::Vector2 node_padding = root_node->get_size() + godot::Vector2(80, 20);
     int current_index = stack.size() - 1;
 
-    godot::EditorUndoRedoManager* undo_redo_manager = this->editor_plugin->get_undo_redo();
-
-    undo_redo_manager->create_action("Arrange node(s)");
-
     while (current_index >= 0)
     {
         godot::Pair<BTGraphNode*, int> pair_node_level = stack[current_index];
@@ -447,15 +457,12 @@ void BTGraphEditor::arrange_nodes()
         position.y += node_padding.y*level_to_node_count[pair_node_level.second];
         position += root_node_position;
 
-        /*NOTE: won't save in scene of behaviour tree*/
-        undo_redo_manager->add_do_method(pair_node_level.first, "set_position_offset", position);
-        undo_redo_manager->add_undo_method(pair_node_level.first, "set_position_offset", pair_node_level.first->get_position_offset());
+        pair_node_level.first->set_position_offset(position);
 
         level_to_node_count[pair_node_level.second]++;
         current_index--;
     }
 
-    undo_redo_manager->commit_action();
 }
 
 void BTGraphEditor::evaluate_root_node()
@@ -465,7 +472,7 @@ void BTGraphEditor::evaluate_root_node()
     for (const godot::KeyValue<godot::Ref<BTTask>, BTGraphNode*>& element : task_to_node)
     {
         //TODO: clean up
-        if (element.value->get_class() == BTGraphNodeSubtree::get_class_static())
+        if (godot::Object::cast_to<BTGraphNodeSubtree>(element.value) != nullptr)
         {
             element.value->set_self_modulate(godot::Color::named("YELLOW"));
         }
@@ -542,7 +549,7 @@ void BTGraphEditor::_move_nodes()
 
 void BTGraphEditor::_add_new_node_button_pressed()
 {
-    BTGraphNode* bt_graph_node = this->new_bt_graph_node();
+    BTGraphNode* bt_graph_node = this->new_graph_node();
     ERR_FAIL_COND(bt_graph_node == nullptr);
 
     int id = this->behaviour_tree->get_valid_id();
@@ -566,19 +573,12 @@ void BTGraphEditor::_add_new_node_button_pressed()
 
     undo_redo_manager->commit_action();
 
-    /* TODO:
-    /* bt_graph_node->connect("node_selected", callable_mp(this, &BTEditorPlugin::_node_selected).bind(id));
-    /* bt_graph_node->connect("node_deselected", callable_mp(this, &BTEditorPlugin::_node_deselected).bind(id)); */
-
-    bt_graph_node->call_deferred("connect", "dragged", callable_mp(this, &BTGraphEditor::_node_dragged).bind(bt_graph_node->get_name()));
-    bt_graph_node->call_deferred("connect", "double_clicked", callable_mp(this, &BTGraphEditor::_on_node_double_clicked));
-    bt_graph_node->call_deferred("connect", "right_clicked", callable_mp(this, &BTGraphEditor::_on_node_right_clicked));
-
+    this->connect_graph_node_signals(bt_graph_node);
 }
 
 void BTGraphEditor::_add_new_subtree_node_button_pressed()
 {
-    BTGraphNode* bt_graph_node = this->new_bt_graph_node_subtree();
+    BTGraphNode* bt_graph_node = this->new_graph_node_subtree();
     ERR_FAIL_COND(bt_graph_node == nullptr);
 
     int id = this->behaviour_tree->get_valid_id();
@@ -600,19 +600,49 @@ void BTGraphEditor::_add_new_subtree_node_button_pressed()
 
     undo_redo_manager->commit_action();
 
-    /* TODO:
-    /* bt_graph_node->connect("node_selected", callable_mp(this, &BTEditorPlugin::_node_selected).bind(id));
-    /* bt_graph_node->connect("node_deselected", callable_mp(this, &BTEditorPlugin::_node_deselected).bind(id)); */
-
-    bt_graph_node->call_deferred("connect", "dragged", callable_mp(this, &BTGraphEditor::_node_dragged).bind(bt_graph_node->get_name()));
-    bt_graph_node->call_deferred("connect", "double_clicked", callable_mp(this, &BTGraphEditor::_on_node_subtree_double_clicked));
-    bt_graph_node->call_deferred("connect", "right_clicked", callable_mp(this, &BTGraphEditor::_on_node_subtree_right_clicked));
-
+    this->connect_graph_node_signals(bt_graph_node);
 }
 
 void BTGraphEditor::_arrange_nodes_button_pressed()
 {
-    this->arrange_nodes();
+    if (!(this->behaviour_tree->get_root_task().is_valid()))
+    {
+        return;
+    }
+
+    BTGraphNode* root_node = this->task_to_node[this->behaviour_tree->get_root_task()];
+    ERR_FAIL_COND(root_node == nullptr);
+
+    godot::Vector<godot::Pair<BTGraphNode*, int>> stack;
+    this->_extract_node_levels_into_stack(root_node, stack);
+
+    godot::HashMap<int, int> level_to_node_count;
+    godot::Vector2 root_node_position = root_node->get_position_offset();
+    godot::Vector2 node_padding = root_node->get_size() + godot::Vector2(80, 20);
+    int current_index = stack.size() - 1;
+
+    godot::EditorUndoRedoManager* undo_redo_manager = this->editor_plugin->get_undo_redo();
+
+    undo_redo_manager->create_action("Arrange node(s)");
+
+    while (current_index >= 0)
+    {
+        godot::Pair<BTGraphNode*, int> pair_node_level = stack[current_index];
+
+        godot::Vector2 position = godot::Vector2(0, 0);
+        position.x += node_padding.x*pair_node_level.second;
+        position.y += node_padding.y*level_to_node_count[pair_node_level.second];
+        position += root_node_position;
+
+        /*NOTE: won't save in scene of behaviour tree*/
+        undo_redo_manager->add_do_method(pair_node_level.first, "set_position_offset", position);
+        undo_redo_manager->add_undo_method(pair_node_level.first, "set_position_offset", pair_node_level.first->get_position_offset());
+
+        level_to_node_count[pair_node_level.second]++;
+        current_index--;
+    }
+
+    undo_redo_manager->commit_action();
 }
 
 void BTGraphEditor::_on_rename_edit_text_submitted(const godot::String& new_text)
@@ -661,9 +691,9 @@ void BTGraphEditor::_on_path_edit_text_submitted(const godot::String& new_path)
     undo_redo_manager->add_do_method(this->behaviour_tree, "set_root_task", this->behaviour_tree->get_root_task());
     undo_redo_manager->add_do_method(subtree_task.ptr(), "set_file_path", new_path);
     undo_redo_manager->add_do_method(this->last_double_clicked_node, "set_file_path", new_path);
-
-    undo_redo_manager->add_undo_method(this->last_double_clicked_node, "set_file_path", old_path);
+    
     undo_redo_manager->add_undo_method(subtree_task.ptr(), "set_file_path", old_path);
+    undo_redo_manager->add_undo_method(this->last_double_clicked_node, "set_file_path", old_path);
     undo_redo_manager->add_undo_method(this->behaviour_tree, "set_root_task", this->behaviour_tree->get_root_task());
 
     undo_redo_manager->commit_action();
@@ -686,6 +716,7 @@ void BTGraphEditor::_on_node_double_clicked(BTGraphNode* clicked_node)
     /* grab_focus should be a deferred call. See:
      * https://docs.godotengine.org/en/stable/classes/class_control.html#class-control-method-grab-focus */
     this->rename_edit->call_deferred("grab_focus");
+    this->rename_edit->set_size(godot::Size2(clicked_node->get_size().x, this->path_edit->get_size().y));
     this->rename_edit->set_position(godot::Vector2(clicked_node->get_position().x, 
                                                    clicked_node->get_position().y - this->rename_edit->get_size().y));
     
@@ -740,9 +771,10 @@ void BTGraphEditor::_on_node_subtree_double_clicked(BTGraphNodeSubtree* clicked_
     ERR_FAIL_COND(clicked_node == nullptr);
 
     this->last_double_clicked_node = clicked_node;
-    this->path_edit->set_text(clicked_node->get_title());
+    this->path_edit->set_text(clicked_node->get_file_path());
     this->path_edit->set_visible(true);
     this->path_edit->call_deferred("grab_focus");
+    this->path_edit->set_size(godot::Size2(clicked_node->get_size().x, this->path_edit->get_size().y));
     this->path_edit->set_position(godot::Vector2(clicked_node->get_position().x, 
                                                    clicked_node->get_position().y - this->path_edit->get_size().y));
     
@@ -929,8 +961,9 @@ void BTGraphEditor::_bind_methods()
     ClassDB::bind_method(D_METHOD("_setup_path_edit"), &BTGraphEditor::_setup_path_edit);
 
     // Utility Methods
-    ClassDB::bind_method(D_METHOD("new_bt_graph_node"), &BTGraphEditor::new_bt_graph_node);
-    ClassDB::bind_method(D_METHOD("new_bt_graph_node_subtree"), &BTGraphEditor::new_bt_graph_node_subtree);
+    ClassDB::bind_method(D_METHOD("connect_graph_node_signals"), &BTGraphEditor::connect_graph_node_signals);
+    ClassDB::bind_method(D_METHOD("new_graph_node"), &BTGraphEditor::new_graph_node);
+    ClassDB::bind_method(D_METHOD("new_graph_node_subtree"), &BTGraphEditor::new_graph_node_subtree);
     ClassDB::bind_method(D_METHOD("new_bt_graph_node_from_task", "bt_task"), &BTGraphEditor::new_bt_graph_node_from_task);
     ClassDB::bind_method(D_METHOD("new_bt_graph_node_subtree_from_task", "bt_subtree"), &BTGraphEditor::new_bt_graph_node_subtree_from_task);
     ClassDB::bind_method(D_METHOD("get_graph_nodes"), &BTGraphEditor::get_graph_nodes);

@@ -5,7 +5,6 @@ file_path = "res://tests/mock/mock_behaviour_tree.tscn"
 custom_name = "3"
 
 [sub_resource type="BTProbability" id="BTProbability_jffvy"]
-run_chance = 0.0
 custom_name = "2"
 children = [SubResource("BTSubtree_0eoah")]
 

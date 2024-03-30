@@ -38,7 +38,7 @@ BTEditorPlugin::BTEditorPlugin()
 
 BTEditorPlugin::~BTEditorPlugin()
 {
-    
+    memfree(this->main_container);
 }
 
 void BTEditorPlugin::set_graph_editor(BTGraphEditor* graph_editor)

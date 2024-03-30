@@ -51,13 +51,15 @@ private:
 
 private:
     /* Setup Methods */
+    void _setup_graph_edit();
     void _setup_popup_menu();
     void _setup_rename_edit();
     void _setup_path_edit();
 
     /* Utility Methods */
-    BTGraphNode* new_bt_graph_node();
-    BTGraphNodeSubtree* new_bt_graph_node_subtree();
+    void connect_graph_node_signals(BTGraphNode* node);
+    BTGraphNode* new_graph_node();
+    BTGraphNodeSubtree* new_graph_node_subtree();
     BTGraphNode* new_bt_graph_node_from_task(godot::Ref<BTTask> bt_task);
     BTGraphNodeSubtree* new_bt_graph_node_subtree_from_task(godot::Ref<BTSubtree> bt_subtree);
     godot::Array get_graph_nodes();
