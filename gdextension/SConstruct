@@ -1,16 +1,20 @@
 import os
 
+#TODO: Clean
+
 # Include necessary environment
 env = SConscript('godot-cpp/SConstruct')
+
+# Append the doctest path
+env.Append(CPPPATH=["doctest/"])
 
 # Append the source directory to the include path
 env.Append(CPPPATH=["src/"])
 
+
 #for libraries
 #env.Append(LIB="...")
 #env.Append(LIBPATH="...")
-
-#src = Glob("src/**/*.cpp")
 
 # Function to collect CPP files recursively from a directory
 def collect_cpp_files(root):
@@ -21,8 +25,9 @@ def collect_cpp_files(root):
                 cpp_files.append(os.path.join(dirpath, filename))
     return cpp_files
 
-# Collect all CPP files in the src directory
-src = collect_cpp_files("src")
+# Collect all CPP files
+src = collect_cpp_files("doctest/doctest")
+src += collect_cpp_files("src")
 
 if env['platform'] == 'linux':
 	libpath = '../libdemonless{}{}'.format(env['suffix'], env['SHLIBSUFFIX'])

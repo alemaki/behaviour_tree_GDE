@@ -11,6 +11,9 @@
 #include <godot_cpp/core/defs.hpp>
 #include <godot_cpp/godot.hpp>
 
+#define DOCTEST_CONFIG_NO_EXCEPTIONS_BUT_WITH_ALL_ASSERTS
+#include <doctest/doctest.h>
+
 #include "behaviour_tree/behaviour_tree.hpp"
 #include "behaviour_tree/tasks/bt_action.hpp"
 #include "behaviour_tree/tasks/bt_composite.hpp"
@@ -68,6 +71,16 @@ void initialize_gdextension_module(ModuleInitializationLevel p_level)
 
 		ClassDB::register_class<BTSubtree>();
 		ClassDB::register_class<BehaviourTree>();
+
+		/* Run doctest tests */
+		doctest::Context context;
+		context.applyCommandLine(0, nullptr);
+		int res = context.run();
+
+		if (context.shouldExit())
+		{
+			return;
+		}
 	}
 	if (p_level == MODULE_INITIALIZATION_LEVEL_EDITOR)
 	{
