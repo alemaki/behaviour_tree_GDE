@@ -1,11 +1,5 @@
-[submodule "gdextension/godot-cpp"]
-	path = gdextension/godot-cpp
-	url = https://github.com/godotengine/godot-cpp.git
-[submodule "gdextension/doctest"]
-	path = gdextension/doctest
-	url = https://github.com/doctest/doctest.git
-[submodule "godot_cpp"]
-	path = godot_cpp
+[submodule "godot-cpp"]
+	path = godot-cpp
 	url = https://github.com/godotengine/godot-cpp.git
 	branch = 4.2
 [submodule "doctest"]

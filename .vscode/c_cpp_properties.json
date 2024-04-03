@@ -6,19 +6,19 @@
                 "${workspaceFolder}/godot-cpp/gdextension/",
                 "${workspaceFolder}/godot-cpp/include/",
                 "${workspaceFolder}/godot-cpp/gen/include/",
-                "${workspaceFolder}/src/",
-                "${workspaceFolder}/doctest/"
+                "${workspaceFolder}/doctest/",
+                "${workspaceFolder}/"
             ],
             "defines": [],
-            "compilerPath": "/usr/bin/g++",
+            "compilerPath": "C:/msys64/mingw64/bin/g++.exe",
             "cStandard": "c17",
             "cppStandard": "c++14",
-            "intelliSenseMode": "linux-clang-x64"
+            "intelliSenseMode": "windows-gcc-x86"
         },
         {
             "name": "Windows",
             "includePath": [
-                "${workspaceFolder}/**"
+                "c:/projects/behaviour_tree_GDE/**"
             ],
             "defines": [
                 "_DEBUG",
@@ -29,11 +29,12 @@
             "browse": {
                 "path": [
                     "d:/Demonless/gdextension/**",
-                    "${workspaceFolder}"
+                    "c:/projects/behaviour_tree_GDE"
                 ],
                 "limitSymbolsToIncludedHeaders": true
             },
-            "compilerPath": "C:/msys64/mingw64/bin/g++.exe"
+            "compilerPath": "C:/msys64/mingw64/bin/g++.exe",
+            "compilerPathInCppPropertiesJson": "C:/msys64/mingw64/bin/g++.exe"
         }
     ],
     "version": 4

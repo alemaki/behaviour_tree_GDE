@@ -3,7 +3,7 @@ import os
 #TODO: Clean
 
 # Include necessary environment
-env = SConscript('godot-cpp/SConstruct')
+env = SConscript('godot_cpp/SConstruct')
 
 # Append the doctest path
 env.Append(CPPPATH=["doctest/"])
