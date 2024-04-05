@@ -91,16 +91,23 @@
 #define BIND_PROPERTY_OBJECT(name, member, property_hint, hint_str, property_usage, property_class) /**************************************************************************/\
     ADD_PROPERTY(PropertyInfo(Variant::OBJECT, #member, property_hint, hint_str, property_usage, #property_class), "set_" #name, "get_" #name)
 
-#define BIND_PROPERTY_OBJECT_DEFAULT(member) /*********************************************************************************************************************************/\
+#define BIND_PROPERTY_OBJECT_DEFAULT(member, property_hint, hint_str, property_usage, property_class) /************************************************************************/\
+    BIND_PROPERTY_OBJECT(member, member, property_hint, hint_str, property_usage, property_class)
+
+#define BIND_PROPERTY_OBJECT_NO_HINT(member) /*********************************************************************************************************************************/\
     BIND_PROPERTY_OBJECT(member, member, PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NO_EDITOR, )
 
-#define BIND_GETTER_SETTER_PROPERTY_OBJECT(class, name, parameter, property_hint, hint_str, property_usage, property_class) /**************************************************/\
+#define BIND_GETTER_SETTER_PROPERTY_OBJECT(class, name, parameter, member, property_hint, hint_str, property_usage, property_class) /******************************************/\
     BIND_GETTER_SETTER(class, name, parameter);                                                                                                                                 \
     BIND_PROPERTY_OBJECT(name, member, property_hint, hint_str, property_usage, #property_class)
 
-#define BIND_GETTER_SETTER_PROPERTY_OBJECT_DEFAULT(class, member) /************************************************************************************************************/\
+#define BIND_GETTER_SETTER_PROPERTY_OBJECT_DEFAULT(class, member, property_hint, hint_str, property_usage, property_class) /***************************************************/\
     BIND_GETTER_SETTER_DEFAULT(class, member);                                                                                                                                  \
-    BIND_PROPERTY_OBJECT_DEFAULT(member)
+    BIND_PROPERTY_OBJECT_DEFAULT(member, property_hint, hint_str, property_usage, property_class)
+
+#define BIND_GETTER_SETTER_PROPERTY_OBJECT_NO_HINT(class, member) /************************************************************************************************************/\
+    BIND_GETTER_SETTER_DEFAULT(class, member);                                                                                                                                  \
+    BIND_PROPERTY_OBJECT_NO_HINT(member)
 
 // include bt_task after so it can use definitions for getter_setter
 #include "behaviour_tree/tasks/bt_task.hpp"

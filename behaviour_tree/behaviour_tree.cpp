@@ -232,7 +232,7 @@ void BehaviourTree::_bind_methods()
     ClassDB::bind_method(D_METHOD("instantiate", "actor", "blackboard"), &BehaviourTree::instantiate);
 
     BIND_GETTER_SETTER_PROPERTY_DEFAULT(BehaviourTree, STRING, description);
-    BIND_GETTER_SETTER_PROPERTY_OBJECT_DEFAULT(BehaviourTree, root_task);
+    BIND_GETTER_SETTER_PROPERTY_OBJECT_NO_HINT(BehaviourTree, root_task);
 
     BIND_GETTER_SETTER_DEFAULT(BehaviourTree, task_map);
     ADD_PROPERTY(PropertyInfo(Variant::DICTIONARY, "task_map", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NO_EDITOR), "set_task_map", "get_task_map");

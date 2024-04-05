@@ -271,9 +271,9 @@ void BTTask::_bind_methods()
     ClassDB::bind_method(D_METHOD("initialize", "actor", "blackboard"), &BTTask::initialize);
 
 
-    BIND_GETTER_SETTER_PROPERTY_OBJECT_DEFAULT(BTTask, parent);
-    BIND_GETTER_SETTER_PROPERTY_OBJECT_DEFAULT(BTTask, actor);
-    BIND_GETTER_SETTER_PROPERTY_OBJECT_DEFAULT(BTTask, blackboard);
+    BIND_GETTER_SETTER_PROPERTY_OBJECT_NO_HINT(BTTask, parent);
+    BIND_GETTER_SETTER_PROPERTY_OBJECT_NO_HINT(BTTask, actor);
+    BIND_GETTER_SETTER_PROPERTY_OBJECT_NO_HINT(BTTask, blackboard);
 
     BIND_GETTER_SETTER_DEFAULT(BTTask, custom_name);
     BIND_GETTER_SETTER_DEFAULT(BTTask, status);
