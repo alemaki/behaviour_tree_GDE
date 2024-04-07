@@ -13,6 +13,9 @@ private:
 protected:
 	virtual void _enter() override;
 	virtual Status _tick(double p_delta) override;
+
+protected:
+	static void _bind_methods(){};
 };
 
 #endif // BT_SELECTOR_H

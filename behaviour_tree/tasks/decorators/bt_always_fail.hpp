@@ -9,6 +9,9 @@ class BTAlwaysFail : public BTDecorator
 
 protected:
     virtual BTTask::Status _tick(double delta) override;
+
+protected:
+	static void _bind_methods(){};
 };
 
 #endif // BT_ALWAYS_FAIL_HPP

@@ -6,6 +6,9 @@
 class BTCondition : public BTTask
 {
 	GDCLASS(BTCondition, BTTask);
+
+protected:
+	static void _bind_methods(){};
 };
 
 #endif // BT_CONDITION_HPP

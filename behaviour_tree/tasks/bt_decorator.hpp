@@ -6,6 +6,9 @@
 class BTDecorator : public BTTask
 {
 	GDCLASS(BTDecorator, BTTask);
+
+protected:
+	static void _bind_methods(){};
 };
 
 #endif // BT_DECORATOR_HPP
