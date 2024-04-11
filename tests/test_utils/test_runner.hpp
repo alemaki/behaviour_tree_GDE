@@ -2,7 +2,7 @@
 #define TEST_RUNNER_HPP
 
 #include <godot_cpp/classes/node.hpp>
-#include <doctest.h>
+
 class TestRunner : public godot::Node
 {
     GDCLASS(TestRunner, godot::Node);

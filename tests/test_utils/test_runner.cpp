@@ -1,4 +1,5 @@
 #include "test_runner.hpp"
+#include <doctest.h>
 
 
 void TestRunner::run()
