@@ -1,143 +1,315 @@
-#include "doctest.h"
-#include <godot_cpp/classes/resource_loader.hpp>
-
-
+#include <doctest/doctest.h>
 #include "behaviour_tree/behaviour_tree.hpp"
-#include "behaviour_tree/tasks/bt_subtree.hpp"
-#include "behaviour_tree/tasks/bt_task.hpp"
 
-
-TEST_SUITE("BehaviourTreeTest")
+TEST_SUITE("BehaviourTreeTests")
 {
-    BehaviourTree* mock_behaviour_tree = nullptr;
-    BehaviourTree* mock_behaviour_tree_with_sub = nullptr;
 
-    TEST_CASE("mock_behaviour_tree setup")
+    TEST_CASE("Test set and get description")
     {
-        const godot::String mock_behaviour_tree_path = "res://tests/mock/mock_behaviour_tree.tscn";
-        const godot::String mock_behaviour_tree_with_sub_path = "res://tests/mock/mock_behaviour_tree_with_sub.tscn";
-
-
-        godot::Node* mock_behaviour_tree_node = godot::Ref<godot::PackedScene>(godot::ResourceLoader::get_singleton()->load(mock_behaviour_tree_path))->instantiate();
-        mock_behaviour_tree = godot::Object::cast_to<BehaviourTree>(mock_behaviour_tree_node);
-
-        godot::Node* mock_behaviour_tree_with_sub_node = godot::Ref<godot::PackedScene>(godot::ResourceLoader::get_singleton()->load(mock_behaviour_tree_with_sub_path))->instantiate();
-        mock_behaviour_tree_with_sub = godot::Object::cast_to<BehaviourTree>(mock_behaviour_tree_with_sub_node);
-
-        CHECK(mock_behaviour_tree != nullptr);
-        CHECK(mock_behaviour_tree_with_sub != nullptr);
+        BehaviourTree* tree = memnew(BehaviourTree);
+        godot::String description = "Test Behaviour Tree";
+        tree->set_description(description);
+        CHECK(tree->get_description() == description);
+        memfree(tree);
     }
 
-    TEST_CASE("test_mock_tree_valid_for_testing")
+    TEST_CASE("Test add and get task")
     {
-        CHECK(mock_behaviour_tree != nullptr);
-        CHECK(mock_behaviour_tree->get_root_task() != nullptr);
-        CHECK(mock_behaviour_tree->get_root_task()->get_child_count() == 2);
-        CHECK(mock_behaviour_tree->get_root_task()->get_child(0)->get_child_count() == 0);
-        CHECK(mock_behaviour_tree->get_root_task()->get_child(1)->get_child_count() == 0);
+        BehaviourTree* tree = memnew(BehaviourTree);
+        godot::Ref<BTTask> task = memnew(BTTask);
+        tree->add_task_by_ref(task);
+        int task_id = tree->get_task_id(task);
+        CHECK(tree->get_task(task_id) == task);
+        memfree(tree);
     }
 
-    TEST_CASE("test_mock_tree_with_subtree_valid_for_testing")
+    TEST_CASE("Test has task")
     {
-        const godot::String mock_behaviour_tree_path = "res://tests/mock/mock_behaviour_tree.tscn";
-
-        CHECK(mock_behaviour_tree_with_sub != nullptr);
-        CHECK(mock_behaviour_tree_with_sub->get_root_task() != nullptr);
-        CHECK(mock_behaviour_tree_with_sub->get_root_task()->get_child_count() == 1);
-        CHECK(mock_behaviour_tree_with_sub->get_root_task()->get_child(0)->get_child_count() == 1);
-        CHECK(mock_behaviour_tree_with_sub->get_root_task()->get_child(0)->get_child(0)->get_class() == godot::String("BTSubtree"));
-        CHECK(godot::Ref<BTSubtree>(mock_behaviour_tree_with_sub->get_root_task()->get_child(0)->get_child(0))->get_file_path() == mock_behaviour_tree_path);
+        BehaviourTree* tree = memnew(BehaviourTree);
+        godot::Ref<BTTask> task = memnew(BTTask);
+        CHECK_FALSE(tree->has_task(task));
+        tree->add_task_by_ref(task);
+        CHECK(tree->has_task(task));
+        godot::Ref<BTTask> fake_task = memnew(BTTask);
+        CHECK_FALSE(tree->has_task(fake_task));
+        memfree(tree);
     }
 
-    TEST_CASE("test_load_behavior_tree")
+    TEST_CASE("Test remove task")
     {
-        const godot::String mock_behaviour_tree_path = "res://tests/mock/mock_behaviour_tree.tscn";
+        BehaviourTree* tree = memnew(BehaviourTree);
+        godot::Ref<BTTask> task = memnew(BTTask);
 
-        godot::Ref<BTSubtree> subtree_task = memnew(BTSubtree);
-        subtree_task->set_file_path(mock_behaviour_tree_path);
+        tree->add_task_by_ref(task);
+        int task_id = tree->get_task_id(task);
+        tree->remove_task(task_id);
 
-        BehaviourTree* sub_behaviour_tree = subtree_task->load_behavior_tree();
+        CHECK_FALSE(tree->has_task(task));
+        CHECK(tree->get_task(task_id) == nullptr);
 
-        CHECK(sub_behaviour_tree != nullptr);
-        CHECK(sub_behaviour_tree->get_root_task() != nullptr);
+        tree->add_task_by_ref(task);
+        tree->remove_task_by_ref(task);
+        CHECK_FALSE(tree->has_task(task));
 
-        memfree(sub_behaviour_tree);
+        memfree(tree);
     }
 
-    TEST_CASE("test_clone_subtree_task")
+    TEST_CASE("Test remove task count")
     {
-        const godot::String mock_behaviour_tree_path = "res://tests/mock/mock_behaviour_tree.tscn";
-        
-        godot::Ref<BTSubtree> subtree_task = memnew(BTSubtree);
-        subtree_task->set_file_path(mock_behaviour_tree_path);
+        BehaviourTree* tree = memnew(BehaviourTree);
+        godot::Ref<BTTask> task = memnew(BTTask);
+        godot::Ref<BTTask> task1 = memnew(BTTask);
+        godot::Ref<BTTask> task2 = memnew(BTTask);
+        tree->add_task_by_ref(task);
+        tree->add_task_by_ref(task1);
+        tree->add_task_by_ref(task2);
+        tree->remove_task_by_ref(task);
+        CHECK(tree->get_tasks().size() == 2);
+        tree->remove_task_by_ref(task1);
+        CHECK(tree->get_tasks().size() == 1);
+        tree->remove_task_by_ref(task2);
+        CHECK(tree->get_tasks().size() == 0);
 
-        godot::Ref<BTTask> tree_root_task = mock_behaviour_tree->get_root_task();
-        godot::Ref<BTTask> cloned_root_task = subtree_task->clone();
-
-        CHECK(cloned_root_task != nullptr);
-        CHECK(cloned_root_task != tree_root_task);
-        CHECK(tree_root_task->get_child_count() == cloned_root_task->get_child_count());
-        CHECK(tree_root_task->get_class() == cloned_root_task->get_class());
-
-        godot::Ref<BTTask> child1 = tree_root_task->get_child(0);
-        godot::Ref<BTTask> child2 = tree_root_task->get_child(1);
-        godot::Ref<BTTask> cloned_child1 = cloned_root_task->get_child(0);
-        godot::Ref<BTTask> cloned_child2 = cloned_root_task->get_child(1);
-
-        CHECK(child1 != cloned_child1);
-        CHECK(child1->get_child_count() == cloned_child1->get_child_count());
-        CHECK(child1->get_class() == cloned_child1->get_class());
-
-        CHECK(child2 != cloned_child2);
-        CHECK(child2->get_child_count() == cloned_child2->get_child_count());
-        CHECK(child2->get_class() == cloned_child2->get_class());
+        memfree(tree);
     }
 
-    TEST_CASE("test_clone_subtree_with_subtree")
+    TEST_CASE("Test connect and disconnect tasks")
     {
-        const godot::String mock_behaviour_tree_with_sub_path = "res://tests/mock/mock_behaviour_tree_with_sub.tscn";
+        BehaviourTree* tree = memnew(BehaviourTree);
+        godot::Ref<BTTask> parent_task = memnew(BTTask);
+        godot::Ref<BTTask> child_task = memnew(BTTask);
+        tree->add_task_by_ref(parent_task);
+        tree->add_task_by_ref(child_task);
 
-        godot::Ref<BTSubtree> subtree_task = memnew(BTSubtree);
-        subtree_task->set_file_path(mock_behaviour_tree_with_sub_path);
+        tree->connect_tasks(parent_task, child_task, 0);
+        CHECK(parent_task->has_child(child_task));
+        CHECK(child_task->get_parent() == parent_task);
 
-        godot::Ref<BTTask> subtree_root_task = mock_behaviour_tree->get_root_task();
-        godot::Ref<BTTask> tree_root_task = mock_behaviour_tree_with_sub->get_root_task();
-        godot::Ref<BTTask> cloned_root_task = subtree_task->clone();
+        tree->disconnect_tasks(parent_task, child_task);
+        CHECK_FALSE(parent_task->has_child(child_task));
+        CHECK(child_task->get_parent() == nullptr);
 
-        CHECK(cloned_root_task != nullptr);
-        CHECK(cloned_root_task != tree_root_task);
-        CHECK(tree_root_task->get_child_count() == cloned_root_task->get_child_count());
-        CHECK(tree_root_task->get_class() == cloned_root_task->get_class());
-
-        godot::Ref<BTTask> child1 = tree_root_task->get_child(0);
-        godot::Ref<BTTask> cloned_child1 = cloned_root_task->get_child(0);
-
-        CHECK(child1 != cloned_child1);
-        CHECK(child1->get_child_count() == cloned_child1->get_child_count());
-        CHECK(child1->get_class() == cloned_child1->get_class());
-
-        godot::Ref<BTTask> cloned_child_subtree = cloned_root_task->get_child(0)->get_child(0);
-        CHECK(cloned_child_subtree != subtree_root_task);
-        CHECK(cloned_child_subtree->get_child_count() == subtree_root_task->get_child_count());
-        CHECK(cloned_child_subtree->get_class() == subtree_root_task->get_class());
-
-        godot::Ref<BTTask> leaf1 = subtree_root_task->get_child(0);
-        godot::Ref<BTTask> leaf2 = subtree_root_task->get_child(1);
-        godot::Ref<BTTask> cloned_leaf1 = cloned_root_task->get_child(0)->get_child(0)->get_child(0);
-        godot::Ref<BTTask> cloned_leaf2 = cloned_root_task->get_child(0)->get_child(0)->get_child(1);
-
-        CHECK(leaf1 != cloned_leaf1);
-        CHECK(leaf1->get_child_count() == cloned_leaf1->get_child_count());
-        CHECK(leaf1->get_class() == cloned_leaf1->get_class());
-
-        CHECK(leaf2 != cloned_leaf2);
-        CHECK(leaf2->get_child_count() == cloned_leaf2->get_child_count());
-        CHECK(leaf2->get_class() == cloned_leaf2->get_class());
+        memfree(tree);
     }
 
-    TEST_CASE("teardown")
+    TEST_CASE("Test clear tasks")
     {
-        memfree(mock_behaviour_tree);
-        memfree(mock_behaviour_tree_with_sub);
+        BehaviourTree* tree = memnew(BehaviourTree);
+        godot::Ref<BTTask> task1 = memnew(BTTask);
+        godot::Ref<BTTask> task2 = memnew(BTTask);
+        tree->add_task_by_ref(task1);
+        tree->add_task_by_ref(task2);
+        tree->clear_tasks();
+        CHECK(tree->get_tasks().size() == 0);
+        CHECK(tree->get_root_task() == nullptr);
+
+        memfree(tree);
     }
+
+    TEST_CASE("Test set and get root task")
+    {
+        BehaviourTree* tree = memnew(BehaviourTree);
+        godot::Ref<BTTask> root_task = memnew(BTTask);
+        tree->add_task_by_ref(root_task);
+        tree->set_root_task(root_task);
+        CHECK(tree->get_root_task() == root_task);
+
+        memfree(tree);
+    }
+
+    TEST_CASE("Test detach task")
+    {
+        BehaviourTree* tree = memnew(BehaviourTree);
+        godot::Ref<BTTask> root_task = memnew(BTTask);
+        godot::Ref<BTTask> child_task = memnew(BTTask);
+        tree->add_task_by_ref(root_task);
+        tree->add_task_by_ref(child_task);
+        tree->connect_tasks(root_task, child_task, 0);
+        tree->detach_task_by_ref(child_task);
+        CHECK_FALSE(root_task->has_child(child_task));
+        CHECK(child_task->get_parent() == nullptr);
+
+        memfree(tree);
+    }
+
+    TEST_CASE("Test set tasks of parent")
+    {
+        BehaviourTree* tree = memnew(BehaviourTree);
+        godot::Ref<BTTask> parent_task = memnew(BTTask);
+        godot::Ref<BTTask> child_task1 = memnew(BTTask);
+        godot::Ref<BTTask> child_task2 = memnew(BTTask);
+        tree->add_task_by_ref(parent_task);
+        tree->add_task_by_ref(child_task1);
+        tree->add_task_by_ref(child_task2);
+        godot::Array children_array;
+        children_array.push_back(child_task1);
+        children_array.push_back(child_task2);
+        tree->set_tasks_of_parent(parent_task, children_array);
+        godot::Array children = parent_task->get_children();
+        CHECK(children.size() == 2);
+        CHECK(children[0] == child_task1);
+        CHECK(children[1] == child_task2);
+
+        memfree(tree);
+    }
+
+    TEST_CASE("Test root task initially null")
+    {
+        BehaviourTree* tree = memnew(BehaviourTree);
+        CHECK(tree->get_root_task() == nullptr);
+
+        memfree(tree);
+    }
+
+    TEST_CASE("Test added task becomes root")
+    {
+        BehaviourTree* tree = memnew(BehaviourTree);
+        godot::Ref<BTTask> task = memnew(BTTask);
+        godot::Ref<BTTask> task1 = memnew(BTTask);
+        tree->add_task_by_ref(task);
+        CHECK(tree->get_root_task() == task);
+        tree->add_task_by_ref(task1);
+        CHECK(tree->get_root_task() == task);
+
+        memfree(tree);
+    }
+
+    TEST_CASE("Test set root task")
+    {
+        BehaviourTree* tree = memnew(BehaviourTree);
+        godot::Ref<BTTask> root_task1 = memnew(BTTask);
+        godot::Ref<BTTask> root_task2 = memnew(BTTask);
+        tree->add_task_by_ref(root_task1);
+        tree->add_task_by_ref(root_task2);
+        tree->set_root_task(root_task2);
+        CHECK(tree->get_root_task() == root_task2);
+
+        memfree(tree);
+    }
+
+    TEST_CASE("Test remove root task")
+    {
+        BehaviourTree* tree = memnew(BehaviourTree);
+        godot::Ref<BTTask> task = memnew(BTTask);
+        godot::Ref<BTTask> task1 = memnew(BTTask);
+        tree->add_task_by_ref(task);
+        tree->add_task_by_ref(task1);
+        godot::Ref<BTTask> root_task = tree->get_root_task();
+        tree->remove_task_by_ref(root_task);
+        CHECK(tree->get_root_task() != root_task);
+        CHECK(tree->get_root_task() != nullptr);
+
+        memfree(tree);
+    }
+
+    TEST_CASE("Test get valid id increment")
+    {
+        BehaviourTree* tree = memnew(BehaviourTree);
+        int first_id = tree->get_valid_id();
+        godot::Ref<BTTask> task = memnew(BTTask);
+        tree->add_task_by_ref(task);
+        int second_id = tree->get_valid_id();
+        CHECK(second_id == first_id + 1);
+
+        memfree(tree);
+    }
+
+    TEST_CASE("Test task hierarchy")
+    {
+        BehaviourTree* tree = memnew(BehaviourTree);
+        godot::Ref<BTTask> root_task = memnew(BTTask);
+        godot::Ref<BTTask> child_task1 = memnew(BTTask);
+        godot::Ref<BTTask> child_task2 = memnew(BTTask);
+        godot::Ref<BTTask> grandchild_task = memnew(BTTask);
+
+        tree->add_task_by_ref(root_task);
+        tree->add_task_by_ref(child_task1);
+        tree->add_task_by_ref(child_task2);
+        tree->add_task_by_ref(grandchild_task);
+
+        tree->connect_tasks(root_task, child_task1, 0);
+        tree->connect_tasks(root_task, child_task2, 1);
+        tree->connect_tasks(child_task1, grandchild_task, 0);
+
+        CHECK(root_task->has_child(child_task1));
+        CHECK(root_task->has_child(child_task2));
+        CHECK(child_task1->has_child(grandchild_task));
+        CHECK(grandchild_task->get_root() == root_task);
+        CHECK(grandchild_task->get_parent() == child_task1);
+
+        memfree(tree);
+    }
+
+    TEST_CASE("Test set custom name task by ref")
+    {
+        BehaviourTree* behaviour_tree = memnew(BehaviourTree);
+        godot::Ref<BTTask> task = memnew(BTTask);
+        behaviour_tree->add_task_by_ref(task);
+        godot::String new_name = "New Task Name";
+        behaviour_tree->set_custom_name_task_by_ref(task, new_name);
+
+        CHECK(task->get_custom_name() == new_name);
+
+        memfree(behaviour_tree);
+    }
+
+    TEST_CASE("Test swap root task in")
+    {
+        BehaviourTree* behaviour_tree = memnew(BehaviourTree);
+        godot::Ref<BTTask> old_task = memnew(BTTask);
+        godot::Ref<BTTask> new_task = memnew(BTTask);
+
+        behaviour_tree->add_task_by_ref(old_task);
+
+        godot::Ref<BTTask> child_task = memnew(BTTask);
+        behaviour_tree->add_task_by_ref(child_task);
+        behaviour_tree->connect_tasks(old_task, child_task, 0);
+
+        behaviour_tree->swap_task_in(old_task, new_task);
+
+        CHECK(behaviour_tree->has_task(new_task));
+        CHECK_FALSE(behaviour_tree->has_task(old_task));
+        CHECK(behaviour_tree->get_root_task() == new_task);
+        CHECK(new_task->get_children().size() == 1);
+        CHECK(new_task->has_child(child_task));
+        CHECK(child_task->get_parent() == new_task);
+
+        memfree(behaviour_tree);
+    }
+
+    TEST_CASE("Test swap non root task in")
+    {
+        BehaviourTree* behaviour_tree = memnew(BehaviourTree);
+        godot::Ref<BTTask> old_task = memnew(BTTask);
+        godot::Ref<BTTask> new_task = memnew(BTTask);
+        godot::Ref<BTTask> root_task = memnew(BTTask);
+        godot::Ref<BTTask> child1 = memnew(BTTask);
+        godot::Ref<BTTask> child2 = memnew(BTTask);
+
+        behaviour_tree->add_task_by_ref(root_task);
+        behaviour_tree->add_task_by_ref(old_task);
+        behaviour_tree->add_task_by_ref(child1);
+        behaviour_tree->add_task_by_ref(child2);
+
+        behaviour_tree->connect_tasks(old_task, child1, 0);
+        behaviour_tree->connect_tasks(old_task, child2, 1);
+        behaviour_tree->connect_tasks(root_task, old_task, 0);
+
+        behaviour_tree->swap_task_in(old_task, new_task);
+
+        CHECK(behaviour_tree->has_task(new_task));
+        CHECK_FALSE(behaviour_tree->has_task(old_task));
+        CHECK(behaviour_tree->get_root_task() == root_task);
+        CHECK(new_task->get_children().size() == 2);
+        CHECK(new_task->has_child(child1));
+        CHECK(new_task->has_child(child2));
+        CHECK(child1->get_parent() == new_task);
+        CHECK(child2->get_parent() == new_task);
+        CHECK(new_task->get_parent() == root_task);
+        CHECK(root_task->get_children().size() == 1);
+        CHECK(root_task->has_child(new_task));
+
+        memfree(behaviour_tree);
+    }
+
 }

@@ -12,7 +12,7 @@
 TEST_SUITE("BTTaskTests")
 {
 
-    TEST_CASE("BTTask Basic Functionality")
+    TEST_CASE("Test basic functionality")
     {
         godot::Ref<BTTask> task = memnew(BTTask);
         CHECK(task->get_status() == 0);
@@ -24,7 +24,7 @@ TEST_SUITE("BTTaskTests")
         CHECK(task->get_parent() == nullptr);
     }
 
-    TEST_CASE("BTTask Child Addition and Array")
+    TEST_CASE("Test child addition and array")
     {
         godot::Ref<BTTask> root_task = memnew(BTTask);
         godot::Ref<BTTask> child1 = memnew(BTTask);
@@ -46,7 +46,7 @@ TEST_SUITE("BTTaskTests")
         CHECK(children[2] == child3);
     }
 
-    TEST_CASE("BTTask Has Child")
+    TEST_CASE("Test has child")
     {
         godot::Ref<BTTask> root_task = memnew(BTTask);
         godot::Ref<BTTask> child_task = memnew(BTTask);
@@ -59,7 +59,7 @@ TEST_SUITE("BTTaskTests")
         CHECK_FALSE(root_task->has_child(other_task));
     }
 
-    TEST_CASE("BTTask Child Count")
+    TEST_CASE("Test child count")
     {
         godot::Ref<BTTask> root_task = memnew(BTTask);
         godot::Ref<BTTask> child1 = memnew(BTTask);
@@ -76,7 +76,7 @@ TEST_SUITE("BTTaskTests")
         CHECK(root_task->get_child_count() == 3);
     }
 
-    TEST_CASE("BTTask Child Twice Addition")
+    TEST_CASE("Test child twice addition")
     {
         godot::Ref<BTTask> root_task = memnew(BTTask);
         godot::Ref<BTTask> child1 = memnew(BTTask);
@@ -89,7 +89,7 @@ TEST_SUITE("BTTaskTests")
         CHECK(root_task->get_child_count() == 2);
     }
 
-    TEST_CASE("BTTask Child Addition at Index")
+    TEST_CASE("Test child addition at index")
     {
         godot::Ref<BTTask> root_task = memnew(BTTask);
         godot::Ref<BTTask> child1 = memnew(BTTask);
@@ -111,7 +111,7 @@ TEST_SUITE("BTTaskTests")
         CHECK(children[2] == child1);
     }
 
-    TEST_CASE("BTTask Child Removal")
+    TEST_CASE("Test child removal")
     {
         godot::Ref<BTTask> root_task = memnew(BTTask);
         godot::Ref<BTTask> child1 = memnew(BTTask);
@@ -137,7 +137,7 @@ TEST_SUITE("BTTaskTests")
         CHECK(root_task->has_child(child2));
     }
 
-    TEST_CASE("BTTask Child Twice Removal")
+    TEST_CASE("Test child twice removal")
     {
         godot::Ref<BTTask> root_task = memnew(BTTask);
         godot::Ref<BTTask> child1 = memnew(BTTask);
@@ -152,7 +152,7 @@ TEST_SUITE("BTTaskTests")
         CHECK(root_task->get_child_count() == 1);
     }
 
-    TEST_CASE("BTTask Child Removal at Index")
+    TEST_CASE("Test child removal at index")
     {
         godot::Ref<BTTask> root_task = memnew(BTTask);
         godot::Ref<BTTask> child1 = memnew(BTTask);
@@ -177,7 +177,7 @@ TEST_SUITE("BTTaskTests")
         CHECK(child1->get_parent() == nullptr);
     }
 
-    TEST_CASE("BTTask Get Parent After Children Added")
+    TEST_CASE("Test get parent after children added")
     {
         godot::Ref<BTTask> root_task = memnew(BTTask);
         godot::Ref<BTTask> child_task = memnew(BTTask);
@@ -194,7 +194,7 @@ TEST_SUITE("BTTaskTests")
         CHECK(child_task->get_parent() == root_task);
     }
 
-    TEST_CASE("BTTask Is Root")
+    TEST_CASE("Test is root")
     {
         godot::Ref<BTTask> root_task = memnew(BTTask);
         godot::Ref<BTTask> child_task = memnew(BTTask);
@@ -208,7 +208,7 @@ TEST_SUITE("BTTaskTests")
         CHECK_FALSE(grandchild_task->is_root());
     }
 
-    TEST_CASE("BTTask Get Root")
+    TEST_CASE("Test get root")
     {
         godot::Ref<BTTask> root_task = memnew(BTTask);
         godot::Ref<BTTask> child_task = memnew(BTTask);
@@ -221,7 +221,7 @@ TEST_SUITE("BTTaskTests")
         CHECK(child_task->get_root() == root_task);
     }
 
-    TEST_CASE("BTTask Clone Basic")
+    TEST_CASE("Test clone basic")
     {
         godot::Ref<BTTask> task = memnew(BTTask);
         godot::Ref<BTTask> cloned_task = task->clone();
@@ -233,7 +233,7 @@ TEST_SUITE("BTTaskTests")
         CHECK(cloned_task->get_status() == task->get_status());
     }
 
-    TEST_CASE("BTTask Clone Keeps Attributes")
+    TEST_CASE("Test clone keeps attributes")
     {
         godot::Ref<BTProbability> task_prob = memnew(BTProbability);
         task_prob->set_run_chance(0.5);
@@ -244,7 +244,7 @@ TEST_SUITE("BTTaskTests")
         CHECK(static_cast<BTProbability*>(cloned_task.ptr())->get_run_chance() == task_prob->get_run_chance());
     }
 
-    TEST_CASE("BTTask Cloning Children")
+    TEST_CASE("Test cloning children")
     {
         godot::Ref<BTTask> task = memnew(BTTask);
         godot::Ref<BTInvert> child1 = memnew(BTInvert);
