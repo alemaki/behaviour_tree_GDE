@@ -1,4 +1,5 @@
-#include <doctest/doctest.h>
+#define DOCTEST_CONFIG_NO_EXCEPTIONS_BUT_WITH_ALL_ASSERTS
+#include <doctest.h>
 #include "behaviour_tree/behaviour_tree.hpp"
 
 TEST_SUITE("BehaviourTreeTests")
@@ -146,7 +147,7 @@ TEST_SUITE("BehaviourTreeTests")
         children_array.push_back(child_task2);
         tree->set_tasks_of_parent(parent_task, children_array);
         godot::Array children = parent_task->get_children();
-        CHECK(children.size() == 2);
+        REQUIRE(children.size() == 2);
         CHECK(children[0] == child_task1);
         CHECK(children[1] == child_task2);
 
@@ -242,64 +243,64 @@ TEST_SUITE("BehaviourTreeTests")
 
     TEST_CASE("Test set custom name task by ref")
     {
-        BehaviourTree* behaviour_tree = memnew(BehaviourTree);
+        BehaviourTree* tree = memnew(BehaviourTree);
         godot::Ref<BTTask> task = memnew(BTTask);
-        behaviour_tree->add_task_by_ref(task);
+        tree->add_task_by_ref(task);
         godot::String new_name = "New Task Name";
-        behaviour_tree->set_custom_name_task_by_ref(task, new_name);
+        tree->set_custom_name_task_by_ref(task, new_name);
 
         CHECK(task->get_custom_name() == new_name);
 
-        memfree(behaviour_tree);
+        memfree(tree);
     }
 
     TEST_CASE("Test swap root task in")
     {
-        BehaviourTree* behaviour_tree = memnew(BehaviourTree);
+        BehaviourTree* tree = memnew(BehaviourTree);
         godot::Ref<BTTask> old_task = memnew(BTTask);
         godot::Ref<BTTask> new_task = memnew(BTTask);
 
-        behaviour_tree->add_task_by_ref(old_task);
+        tree->add_task_by_ref(old_task);
 
         godot::Ref<BTTask> child_task = memnew(BTTask);
-        behaviour_tree->add_task_by_ref(child_task);
-        behaviour_tree->connect_tasks(old_task, child_task, 0);
+        tree->add_task_by_ref(child_task);
+        tree->connect_tasks(old_task, child_task, 0);
 
-        behaviour_tree->swap_task_in(old_task, new_task);
+        tree->swap_task_in(old_task, new_task);
 
-        CHECK(behaviour_tree->has_task(new_task));
-        CHECK_FALSE(behaviour_tree->has_task(old_task));
-        CHECK(behaviour_tree->get_root_task() == new_task);
+        CHECK(tree->has_task(new_task));
+        CHECK_FALSE(tree->has_task(old_task));
+        CHECK(tree->get_root_task() == new_task);
         CHECK(new_task->get_children().size() == 1);
         CHECK(new_task->has_child(child_task));
         CHECK(child_task->get_parent() == new_task);
 
-        memfree(behaviour_tree);
+        memfree(tree);
     }
 
     TEST_CASE("Test swap non root task in")
     {
-        BehaviourTree* behaviour_tree = memnew(BehaviourTree);
+        BehaviourTree* tree = memnew(BehaviourTree);
         godot::Ref<BTTask> old_task = memnew(BTTask);
         godot::Ref<BTTask> new_task = memnew(BTTask);
         godot::Ref<BTTask> root_task = memnew(BTTask);
         godot::Ref<BTTask> child1 = memnew(BTTask);
         godot::Ref<BTTask> child2 = memnew(BTTask);
 
-        behaviour_tree->add_task_by_ref(root_task);
-        behaviour_tree->add_task_by_ref(old_task);
-        behaviour_tree->add_task_by_ref(child1);
-        behaviour_tree->add_task_by_ref(child2);
+        tree->add_task_by_ref(root_task);
+        tree->add_task_by_ref(old_task);
+        tree->add_task_by_ref(child1);
+        tree->add_task_by_ref(child2);
 
-        behaviour_tree->connect_tasks(old_task, child1, 0);
-        behaviour_tree->connect_tasks(old_task, child2, 1);
-        behaviour_tree->connect_tasks(root_task, old_task, 0);
+        tree->connect_tasks(old_task, child1, 0);
+        tree->connect_tasks(old_task, child2, 1);
+        tree->connect_tasks(root_task, old_task, 0);
 
-        behaviour_tree->swap_task_in(old_task, new_task);
+        tree->swap_task_in(old_task, new_task);
 
-        CHECK(behaviour_tree->has_task(new_task));
-        CHECK_FALSE(behaviour_tree->has_task(old_task));
-        CHECK(behaviour_tree->get_root_task() == root_task);
+        CHECK(tree->has_task(new_task));
+        CHECK_FALSE(tree->has_task(old_task));
+        CHECK(tree->get_root_task() == root_task);
         CHECK(new_task->get_children().size() == 2);
         CHECK(new_task->has_child(child1));
         CHECK(new_task->has_child(child2));
@@ -309,7 +310,7 @@ TEST_SUITE("BehaviourTreeTests")
         CHECK(root_task->get_children().size() == 1);
         CHECK(root_task->has_child(new_task));
 
-        memfree(behaviour_tree);
+        memfree(tree);
     }
 
 }

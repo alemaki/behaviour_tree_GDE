@@ -1,6 +1,7 @@
-#include "doctest.h"
-#include <godot_cpp/classes/resource_loader.hpp>
+#define DOCTEST_CONFIG_NO_EXCEPTIONS_BUT_WITH_ALL_ASSERTS
+#include <doctest.h>
 
+#include <godot_cpp/classes/resource_loader.hpp>
 
 #include "behaviour_tree/behaviour_tree.hpp"
 #include "behaviour_tree/tasks/bt_subtree.hpp"
@@ -14,14 +15,18 @@ TEST_SUITE("SubtreeInstantioationTest")
 
     TEST_CASE("Setup")
     {
+        // TODO: figure out a way to instantiate the trees path globally.
         const godot::String mock_behaviour_tree_path = "res://tests/mock/mock_behaviour_tree.tscn";
         const godot::String mock_behaviour_tree_with_sub_path = "res://tests/mock/mock_behaviour_tree_with_sub.tscn";
 
-
-        godot::Node* mock_behaviour_tree_node = godot::Ref<godot::PackedScene>(godot::ResourceLoader::get_singleton()->load(mock_behaviour_tree_path))->instantiate();
+        godot::Ref<godot::PackedScene> mock_behaviour_tree_scene = godot::Ref<godot::PackedScene>(godot::ResourceLoader::get_singleton()->load(mock_behaviour_tree_path));
+        REQUIRE(mock_behaviour_tree_scene != nullptr);
+        godot::Node* mock_behaviour_tree_node = mock_behaviour_tree_scene->instantiate();
         mock_behaviour_tree = godot::Object::cast_to<BehaviourTree>(mock_behaviour_tree_node);
 
-        godot::Node* mock_behaviour_tree_with_sub_node = godot::Ref<godot::PackedScene>(godot::ResourceLoader::get_singleton()->load(mock_behaviour_tree_with_sub_path))->instantiate();
+        godot::Ref<godot::PackedScene> mock_behaviour_tree_with_sub_scene = godot::Ref<godot::PackedScene>(godot::ResourceLoader::get_singleton()->load(mock_behaviour_tree_with_sub_path));
+        REQUIRE(mock_behaviour_tree_with_sub_scene != nullptr);
+        godot::Node* mock_behaviour_tree_with_sub_node = mock_behaviour_tree_with_sub_scene->instantiate();
         mock_behaviour_tree_with_sub = godot::Object::cast_to<BehaviourTree>(mock_behaviour_tree_with_sub_node);
 
         REQUIRE(mock_behaviour_tree != nullptr);

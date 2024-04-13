@@ -1,4 +1,5 @@
-#include "doctest.h"
+#define DOCTEST_CONFIG_NO_EXCEPTIONS_BUT_WITH_ALL_ASSERTS
+#include <doctest.h>
 
 #include <godot_cpp/core/class_db.hpp>
 #include <godot_cpp/classes/node.hpp>
@@ -35,12 +36,14 @@ TEST_SUITE("BTTaskTests")
         root_task->add_child(child2);
 
         godot::Array children = root_task->get_children();
+        REQUIRE(children.size() == 2);
         CHECK(children[0] == child1);
         CHECK(children[1] == child2);
 
         root_task->add_child(child3);
 
         children = root_task->get_children();
+        REQUIRE(children.size() == 3);
         CHECK(children[0] == child1);
         CHECK(children[1] == child2);
         CHECK(children[2] == child3);
@@ -100,12 +103,14 @@ TEST_SUITE("BTTaskTests")
         root_task->add_child_at_index(child2, 0);
 
         godot::Array children = root_task->get_children();
+        REQUIRE(children.size() == 2);
         CHECK(children[0] == child2);
         CHECK(children[1] == child1);
 
         root_task->add_child_at_index(child3, 1);
 
         children = root_task->get_children();
+        REQUIRE(children.size() == 3);
         CHECK(children[0] == child2);
         CHECK(children[1] == child3);
         CHECK(children[2] == child1);
@@ -124,7 +129,7 @@ TEST_SUITE("BTTaskTests")
 
         root_task->remove_child(child1);
         CHECK_FALSE(root_task->has_child(child1));
-        CHECK(root_task->get_child_count() == 2);
+        REQUIRE(root_task->get_child_count() == 2);
         CHECK(child1->get_parent() == nullptr);
 
         godot::Array children = root_task->get_children();
@@ -166,7 +171,7 @@ TEST_SUITE("BTTaskTests")
         root_task->remove_child_at_index(1);
         CHECK_FALSE(root_task->has_child(child2));
         CHECK(child2->get_parent() == nullptr);
-        CHECK(root_task->get_child_count() == 2);
+        REQUIRE(root_task->get_child_count() == 2);
 
         godot::Array children = root_task->get_children();
         CHECK(children[0] == child1);
@@ -226,7 +231,7 @@ TEST_SUITE("BTTaskTests")
         godot::Ref<BTTask> task = memnew(BTTask);
         godot::Ref<BTTask> cloned_task = task->clone();
 
-        CHECK(cloned_task != nullptr);
+        REQUIRE(cloned_task != nullptr);
         CHECK(cloned_task != task);
         CHECK(cloned_task->get_class() == task->get_class());
         CHECK(cloned_task->get_actor() == task->get_actor());
@@ -256,7 +261,7 @@ TEST_SUITE("BTTaskTests")
         godot::Ref<BTTask> cloned_task = task->clone();
 
         CHECK(cloned_task != task);
-        CHECK(cloned_task->get_child_count() == 2);
+        REQUIRE(cloned_task->get_child_count() == 2);
         CHECK_FALSE(cloned_task->has_child(child1));
         CHECK_FALSE(cloned_task->has_child(child2));
 
