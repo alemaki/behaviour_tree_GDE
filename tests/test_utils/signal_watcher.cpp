@@ -134,7 +134,7 @@ void SignalWatcher::watch_signals(godot::Object* target)
     }
 }
 
-bool SignalWatcher::was_signal_emitted(godot::Object* target, const godot::String& signal_name)
+bool SignalWatcher::signal_emitted(godot::Object* target, const godot::String& signal_name)
 {
     std::string signal_key = (godot::itos(target->get_instance_id()) + signal_name).utf8().ptr();
     auto it = signal_count.find(signal_key);
@@ -150,7 +150,7 @@ int SignalWatcher::get_signal_emitted_count(godot::Object* target, const godot::
 
 godot::Array SignalWatcher::get_signal_emitted_arguments(godot::Object* target, const godot::String& signal_name)
 {
-    if (!(SignalWatcher::was_signal_emitted(target, signal_name)))
+    if (!(SignalWatcher::signal_emitted(target, signal_name)))
     {
         return godot::Array();
     }

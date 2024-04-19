@@ -46,7 +46,7 @@ private:
 
 public:
     static void watch_signals(godot::Object* target);
-    static bool was_signal_emitted(godot::Object* target, const godot::String& signal_name);
+    static bool signal_emitted(godot::Object* target, const godot::String& signal_name);
     static int get_signal_emitted_count(godot::Object* target, const godot::String& signal_name);
     static godot::Array get_signal_emitted_arguments(godot::Object* target, const godot::String& signal_name);
     static void reset();
