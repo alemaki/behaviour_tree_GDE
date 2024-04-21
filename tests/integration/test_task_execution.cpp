@@ -2,7 +2,6 @@
 #include <doctest.h>
 
 #include "behaviour_tree/tasks/bt_task.hpp"
-#include "behaviour_tree/tasks/bt_action.hpp"
 #include "behaviour_tree/tasks/composites/bt_sequence.hpp"
 #include "behaviour_tree/tasks/composites/bt_selector.hpp"
 #include "behaviour_tree/tasks/decorators/bt_always_fail.hpp"
@@ -76,7 +75,6 @@ TEST_SUITE("Test task execution")
 
     TEST_CASE("Sequence task behavior")
     {
-
         godot::Ref<BTSequence> sequence = memnew(BTSequence);
         godot::Ref<BTAlwaysSucceed> task_succeed1 = memnew(BTAlwaysSucceed);
         godot::Ref<BTAlwaysSucceed> task_succeed2 = memnew(BTAlwaysSucceed);
@@ -117,6 +115,75 @@ TEST_SUITE("Test task execution")
 
             CHECK(task_fail->get_status() == BTTask::Status::FAILURE);
             CHECK(task_succeed1->get_status() == BTTask::Status::FRESH);
+        }
+    }
+
+    TEST_CASE("Selector task behavior") 
+    {
+        godot::Ref<BTSequence> sequence = memnew(BTSequence);
+        godot::Ref<BTAlwaysSucceed> task_fail1 = memnew(BTAlwaysSucceed);
+        godot::Ref<BTAlwaysSucceed> task_fail2 = memnew(BTAlwaysSucceed);
+        godot::Ref<BTAlwaysFail> task_succeed = memnew(BTAlwaysFail);
+
+        SUBCASE("Selector fails on all children failure")
+        {
+            sequence->add_child(task_fail1);
+            sequence->add_child(task_fail2);
+
+            BTTask::Status status = sequence->execute(0.1);
+            CHECK(status == BTTask::Status::FAILURE);
+
+            CHECK(task_fail1->get_status() == BTTask::Status::FAILURE);
+            CHECK(task_fail2->get_status() == BTTask::Status::FAILURE);
+        }
+
+        SUBCASE("Selector succeeds on last child's success")
+        {
+            sequence->add_child(task_fail1);
+            sequence->add_child(task_succeed);
+
+            BTTask::Status status = sequence->execute(0.1);
+            CHECK(status == BTTask::Status::SUCCESS);
+
+            CHECK(task_fail1->get_status() == BTTask::Status::FAILURE);
+            CHECK(task_succeed->get_status() == BTTask::Status::SUCCESS);
+        }
+
+        SUBCASE("Selector succeeds early on first child's success")
+        {
+            sequence->add_child(task_succeed);
+            sequence->add_child(task_fail1);
+
+            BTTask::Status status = sequence->execute(0.1);
+            CHECK(status == BTTask::Status::SUCCESS);
+
+            CHECK(task_succeed->get_status() == BTTask::Status::SUCCESS);
+            CHECK(task_fail1->get_status() == BTTask::Status::FRESH);
+        }
+    }
+
+    TEST_CASE("Invert task behavior")
+    {
+        godot::Ref<BTInvert> invert = memnew(BTInvert);
+
+        SUBCASE("Invert fails")
+        {
+            godot::Ref<BTAlwaysSucceed> task_succeed = memnew(BTAlwaysSucceed);
+            invert->add_child(task_succeed);
+
+            invert->execute(0.1);
+            CHECK(invert->get_status() == BTTask::Status::FAILURE);
+            CHECK(task_succeed->get_status() == BTTask::Status::SUCCESS);
+        }
+
+        SUBCASE("Invert succeeds")
+        {
+            godot::Ref<BTAlwaysFail> task_fail = memnew(BTAlwaysFail);
+            invert->add_child(task_fail);
+
+            invert->execute(0.1);
+            CHECK(invert->get_status() == BTTask::Status::SUCCESS);
+            CHECK(task_fail->get_status() == BTTask::Status::FAILURE);
         }
     }
 
