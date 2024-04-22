@@ -120,17 +120,17 @@ TEST_SUITE("Test task execution")
 
     TEST_CASE("Selector task behavior") 
     {
-        godot::Ref<BTSequence> sequence = memnew(BTSequence);
-        godot::Ref<BTAlwaysSucceed> task_fail1 = memnew(BTAlwaysSucceed);
-        godot::Ref<BTAlwaysSucceed> task_fail2 = memnew(BTAlwaysSucceed);
-        godot::Ref<BTAlwaysFail> task_succeed = memnew(BTAlwaysFail);
+        godot::Ref<BTSelector> selector = memnew(BTSelector);
+        godot::Ref<BTAlwaysFail> task_fail1 = memnew(BTAlwaysFail);
+        godot::Ref<BTAlwaysFail> task_fail2 = memnew(BTAlwaysFail);
+        godot::Ref<BTAlwaysSucceed> task_succeed = memnew(BTAlwaysSucceed);
 
         SUBCASE("Selector fails on all children failure")
         {
-            sequence->add_child(task_fail1);
-            sequence->add_child(task_fail2);
+            selector->add_child(task_fail1);
+            selector->add_child(task_fail2);
 
-            BTTask::Status status = sequence->execute(0.1);
+            BTTask::Status status = selector->execute(0.1);
             CHECK(status == BTTask::Status::FAILURE);
 
             CHECK(task_fail1->get_status() == BTTask::Status::FAILURE);
@@ -139,10 +139,10 @@ TEST_SUITE("Test task execution")
 
         SUBCASE("Selector succeeds on last child's success")
         {
-            sequence->add_child(task_fail1);
-            sequence->add_child(task_succeed);
+            selector->add_child(task_fail1);
+            selector->add_child(task_succeed);
 
-            BTTask::Status status = sequence->execute(0.1);
+            BTTask::Status status = selector->execute(0.1);
             CHECK(status == BTTask::Status::SUCCESS);
 
             CHECK(task_fail1->get_status() == BTTask::Status::FAILURE);
@@ -151,10 +151,10 @@ TEST_SUITE("Test task execution")
 
         SUBCASE("Selector succeeds early on first child's success")
         {
-            sequence->add_child(task_succeed);
-            sequence->add_child(task_fail1);
+            selector->add_child(task_succeed);
+            selector->add_child(task_fail1);
 
-            BTTask::Status status = sequence->execute(0.1);
+            BTTask::Status status = selector->execute(0.1);
             CHECK(status == BTTask::Status::SUCCESS);
 
             CHECK(task_succeed->get_status() == BTTask::Status::SUCCESS);
