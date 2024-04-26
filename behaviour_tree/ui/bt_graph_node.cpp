@@ -75,11 +75,11 @@ void BTGraphNode::_on_gui_input(const godot::Ref<godot::InputEvent>& event)
     godot::Ref<godot::InputEventMouseButton> click_event = godot::Object::cast_to<godot::InputEventMouseButton>(event.ptr());
     if (click_event != nullptr && click_event->is_double_click())
     {
-        this->emit_signal("double_clicked", this);
+        this->emit_signal("double_clicked");
     }
     if (click_event != nullptr && click_event->get_button_index() == godot::MOUSE_BUTTON_RIGHT && click_event->is_released())
     {
-        this->emit_signal("right_clicked", this);
+        this->emit_signal("right_clicked");
     }
 }
 
@@ -93,6 +93,6 @@ void BTGraphNode::_bind_methods()
     ClassDB::bind_method(D_METHOD("set_task", "task"), &BTGraphNode::set_task);
     ClassDB::bind_method(D_METHOD("get_task"), &BTGraphNode::get_task);
 
-    ADD_SIGNAL(MethodInfo("double_clicked", PropertyInfo(Variant::OBJECT, "BTGraphNode", PROPERTY_HINT_NONE, "Control")));
-    ADD_SIGNAL(MethodInfo("right_clicked", PropertyInfo(Variant::OBJECT, "BTGraphNode", PROPERTY_HINT_NONE, "Control")));
+    ADD_SIGNAL(MethodInfo("double_clicked"));
+    ADD_SIGNAL(MethodInfo("right_clicked"));
 }

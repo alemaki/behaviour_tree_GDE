@@ -255,6 +255,17 @@ godot::Ref<BTTask> BTTask::clone() const
     return new_task;
 }
 
+void BTTask::initialize(godot::Node* actor)
+{
+    ERR_FAIL_COND(actor == nullptr);
+    this->actor = actor;
+    for (int i = 0, size = children.size(); i < size; i++)
+    {
+        children[i]->initialize(actor);
+    }
+    this->_setup();
+}
+
 void BTTask::_bind_methods()
 {
     using namespace godot;

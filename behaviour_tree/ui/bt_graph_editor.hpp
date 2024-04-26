@@ -36,7 +36,7 @@ private:
     {
         godot::Vector2 from_position;
         godot::Vector2 to_position;
-        godot::StringName node_name;
+        BTGraphNode* node;
     };
     godot::Vector<DragOperation> drag_buffer;
     bool drag_called;
@@ -78,7 +78,7 @@ private:
     void evaluate_root_node();
 
     /* Drag and Drop */
-    void _node_dragged(const godot::Vector2& _from, const godot::Vector2& _to, godot::StringName node_name);
+    void _node_dragged(const godot::Vector2 &_from, const godot::Vector2 &_to, BTGraphNode *node);
     void _move_nodes();
 
     /* Event Handlers */
@@ -89,6 +89,7 @@ private:
     void _on_rename_edit_focus_exited();
     void _on_path_edit_text_submitted(const godot::String& new_path);
     void _on_path_edit_focus_exited();
+    void _on_node_selected(BTGraphNode* clicked_node);
     void _on_node_double_clicked(BTGraphNode* clicked_node);
     void _on_node_right_clicked(BTGraphNode* clicked_node);
     void _on_node_subtree_double_clicked(BTGraphNodeSubtree* clicked_node);

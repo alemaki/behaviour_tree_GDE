@@ -90,6 +90,8 @@ public:
 
     virtual godot::Ref<BTTask> clone() const;
 
+    void initialize(godot::Node* actor);
+
 protected:
     static void _bind_methods();
 

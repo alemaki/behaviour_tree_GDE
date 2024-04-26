@@ -201,6 +201,18 @@ void BehaviourTree::swap_task_in(godot::Ref<BTTask> old_task, godot::Ref<BTTask>
     this->add_task(id, new_task);
 }
 
+godot::Ref<BTTask> BehaviourTree::instantiate(godot::Node* actor) const
+{
+    if (root_task.is_null())
+    {
+        godot::UtilityFunctions::printerr("Behaviour tree is empty.");
+        return nullptr;
+    }
+    godot::Ref<BTTask> task = this->root_task->clone();
+    task->initialize(actor);
+    return task;
+}
+
 void BehaviourTree::_bind_methods()
 {
     using namespace godot;

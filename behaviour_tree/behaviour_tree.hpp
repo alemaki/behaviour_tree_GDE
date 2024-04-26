@@ -70,10 +70,12 @@ public:
     void set_tasks_of_parent(godot::Ref<BTTask> parent, godot::Array new_children);
     void swap_task_in(godot::Ref<BTTask> old_task, godot::Ref<BTTask> new_task);
 
-    _FORCE_INLINE_ int get_task_count()
+    _FORCE_INLINE_ int get_task_count() const
     {
         return this->task_map.size();
     }
+
+    godot::Ref<BTTask> instantiate(Node* actor) const;
 
 protected:
     static void _bind_methods();

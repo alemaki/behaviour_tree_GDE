@@ -114,17 +114,18 @@ void BTGraphEditor::_setup_popup_menu()
 void BTGraphEditor::connect_graph_node_signals(BTGraphNode *node)
 {
     ERR_FAIL_COND(node == nullptr);
-    node->call_deferred("connect", "dragged", callable_mp(this, &BTGraphEditor::_node_dragged).bind(node->get_name()));
+    node->call_deferred("connect", "dragged", callable_mp(this, &BTGraphEditor::_node_dragged).bind(node));
+    node->call_deferred("connect", "node_selected", callable_mp(this, &BTGraphEditor::_on_node_selected).bind(node));
 
     if (godot::Object::cast_to<BTGraphNodeSubtree>(node) != nullptr)
     {
-        node->call_deferred("connect", "double_clicked", callable_mp(this, &BTGraphEditor::_on_node_subtree_double_clicked));
-        node->call_deferred("connect", "right_clicked", callable_mp(this, &BTGraphEditor::_on_node_subtree_right_clicked));
+        node->call_deferred("connect", "double_clicked", callable_mp(this, &BTGraphEditor::_on_node_subtree_double_clicked).bind(node));
+        node->call_deferred("connect", "right_clicked", callable_mp(this, &BTGraphEditor::_on_node_subtree_right_clicked).bind(node));
     }
     else
     {
-        node->call_deferred("connect", "double_clicked", callable_mp(this, &BTGraphEditor::_on_node_double_clicked));
-        node->call_deferred("connect", "right_clicked", callable_mp(this, &BTGraphEditor::_on_node_right_clicked));
+        node->call_deferred("connect", "double_clicked", callable_mp(this, &BTGraphEditor::_on_node_double_clicked).bind(node));
+        node->call_deferred("connect", "right_clicked", callable_mp(this, &BTGraphEditor::_on_node_right_clicked).bind(node));
     }
 }
 
@@ -493,11 +494,12 @@ void BTGraphEditor::evaluate_root_node()
 
 /* Drag and Drop */
 
-void BTGraphEditor::_node_dragged(const godot::Vector2 &_from, const godot::Vector2 &_to, godot::StringName node_name)
+void BTGraphEditor::_node_dragged(const godot::Vector2 &_from, const godot::Vector2 &_to, BTGraphNode *node)
 {
-    ERR_FAIL_COND_MSG(!(this->name_to_node.has(node_name)), "Dragged an invalid node");
+    ERR_FAIL_COND(node == nullptr);
+    ERR_FAIL_COND_MSG(!(this->name_to_node.has(node->get_name())), "Dragged an invalid node");
 
-    this->drag_buffer.push_back({_from, _to, node_name});
+    this->drag_buffer.push_back({_from, _to, node});
     if (!this->drag_called)
     {
         this->drag_called = true;
@@ -517,7 +519,7 @@ void BTGraphEditor::_move_nodes()
 
     for (DragOperation operation : this->drag_buffer)
     {
-        godot::Ref<BTTask> parent = this->name_to_node[operation.node_name]->get_task()->get_parent();
+        godot::Ref<BTTask> parent = operation.node->get_task()->get_parent();
         if (!parent.is_valid())
         {
             continue;
@@ -534,10 +536,8 @@ void BTGraphEditor::_move_nodes()
 
     for (DragOperation& operation : drag_buffer)
     {
-        BTGraphNode* dragged_graph_node = this->name_to_node[operation.node_name];
-
-        undo_redo->add_do_method(dragged_graph_node, "set_position_offset", operation.to_position);
-        undo_redo->add_undo_method(dragged_graph_node, "set_position_offset", operation.from_position);
+        undo_redo->add_do_method(operation.node, "set_position_offset", operation.to_position);
+        undo_redo->add_undo_method(operation.node, "set_position_offset", operation.from_position);
     }
 
     undo_redo->commit_action();
@@ -704,6 +704,14 @@ void BTGraphEditor::_on_path_edit_text_submitted(const godot::String& new_path)
 void BTGraphEditor::_on_path_edit_focus_exited()
 {
     this->path_edit->set_visible(false);
+}
+
+void BTGraphEditor::_on_node_selected(BTGraphNode* clicked_node)
+{
+    ERR_FAIL_COND(clicked_node == nullptr);
+    ERR_FAIL_COND(clicked_node->get_task().is_null());
+
+    /* Does nothing for now. */
 }
 
 void BTGraphEditor::_on_node_double_clicked(BTGraphNode* clicked_node)
