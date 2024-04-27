@@ -32,6 +32,11 @@ BTEditorPlugin::BTEditorPlugin()
         add_control_to_bottom_panel(this->main_container,
                                     this->bottom_panel_button_name);
 
+    this->inspector_plugin.instantiate();
+    add_inspector_plugin(this->inspector_plugin);
+
+    this->graph_editor->set_inspector_plugin(this->inspector_plugin);
+
     this->_make_visible(false);
 
 }
@@ -39,6 +44,7 @@ BTEditorPlugin::BTEditorPlugin()
 BTEditorPlugin::~BTEditorPlugin()
 {
     memfree(this->main_container);
+    remove_inspector_plugin(this->inspector_plugin);
 }
 
 void BTEditorPlugin::set_graph_editor(BTGraphEditor* graph_editor)

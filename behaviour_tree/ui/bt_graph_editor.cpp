@@ -114,6 +114,7 @@ void BTGraphEditor::_setup_popup_menu()
 void BTGraphEditor::connect_graph_node_signals(BTGraphNode *node)
 {
     ERR_FAIL_COND(node == nullptr);
+    node->set_focus_mode(godot::Control::FocusMode::FOCUS_CLICK);
     node->call_deferred("connect", "dragged", callable_mp(this, &BTGraphEditor::_node_dragged).bind(node));
     node->call_deferred("connect", "node_selected", callable_mp(this, &BTGraphEditor::_on_node_selected).bind(node));
 
@@ -710,8 +711,12 @@ void BTGraphEditor::_on_node_selected(BTGraphNode* clicked_node)
 {
     ERR_FAIL_COND(clicked_node == nullptr);
     ERR_FAIL_COND(clicked_node->get_task().is_null());
+    ERR_FAIL_COND(this->inspector_plugin.is_null());
 
-    /* Does nothing for now. */
+    if (this->inspector_plugin->_can_handle(clicked_node))
+    {
+        this->inspector_plugin->_parse_begin(clicked_node);
+    }
 }
 
 void BTGraphEditor::_on_node_double_clicked(BTGraphNode* clicked_node)
@@ -957,6 +962,13 @@ void BTGraphEditor::set_behaviour_tree(BehaviourTree* new_tree)
     this->behaviour_tree = new_tree;
     this->clear_graph_nodes();
     this->create_default_graph_nodes();
+}
+
+
+void BTGraphEditor::set_inspector_plugin(const godot::Ref<BTEditorInspectorPlugin> inspector_plugin)
+{
+    ERR_FAIL_COND(inspector_plugin.is_null());
+    this->inspector_plugin = inspector_plugin;
 }
 
 void BTGraphEditor::_bind_methods()

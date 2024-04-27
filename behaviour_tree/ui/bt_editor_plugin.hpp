@@ -11,6 +11,7 @@
 #include "behaviour_tree/behaviour_tree.hpp"
 #include "behaviour_tree/ui/bt_graph_node.hpp"
 #include "behaviour_tree/ui/bt_graph_editor.hpp"
+#include "behaviour_tree/ui/bt_editor_inspector_plugin.hpp"
 
 class BTEditorPlugin : public godot::EditorPlugin
 {
@@ -24,6 +25,8 @@ private:
     godot::Button* add_new_node_button;
     godot::Button* add_new_subtree_button;
     godot::Button* arrange_nodes_button;
+
+    godot::Ref<BTEditorInspectorPlugin> inspector_plugin;
 
     godot::Button* bottom_panel_button;
     godot::HSplitContainer* main_container;

@@ -12,6 +12,7 @@
 #include "behaviour_tree/behaviour_tree.hpp"
 #include "behaviour_tree/ui/bt_graph_node.hpp"
 #include "behaviour_tree/ui/bt_graph_node_subtree.hpp"
+#include "behaviour_tree/ui/bt_editor_inspector_plugin.hpp"
 
 #ifndef BT_EDITOR_PLUGIN_FORWARD
 #define BT_EDITOR_PLUGIN_FORWARD
@@ -48,6 +49,8 @@ private:
 
     BTGraphNode* last_double_clicked_node;
     BTGraphNode* last_right_clicked_node;
+
+    godot::Ref<BTEditorInspectorPlugin> inspector_plugin;
 
 private:
     /* Setup Methods */
@@ -108,14 +111,19 @@ private:
 
     /* Getters and Setters */
     void set_editor_plugin(godot::EditorPlugin* editor_plugin);
-    _FORCE_INLINE_ godot::GraphEdit* get_graph_edit()
+    _FORCE_INLINE_ godot::GraphEdit* get_graph_edit() const
     {
         return this->graph_edit;
         }
     void set_behaviour_tree(BehaviourTree* new_tree);
-    _FORCE_INLINE_ BehaviourTree* get_behaviour_tree()
+    _FORCE_INLINE_ BehaviourTree* get_behaviour_tree() const
     {
         return this->behaviour_tree; 
+    }
+    void set_inspector_plugin(const godot::Ref<BTEditorInspectorPlugin> inspector_plugin);
+    _FORCE_INLINE_ godot::Ref<BTEditorInspectorPlugin> get_inspector_plugin() const
+    {
+        return this->inspector_plugin;
     }
 
 public:
