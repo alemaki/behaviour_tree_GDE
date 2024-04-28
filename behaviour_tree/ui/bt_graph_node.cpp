@@ -1,5 +1,6 @@
 #include "bt_graph_node.hpp"
 #include <godot_cpp/variant/utility_functions.hpp>
+#include <godot_cpp/classes/editor_interface.hpp>
 
 BTGraphNode::BTGraphNode()
 {
@@ -80,7 +81,21 @@ void BTGraphNode::_on_gui_input(const godot::Ref<godot::InputEvent>& event)
     if (click_event != nullptr && click_event->get_button_index() == godot::MOUSE_BUTTON_RIGHT && click_event->is_released())
     {
         this->emit_signal("right_clicked");
+        _focus_task_in_inspector();
     }
+    if (click_event != nullptr && click_event->get_button_index() == godot::MOUSE_BUTTON_LEFT && click_event->is_pressed())
+    {
+        _focus_task_in_inspector();
+    }
+}
+
+void BTGraphNode::_focus_task_in_inspector()
+{
+    ERR_FAIL_COND(this->task.is_null());
+
+    godot::EditorInterface* editor_interface = godot::EditorInterface::get_singleton();
+    /* ERR_FAIL_COND(editor_interface == nullptr); */
+    editor_interface->inspect_object(task.ptr());
 }
 
 void BTGraphNode::_bind_methods()

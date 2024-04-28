@@ -37,6 +37,7 @@ private:
     void _setup_connections_ui();
     void _setup_labels();
 
+    void _focus_task_in_inspector();
 public:
     BTGraphNode();
     void set_graph_edit(godot::GraphEdit* graph_edit);

@@ -243,7 +243,6 @@ void BehaviourTree::_bind_methods()
     ClassDB::bind_method(D_METHOD("get_task_map"), &BehaviourTree::get_task_map);
 
     ADD_PROPERTY(PropertyInfo(Variant::STRING, "description"), "set_description", "get_description");
-    /* TODO: show or no show? , PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NO_EDITOR */
-    ADD_PROPERTY(PropertyInfo(Variant::DICTIONARY, "task_map"), "set_task_map", "get_task_map");
-    ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "root_task"), "set_root_task", "get_root_task");
+    ADD_PROPERTY(PropertyInfo(Variant::DICTIONARY, "task_map", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NO_EDITOR), "set_task_map", "get_task_map");
+    ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "root_task", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NO_EDITOR), "set_root_task", "get_root_task");
 }
