@@ -57,7 +57,6 @@ public:
             !(child->get_parent().is_valid()) &&
             !(parent->has_child(child))
             );
-        
     }
 
     _FORCE_INLINE_ bool can_disconnect(godot::Ref<BTTask> parent, godot::Ref<BTTask> child) const
