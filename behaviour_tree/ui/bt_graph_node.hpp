@@ -7,16 +7,6 @@
 #include <godot_cpp/classes/label.hpp>
 
 #include "behaviour_tree/tasks/bt_task.hpp"
-#include "behaviour_tree/tasks/composites/bt_selector.hpp"
-#include "behaviour_tree/tasks/composites/bt_sequence.hpp"
-#include "behaviour_tree/tasks/composites/bt_random_selector.hpp"
-#include "behaviour_tree/tasks/composites/bt_random_sequence.hpp"
-#include "behaviour_tree/tasks/decorators/bt_always_fail.hpp"
-#include "behaviour_tree/tasks/decorators/bt_always_succeed.hpp"
-#include "behaviour_tree/tasks/decorators/bt_invert.hpp"
-#include "behaviour_tree/tasks/decorators/bt_probability.hpp"
-#include "behaviour_tree/tasks/decorators/bt_repeat.hpp"
-#include "behaviour_tree/tasks/bt_action.hpp"
 
 class BTGraphNode : public godot::GraphNode
 {

@@ -64,7 +64,6 @@ void initialize_behaviour_tree_module(ModuleInitializationLevel p_level)
 		ClassDB::register_internal_class<BTGraphNodeSubtree>();
 		ClassDB::register_internal_class<BTGraphEditor>();
 		ClassDB::register_internal_class<BTEditorPlugin>();
-		ClassDB::register_internal_class<BTEditorInspectorPlugin>();
 		
 		EditorPlugins::add_by_type<BTEditorPlugin>();
 	}

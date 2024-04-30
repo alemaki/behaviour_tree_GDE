@@ -47,25 +47,9 @@ void BTGraphNode::set_graph_edit(godot::GraphEdit* graph_edit)
 
 void BTGraphNode::set_task(godot::Ref<BTTask> task)
 {
+    ERR_FAIL_COND(task.is_null());
+
     godot::StringName class_name = task->get_class();
-
-    godot::Vector<godot::StringName> task_names = 
-    {
-        BTTask::get_class_static(),
-        BTSelector::get_class_static(),
-        BTSequence::get_class_static(),
-        BTRandomSelector::get_class_static(),
-        BTRandomSequence::get_class_static(),
-        BTAlwaysFail::get_class_static(),
-        BTAlwaysSucceed::get_class_static(),
-        BTInvert::get_class_static(),
-        BTProbability::get_class_static(),
-        BTRepeat::get_class_static(),
-        BTAction::get_class_static(),
-    };
-
-    int id = task_names.find(class_name);
-    ERR_FAIL_COND_MSG(id == -1, "Task name doesn't exist.");
 
     this->task_type_label->set_text(class_name);
     this->task = task;

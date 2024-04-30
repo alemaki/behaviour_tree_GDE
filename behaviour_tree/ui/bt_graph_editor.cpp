@@ -3,10 +3,12 @@
 #include <godot_cpp/variant/color.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
 
+#include "behaviour_tree/utils/utils.hpp"
+
 BTGraphEditor::BTGraphEditor()
 {
     this->_setup_graph_edit();
-
+    this->_setup_task_names();
     this->_setup_rename_edit();
     this->_setup_path_edit();
     this->_setup_popup_menu();
@@ -35,6 +37,12 @@ void BTGraphEditor::_setup_graph_edit()
     this->graph_edit->add_valid_left_disconnect_type(0);
 
     this->graph_edit->set_right_disconnects(true);
+}
+
+void BTGraphEditor::_setup_task_names()
+{
+    this->composite_names = get_subclasses(BTComposite::get_class_static());
+    this->decorator_names = get_subclasses(BTDecorator::get_class_static());
 }
 
 void BTGraphEditor::_setup_rename_edit()
@@ -67,30 +75,26 @@ void BTGraphEditor::_setup_popup_menu()
 
     this->main_popup_menu = memnew(godot::PopupMenu);
     this->main_popup_menu->set_name("MainPopupMenu");
-    this->main_popup_menu->set_allow_search(false);
 
     this->task_type_popup_menu = memnew(godot::PopupMenu);
     this->task_type_popup_menu->set_name("TaskTypePopupMenu");
 
-    godot::Vector<godot::StringName> task_names = 
-    {
-        BTTask::get_class_static(),
-        BTSelector::get_class_static(),
-        BTSequence::get_class_static(),
-        BTRandomSelector::get_class_static(),
-        BTRandomSequence::get_class_static(),
-        BTAlwaysFail::get_class_static(),
-        BTAlwaysSucceed::get_class_static(),
-        BTInvert::get_class_static(),
-        BTProbability::get_class_static(),
-        BTRepeat::get_class_static(),
-        BTAction::get_class_static(),
-    };
+    this->task_type_popup_menu->add_separator("Composites");
 
-    for (const godot::StringName& task_name : task_names)
+    for (const godot::StringName& task_name : this->composite_names)
     {
         this->task_type_popup_menu->add_radio_check_item(task_name);
     }
+
+    this->task_type_popup_menu->add_separator("Decorators");
+    for (const godot::StringName& task_name : this->decorator_names)
+    {
+        this->task_type_popup_menu->add_radio_check_item(task_name);
+    }
+
+    this->task_type_popup_menu->add_separator("Actions");
+    this->task_type_popup_menu->add_item(BTAction::get_class_static());
+    this->task_type_popup_menu->add_item(BTCondition::get_class_static());
 
     this->main_popup_menu->add_child(this->task_type_popup_menu);
 
@@ -106,7 +110,23 @@ void BTGraphEditor::_setup_popup_menu()
 
     this->task_type_popup_menu->call_deferred("connect", "id_pressed", callable_mp(this, &BTGraphEditor::_on_task_type_popup_menu_item_selected));
     this->main_popup_menu->call_deferred("connect", "id_pressed", callable_mp(this, &BTGraphEditor::_on_main_popup_menu_item_selected));
-    this->main_popup_menu->call_deferred("connect", "close_requested", callable_mp(this, &BTGraphEditor::_on_main_popup_menu_close_requested));
+
+    this->action_condition_type_popup_menu = memnew(godot::PopupMenu);
+    this->action_condition_type_popup_menu->set_allow_search(true);
+    this->graph_edit->add_child(this->action_condition_type_popup_menu);
+
+    this->action_condition_type_popup_menu->call_deferred("connect", "id_pressed", callable_mp(this, &BTGraphEditor::_on_action_condition_type_popup_menu_item_selected));
+}
+
+void BTGraphEditor::_fill_action_condition_type_popup_menu(const godot::StringName& action_condition)
+{
+    ERR_FAIL_COND(this->action_condition_type_popup_menu == nullptr);
+    this->action_condition_type_popup_menu->clear(true);
+    godot::Vector<godot::StringName> subclasses = get_subclasses(action_condition);
+    for (int i = 0; i < subclasses.size(); i++)
+    {
+        this->action_condition_type_popup_menu->add_item(subclasses[i]);
+    }
 }
 
 /* Utility Methods */
@@ -711,12 +731,8 @@ void BTGraphEditor::_on_node_selected(BTGraphNode* clicked_node)
 {
     ERR_FAIL_COND(clicked_node == nullptr);
     ERR_FAIL_COND(clicked_node->get_task().is_null());
-    ERR_FAIL_COND(this->inspector_plugin.is_null());
-
-    if (this->inspector_plugin->_can_handle(clicked_node))
-    {
-        this->inspector_plugin->_parse_begin(clicked_node);
-    }
+    
+    /* nothing to do for now */
 }
 
 void BTGraphEditor::_on_node_double_clicked(BTGraphNode* clicked_node)
@@ -753,30 +769,27 @@ void BTGraphEditor::_on_node_right_clicked(BTGraphNode* clicked_node)
     this->main_popup_menu->set_current_screen(current_screen);
     this->main_popup_menu->call_deferred("grab_focus");
 
-    godot::Vector<godot::StringName> task_names = 
-    {
-        BTTask::get_class_static(),
-        BTSelector::get_class_static(),
-        BTSequence::get_class_static(),
-        BTRandomSelector::get_class_static(),
-        BTRandomSequence::get_class_static(),
-        BTAlwaysFail::get_class_static(),
-        BTAlwaysSucceed::get_class_static(),
-        BTInvert::get_class_static(),
-        BTProbability::get_class_static(),
-        BTRepeat::get_class_static(),
-        BTAction::get_class_static(),
-    };
+    
 
     /* TODO: find better solution. */
-    for (int i = 0, size = task_names.size(); i < size; i++)
+    int size = this->composite_names.size() + this->decorator_names.size();
+    for (int i = 0; i < size; i++)
     {
         this->task_type_popup_menu->set_item_checked(i, false);
     }
 
     godot::Ref<BTTask> task = clicked_node->get_task();
-    int id = task_names.find(task->get_class());
-    this->task_type_popup_menu->set_item_checked(id, true);
+    int id1 = this->composite_names.find(task->get_class());
+    int id2 = this->decorator_names.find(task->get_class());
+    if (id1 != -1)
+    {
+        this->task_type_popup_menu->set_item_checked(id1, true);
+    }
+    else if (id2 != -1)
+    {
+        id2 += this->composite_names.size();
+        this->task_type_popup_menu->set_item_checked(id2, true);
+    }
 }
 
 void BTGraphEditor::_on_node_subtree_double_clicked(BTGraphNodeSubtree* clicked_node)
@@ -821,14 +834,41 @@ void BTGraphEditor::_on_main_popup_menu_item_selected(int id)
 
 void BTGraphEditor::_on_task_type_popup_menu_item_selected(int id)
 {
-    godot::String item = this->task_type_popup_menu->get_item_text(id);
+    godot::StringName item_text = this->task_type_popup_menu->get_item_text(id);
 
-    this->change_task_type(item, this->last_right_clicked_node);
+    if (item_text == BTAction::get_class_static() || item_text == BTCondition::get_class_static())
+    {
+        this->_on_action_condition_type_popup_menu_show(item_text);
+    }
+    else
+    {
+        this->change_task_type(item_text, this->last_right_clicked_node);
+    }
 }
 
-void BTGraphEditor::_on_main_popup_menu_close_requested()
+
+void BTGraphEditor::_on_action_condition_type_popup_menu_show(const godot::StringName& action_condition)
 {
-    this->graph_edit->call_deferred("grab_focus");
+    ERR_FAIL_COND(this->action_condition_type_popup_menu == nullptr);
+
+    /* Refill every time because user might define new subclasses*/
+    this->_fill_action_condition_type_popup_menu(action_condition);
+
+    godot::Vector2 menu_position = last_right_clicked_node->get_global_position();
+    int current_screen = last_right_clicked_node->get_viewport()->get_window()->get_current_screen();
+
+    menu_position.y += last_right_clicked_node->get_size().y;
+
+    this->action_condition_type_popup_menu->set_visible(true);
+    this->action_condition_type_popup_menu->set_position(menu_position);
+    this->action_condition_type_popup_menu->set_current_screen(current_screen);
+    this->action_condition_type_popup_menu->call_deferred("grab_focus");
+}
+
+void BTGraphEditor::_on_action_condition_type_popup_menu_item_selected(int id)
+{
+    godot::StringName item = this->action_condition_type_popup_menu->get_item_text(id);
+    this->change_task_type(item, this->last_right_clicked_node);
 }
 
 void BTGraphEditor::_delete_nodes_request(godot::TypedArray<godot::StringName> _nodes_to_delete)
@@ -964,13 +1004,6 @@ void BTGraphEditor::set_behaviour_tree(BehaviourTree* new_tree)
     this->create_default_graph_nodes();
 }
 
-
-void BTGraphEditor::set_inspector_plugin(const godot::Ref<BTEditorInspectorPlugin> inspector_plugin)
-{
-    ERR_FAIL_COND(inspector_plugin.is_null());
-    this->inspector_plugin = inspector_plugin;
-}
-
 void BTGraphEditor::_bind_methods()
 {
     using namespace godot;
@@ -1020,7 +1053,7 @@ void BTGraphEditor::_bind_methods()
     ClassDB::bind_method(D_METHOD("_on_node_subtree_right_clicked", "clicked_node"), &BTGraphEditor::_on_node_subtree_right_clicked);
     ClassDB::bind_method(D_METHOD("_on_main_popup_menu_item_selected", "id"), &BTGraphEditor::_on_main_popup_menu_item_selected);
     ClassDB::bind_method(D_METHOD("_on_task_type_popup_menu_item_selected", "id"), &BTGraphEditor::_on_task_type_popup_menu_item_selected);
-    ClassDB::bind_method(D_METHOD("_on_main_popup_menu_close_requested"), &BTGraphEditor::_on_main_popup_menu_close_requested);
+    ClassDB::bind_method(D_METHOD("_on_action_condition_type_popup_menu_show", "action_condtition"), &BTGraphEditor::_on_action_condition_type_popup_menu_show);
     ClassDB::bind_method(D_METHOD("_delete_nodes_request", "nodes_to_delete"), &BTGraphEditor::_delete_nodes_request);
 
     // Connection Handling

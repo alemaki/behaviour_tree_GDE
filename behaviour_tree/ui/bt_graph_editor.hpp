@@ -12,7 +12,19 @@
 #include "behaviour_tree/behaviour_tree.hpp"
 #include "behaviour_tree/ui/bt_graph_node.hpp"
 #include "behaviour_tree/ui/bt_graph_node_subtree.hpp"
-#include "behaviour_tree/ui/bt_editor_inspector_plugin.hpp"
+
+#include "behaviour_tree/tasks/bt_action.hpp"
+#include "behaviour_tree/tasks/bt_condition.hpp"
+#include "behaviour_tree/tasks/bt_task.hpp"
+#include "behaviour_tree/tasks/composites/bt_selector.hpp"
+#include "behaviour_tree/tasks/composites/bt_sequence.hpp"
+#include "behaviour_tree/tasks/composites/bt_random_selector.hpp"
+#include "behaviour_tree/tasks/composites/bt_random_sequence.hpp"
+#include "behaviour_tree/tasks/decorators/bt_always_fail.hpp"
+#include "behaviour_tree/tasks/decorators/bt_always_succeed.hpp"
+#include "behaviour_tree/tasks/decorators/bt_invert.hpp"
+#include "behaviour_tree/tasks/decorators/bt_probability.hpp"
+#include "behaviour_tree/tasks/decorators/bt_repeat.hpp"
 
 #ifndef BT_EDITOR_PLUGIN_FORWARD
 #define BT_EDITOR_PLUGIN_FORWARD
@@ -47,17 +59,22 @@ private:
     godot::PopupMenu* main_popup_menu;
     godot::PopupMenu* task_type_popup_menu;
 
+    godot::PopupMenu* action_condition_type_popup_menu;
+
     BTGraphNode* last_double_clicked_node;
     BTGraphNode* last_right_clicked_node;
 
-    godot::Ref<BTEditorInspectorPlugin> inspector_plugin;
+    godot::Vector<godot::StringName> composite_names;
+    godot::Vector<godot::StringName> decorator_names;
 
 private:
     /* Setup Methods */
     void _setup_graph_edit();
-    void _setup_popup_menu();
+    void _setup_task_names();
     void _setup_rename_edit();
     void _setup_path_edit();
+    void _setup_popup_menu();
+    void _fill_action_condition_type_popup_menu(const godot::StringName& action_condition);
 
     /* Utility Methods */
     void connect_graph_node_signals(BTGraphNode* node);
@@ -99,7 +116,8 @@ private:
     void _on_node_subtree_right_clicked(BTGraphNodeSubtree* clicked_node);
     void _on_main_popup_menu_item_selected(int id);
     void _on_task_type_popup_menu_item_selected(int id);
-    void _on_main_popup_menu_close_requested();
+    void _on_action_condition_type_popup_menu_show(const godot::StringName& action_condition);
+    void _on_action_condition_type_popup_menu_item_selected(int id);
     void _delete_nodes_request(godot::TypedArray<godot::StringName> _nodes_to_delete);
 
     /* Connection Handling */
@@ -119,11 +137,6 @@ private:
     _FORCE_INLINE_ BehaviourTree* get_behaviour_tree() const
     {
         return this->behaviour_tree; 
-    }
-    void set_inspector_plugin(const godot::Ref<BTEditorInspectorPlugin> inspector_plugin);
-    _FORCE_INLINE_ godot::Ref<BTEditorInspectorPlugin> get_inspector_plugin() const
-    {
-        return this->inspector_plugin;
     }
 
 public:
