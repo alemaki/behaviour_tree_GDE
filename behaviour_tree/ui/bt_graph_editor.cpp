@@ -2,6 +2,7 @@
 #include <godot_cpp/templates/hash_set.hpp>
 #include <godot_cpp/variant/color.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
+#include <godot_cpp/classes/editor_interface.hpp>
 
 #include "behaviour_tree/utils/utils.hpp"
 
@@ -137,6 +138,7 @@ void BTGraphEditor::connect_graph_node_signals(BTGraphNode *node)
     node->set_focus_mode(godot::Control::FocusMode::FOCUS_CLICK);
     node->call_deferred("connect", "dragged", callable_mp(this, &BTGraphEditor::_node_dragged).bind(node));
     node->call_deferred("connect", "node_selected", callable_mp(this, &BTGraphEditor::_on_node_selected).bind(node));
+    node->call_deferred("connect", "node_deselected", callable_mp(this, &BTGraphEditor::_on_node_deselected).bind(node));
 
     if (godot::Object::cast_to<BTGraphNodeSubtree>(node) != nullptr)
     {
@@ -727,12 +729,21 @@ void BTGraphEditor::_on_path_edit_focus_exited()
     this->path_edit->set_visible(false);
 }
 
-void BTGraphEditor::_on_node_selected(BTGraphNode* clicked_node)
+void BTGraphEditor::_on_node_selected(BTGraphNode* selected_node)
 {
-    ERR_FAIL_COND(clicked_node == nullptr);
-    ERR_FAIL_COND(clicked_node->get_task().is_null());
-    
-    /* nothing to do for now */
+    ERR_FAIL_COND(selected_node == nullptr);
+    ERR_FAIL_COND(selected_node->get_task().is_null());
+
+    selected_node->focus_task_in_inspector();
+}
+
+void BTGraphEditor::_on_node_deselected(BTGraphNode* deselected_node)
+{
+    ERR_FAIL_COND(deselected_node == nullptr);
+    ERR_FAIL_COND(this->behaviour_tree == nullptr);
+
+    godot::EditorInterface* editor_interface = godot::EditorInterface::get_singleton();
+    editor_interface->inspect_object(this->behaviour_tree);
 }
 
 void BTGraphEditor::_on_node_double_clicked(BTGraphNode* clicked_node)

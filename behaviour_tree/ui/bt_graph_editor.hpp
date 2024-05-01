@@ -110,6 +110,7 @@ private:
     void _on_path_edit_text_submitted(const godot::String& new_path);
     void _on_path_edit_focus_exited();
     void _on_node_selected(BTGraphNode* clicked_node);
+    void _on_node_deselected(BTGraphNode* clicked_node);
     void _on_node_double_clicked(BTGraphNode* clicked_node);
     void _on_node_right_clicked(BTGraphNode* clicked_node);
     void _on_node_subtree_double_clicked(BTGraphNodeSubtree* clicked_node);
