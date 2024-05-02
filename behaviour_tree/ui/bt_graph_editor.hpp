@@ -109,16 +109,16 @@ private:
     void _on_rename_edit_focus_exited();
     void _on_path_edit_text_submitted(const godot::String& new_path);
     void _on_path_edit_focus_exited();
-    void _on_node_selected(BTGraphNode* clicked_node);
-    void _on_node_deselected(BTGraphNode* clicked_node);
+    void _on_node_selected(BTGraphNode* selected_node);
+    void _on_node_deselected(BTGraphNode* deselected_node);
     void _on_node_double_clicked(BTGraphNode* clicked_node);
     void _on_node_right_clicked(BTGraphNode* clicked_node);
     void _on_node_subtree_double_clicked(BTGraphNodeSubtree* clicked_node);
     void _on_node_subtree_right_clicked(BTGraphNodeSubtree* clicked_node);
     void _on_main_popup_menu_item_selected(int id);
     void _on_task_type_popup_menu_item_selected(int id);
-    void _on_action_condition_type_popup_menu_show(const godot::StringName& action_condition);
     void _on_action_condition_type_popup_menu_item_selected(int id);
+    void _on_action_condition_type_popup_menu_show(const godot::StringName& action_condition);
     void _delete_nodes_request(godot::TypedArray<godot::StringName> _nodes_to_delete);
 
     /* Connection Handling */
