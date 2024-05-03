@@ -45,15 +45,6 @@ private:
     godot::HashMap<godot::StringName, BTGraphNode*> name_to_node;
     godot::HashMap<godot::Ref<BTTask>, BTGraphNode*> task_to_node;
 
-    struct DragOperation
-    {
-        godot::Vector2 from_position;
-        godot::Vector2 to_position;
-        BTGraphNode* node;
-    };
-    godot::Vector<DragOperation> drag_buffer;
-    bool drag_called;
-
     godot::LineEdit* rename_edit;
     godot::LineEdit* path_edit;
     godot::PopupMenu* main_popup_menu;
@@ -66,6 +57,28 @@ private:
 
     godot::Vector<godot::StringName> composite_names;
     godot::Vector<godot::StringName> decorator_names;
+
+    
+
+    struct DragOperation
+    {
+        godot::Vector2 from_position;
+        godot::Vector2 to_position;
+        BTGraphNode* node;
+    };
+    godot::Vector<DragOperation> drag_buffer;
+    bool drag_called;
+
+/* TODO, make it not public? */
+public:
+    struct TreeArrangeUtils
+    {
+        godot::HashMap<BTGraphNode*, BTGraphNode*> left_neighbour;
+        godot::HashMap<BTGraphNode*, BTGraphNode*> right_neighbour;
+        godot::HashMap<BTGraphNode*, int> prelim;
+        godot::HashMap<BTGraphNode*, int> modifier;
+        int sibling_separation = 50;
+    };
 
 private:
     /* Setup Methods */
@@ -95,7 +108,7 @@ private:
     void create_default_graph_nodes();
     void set_root_node(BTGraphNode* new_root_node);
     void arrange_nodes();
-    void evaluate_root_node();
+    void color_root_node();
 
     /* Drag and Drop */
     void _node_dragged(const godot::Vector2 &_from, const godot::Vector2 &_to, BTGraphNode *node);

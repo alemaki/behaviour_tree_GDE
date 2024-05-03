@@ -352,14 +352,14 @@ void BTGraphEditor::delete_nodes(const godot::Vector<BTGraphNode*>& nodes_to_del
         if (this->behaviour_tree->get_root_task() == task_to_remove)
         {
             undo_redo_manager->add_undo_method(this->behaviour_tree, "set_root_task", task_to_remove);
-            undo_redo_manager->add_undo_method(this, "evaluate_root_node");
+            undo_redo_manager->add_undo_method(this, "color_root_node");
         }
         /* remove node last safely */
         undo_redo_manager->add_do_method(this->graph_edit, "remove_child", nodes_to_delete[i]);
         undo_redo_manager->add_do_method(this, "erase_node", nodes_to_delete[i]);
-        undo_redo_manager->add_do_method(this, "evaluate_root_node");
+        undo_redo_manager->add_do_method(this, "color_root_node");
 
-        undo_redo_manager->add_undo_method(this, "evaluate_root_node");
+        undo_redo_manager->add_undo_method(this, "color_root_node");
     }
 
     undo_redo_manager->commit_action();
@@ -427,7 +427,7 @@ void BTGraphEditor::create_default_graph_nodes()
             this->graph_edit->connect_node(parent_node->get_name(), 0, child_node->get_name(), 0);
         }
     }
-    this->evaluate_root_node();
+    this->color_root_node();
     this->arrange_nodes();
 
 }
@@ -446,12 +446,115 @@ void BTGraphEditor::set_root_node(BTGraphNode* new_root_node)
     undo_redo_manager->create_action("Set root node.");
 
     undo_redo_manager->add_do_method(this->behaviour_tree, "set_root_task", new_root_node->get_task());
-    undo_redo_manager->add_do_method(this, "evaluate_root_node");
+    undo_redo_manager->add_do_method(this, "color_root_node");
 
     undo_redo_manager->add_undo_method(this->behaviour_tree, "set_root_task", old_root_node->get_task());
-    undo_redo_manager->add_undo_method(this, "evaluate_root_node");
+    undo_redo_manager->add_undo_method(this, "color_root_node");
 
     undo_redo_manager->commit_action();
+}
+
+void init_tree_utils(BTGraphNode* root_node, BTGraphEditor::TreeArrangeUtils& utils, const godot::HashMap<godot::Ref<BTTask>, BTGraphNode*>& task_to_node)
+{
+    ERR_FAIL_COND( root_node == nullptr);
+
+    
+    godot::Vector<godot::Vector<BTGraphNode*>> node_level_array;
+    node_level_array.push_back(godot::Vector<BTGraphNode*>());
+    node_level_array.get(0).push_back(root_node);
+    int i = 0, j;
+    while (i < node_level_array.size())
+    {
+        j = 0;
+        for (; j < node_level_array[i].size(); j++)
+        {
+            if (node_level_array[i][j]->get_task()->get_child_count() > 0)
+            {
+                node_level_array.push_back(godot::Vector<BTGraphNode*>());
+                break;
+            }
+        }
+
+        for (; j < node_level_array[i].size(); j++)
+        {
+            godot::Array children = node_level_array[i][j]->get_task()->get_children();
+            for (int k = 0, size = children.size(); k < size; k++)
+            {
+                node_level_array.get(i+1).push_back(task_to_node[children[k]]);
+            }
+        }
+        i++;
+    }
+
+    /* Now that node level array is ready, extract left and right neighbours. */
+    /* note, at this point we don't need the info from i and j*/
+    for(const godot::Vector<BTGraphNode*> node_array : node_level_array)
+    {
+        for (int i = 0, size = node_array.size(); i < size; i++)
+        {
+            utils.left_neighbour.insert(node_array[i], ((i > 0) ? node_array[i - 1] : nullptr)); 
+            utils.right_neighbour.insert(node_array[i], ((i + 1 < size) ? node_array[i + 1] : nullptr));
+            utils.prelim.insert(node_array[i], 0);
+            utils.modifier.insert(node_array[i], 0);
+        }
+    }
+    
+}
+
+bool has_left_sibling(BTGraphNode* node, const BTGraphEditor::TreeArrangeUtils& utils)
+{
+    return (utils.left_neighbour[node] != nullptr) && (utils.left_neighbour[node]->get_task()->get_parent() == node->get_task()->get_parent());
+}
+
+bool has_right_sibling(BTGraphNode* node, const BTGraphEditor::TreeArrangeUtils& utils)
+{
+    return (utils.right_neighbour[node] != nullptr) && (utils.right_neighbour[node]->get_task()->get_parent() == node->get_task()->get_parent());
+}
+
+void first_walk(BTGraphNode* node, BTGraphEditor::TreeArrangeUtils& utils, const godot::HashMap<godot::Ref<BTTask>, BTGraphNode*>& task_to_node)
+{
+    ERR_FAIL_COND(node == nullptr);
+
+    if (node->get_task()->get_child_count() == 0)
+    {
+        if (has_left_sibling(node, utils))
+        {
+            utils.prelim[node] = utils.prelim[utils.left_neighbour[node]] +
+                                 utils.sibling_separation +
+                                 (node->get_size().y + utils.left_neighbour[node]->get_size().y)/2;
+        }
+        else
+        {
+            utils.prelim[node] = 0;
+        }
+    }
+    else
+    {
+        godot::Array task_children = node->get_task()->get_children();
+        int size = task_children.size();
+        for (int i = 0; i < size; i++)
+        {
+            first_walk(task_to_node[task_children[0]], utils, task_to_node);
+        }
+        int midpoint = utils.prelim[task_to_node[task_children[0]]] + utils.prelim[task_to_node[task_children[size - 1]]];
+        if (has_left_sibling(node, utils))
+        {
+            utils.prelim[node] = utils.prelim[utils.left_neighbour[node]] +
+                                 utils.sibling_separation +
+                                 (node->get_size().y + utils.left_neighbour[node]->get_size().y)/2;
+            utils.modifier[node] = utils.prelim[node] - midpoint;
+            /* apportion(node); */
+        }
+        else
+        {
+            utils.prelim[node] = midpoint;
+        }
+    }
+}
+
+void second_walk(BTGraphNode* node, BTGraphEditor::TreeArrangeUtils& utils, const godot::HashMap<godot::Ref<BTTask>, BTGraphNode*>& task_to_node, int level = 0, int modsum = 0)
+{
+    
 }
 
 void BTGraphEditor::arrange_nodes()
@@ -461,35 +564,18 @@ void BTGraphEditor::arrange_nodes()
         return;
     }
 
-    BTGraphNode* root_node = this->task_to_node[this->behaviour_tree->get_root_task()];
-    ERR_FAIL_COND(root_node == nullptr);
+    BTGraphNode* root = this->task_to_node[this->behaviour_tree->get_root_task()];
+    ERR_FAIL_COND(root == nullptr);
 
-    godot::Vector<godot::Pair<BTGraphNode*, int>> stack;
-    this->_extract_node_levels_into_stack(root_node, stack);
+    TreeArrangeUtils utils;
+    init_tree_utils(root, utils, this->task_to_node);
 
-    godot::HashMap<int, int> level_to_node_count;
-    godot::Vector2 root_node_position = root_node->get_position_offset();
-    godot::Vector2 node_padding = root_node->get_size() + godot::Vector2(80, 20);
-    int current_index = stack.size() - 1;
+    first_walk(root, utils, this->task_to_node);
 
-    while (current_index >= 0)
-    {
-        godot::Pair<BTGraphNode*, int> pair_node_level = stack[current_index];
-
-        godot::Vector2 position = godot::Vector2(0, 0);
-        position.x += node_padding.x*pair_node_level.second;
-        position.y += node_padding.y*level_to_node_count[pair_node_level.second];
-        position += root_node_position;
-
-        pair_node_level.first->set_position_offset(position);
-
-        level_to_node_count[pair_node_level.second]++;
-        current_index--;
-    }
-
+    second_walk(root, utils, this->task_to_node);
 }
 
-void BTGraphEditor::evaluate_root_node()
+void BTGraphEditor::color_root_node()
 {
     godot::Ref<BTTask> root = this->behaviour_tree->get_root_task();
 
@@ -614,12 +700,12 @@ void BTGraphEditor::_add_new_subtree_node_button_pressed()
     undo_redo_manager->add_do_method(this->behaviour_tree, "add_task", id, bt_graph_node->get_task());
     undo_redo_manager->add_do_method(this->graph_edit, "add_child", bt_graph_node);
     undo_redo_manager->add_do_method(this, "insert_node", bt_graph_node);
-    undo_redo_manager->add_do_method(this, "evaluate_root_node");
+    undo_redo_manager->add_do_method(this, "color_root_node");
 
     undo_redo_manager->add_undo_method(this, "erase_node", bt_graph_node);
     undo_redo_manager->add_undo_method(this->graph_edit, "remove_child", bt_graph_node);
     undo_redo_manager->add_undo_method(this->behaviour_tree, "remove_task", id);
-    undo_redo_manager->add_undo_method(this, "evaluate_root_node");
+    undo_redo_manager->add_undo_method(this, "color_root_node");
 
     undo_redo_manager->commit_action();
 
@@ -1047,7 +1133,7 @@ void BTGraphEditor::_bind_methods()
     ClassDB::bind_method(D_METHOD("create_default_graph_nodes"), &BTGraphEditor::create_default_graph_nodes);
     ClassDB::bind_method(D_METHOD("set_root_node", "new_root_node"), &BTGraphEditor::set_root_node);
     ClassDB::bind_method(D_METHOD("arrange_nodes"), &BTGraphEditor::arrange_nodes);
-    ClassDB::bind_method(D_METHOD("evaluate_root_node"), &BTGraphEditor::evaluate_root_node);
+    ClassDB::bind_method(D_METHOD("color_root_node"), &BTGraphEditor::color_root_node);
 
     // Drag and Drop
     ClassDB::bind_method(D_METHOD("_node_dragged", "from", "to", "node_name"), &BTGraphEditor::_node_dragged);
