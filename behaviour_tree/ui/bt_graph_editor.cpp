@@ -554,7 +554,24 @@ void first_walk(BTGraphNode* node, BTGraphEditor::TreeArrangeUtils& utils, const
 
 void second_walk(BTGraphNode* node, BTGraphEditor::TreeArrangeUtils& utils, const godot::HashMap<godot::Ref<BTTask>, BTGraphNode*>& task_to_node, int level = 0, int modsum = 0)
 {
+    ERR_FAIL_COND(node == nullptr);
+
+    int x_temp = level*utils.level_adjustment;
+    int y_temp = utils.prelim[node] + modsum;
+
+    /* TODO: undo-redo*/
+    node->set_position_offset(godot::Vector2(x_temp, y_temp));
     
+    /* preorder walk*/
+    if (node->get_task()->get_child_count() > 0)
+    {
+        BTGraphNode* first_child = task_to_node[node->get_task()->get_child(0)];
+        second_walk(first_child, utils, task_to_node, level + 1, utils.modifier[node] + modsum);
+    }
+    if (has_right_sibling(node, utils))
+    {
+        second_walk(utils.right_neighbour[node], utils, task_to_node, level + 1, modsum);
+    }
 }
 
 void BTGraphEditor::arrange_nodes()
