@@ -15,6 +15,8 @@ BTGraphEditor::BTGraphEditor()
     this->_setup_popup_menu();
 
     this->drag_called = false;
+
+    task_to_node[nullptr] = nullptr;
 }
 
 BTGraphEditor::~BTGraphEditor()
@@ -511,7 +513,111 @@ bool has_right_sibling(BTGraphNode* node, const BTGraphEditor::TreeArrangeUtils&
     return (utils.right_neighbour[node] != nullptr) && (utils.right_neighbour[node]->get_task()->get_parent() == node->get_task()->get_parent());
 }
 
-void first_walk(BTGraphNode* node, BTGraphEditor::TreeArrangeUtils& utils, const godot::HashMap<godot::Ref<BTTask>, BTGraphNode*>& task_to_node)
+BTGraphNode* get_leftmost(BTGraphNode* node, int level, int depth, const BTGraphEditor::TreeArrangeUtils& utils, const godot::HashMap<godot::Ref<BTTask>, BTGraphNode*>& task_to_node)
+{
+    if (node == nullptr)
+    {
+        return node;
+    }
+    if (level > depth)
+    {
+        return node;
+    }
+    else if (node->get_task()->get_child_count() == 0)
+    {
+        return nullptr;
+    }
+
+    BTGraphNode* rightmost = task_to_node[node->get_task()->get_child(0)];
+    BTGraphNode* leftmost = get_leftmost(rightmost, level + 1, depth, utils, task_to_node);
+    while (leftmost == nullptr && has_right_sibling(rightmost, utils))
+    {
+        rightmost = utils.right_neighbour[rightmost];
+        leftmost = get_leftmost(rightmost, level + 1, depth, utils, task_to_node);
+    }
+    return leftmost;
+}
+
+void apportion(BTGraphNode* node, BTGraphEditor::TreeArrangeUtils& utils, const godot::HashMap<godot::Ref<BTTask>, BTGraphNode*>& task_to_node, int level)
+{
+    ERR_FAIL_COND(node == nullptr);
+    ERR_FAIL_COND(node->get_task()->get_child_count() == 0);
+    ERR_FAIL_COND(utils.left_neighbour[node] == nullptr);
+
+    int portion = 0;
+
+    BTGraphNode* leftmost = task_to_node[node->get_task()->get_child(0)];
+    BTGraphNode* neighbour = utils.left_neighbour[node];
+    int compare_depth = 1;
+    int depth_to_stop = 200;
+
+    while (leftmost != nullptr && neighbour != nullptr && compare_depth < depth_to_stop)
+    {
+        int left_modsum = 0;
+        int right_modsum = 0;
+        BTGraphNode* ancestor_leftmost = leftmost;
+        BTGraphNode* ancestor_neighbour = neighbour;
+        for (int i = 0; i < compare_depth; i++)
+        {
+            ancestor_leftmost = task_to_node[ancestor_leftmost->get_task()->get_parent()];
+            ancestor_neighbour = task_to_node[ancestor_neighbour->get_task()->get_parent()];
+            
+            ERR_FAIL_COND(ancestor_neighbour == nullptr);
+
+            right_modsum += utils.modifier[ancestor_leftmost];
+            left_modsum += utils.modifier[ancestor_neighbour];
+        }
+        int move_distance = (utils.prelim[neighbour] +
+                             left_modsum +
+                             utils.subtree_separation +
+                             (leftmost->get_size().y + neighbour->get_size().y)/2 -
+                             (utils.prelim[leftmost] + right_modsum));
+        if (move_distance > 0)
+        {
+            BTGraphNode* temp_node = node;
+            int left_siblings = 0;
+            while (temp_node != nullptr && temp_node != ancestor_neighbour)
+            {
+                left_siblings++;
+                if (has_left_sibling(temp_node, utils))
+                {
+                    temp_node = utils.left_neighbour[temp_node];
+                }
+                else
+                {
+                    temp_node = nullptr;
+                }
+            }
+            if (temp_node != nullptr)
+            {
+                portion = move_distance/left_siblings;
+                temp_node = node;
+                while (temp_node != ancestor_neighbour)
+                {
+                    utils.prelim[temp_node] += move_distance;
+                    utils.modifier[temp_node] += move_distance;
+                    move_distance -= portion;
+                    temp_node = utils.left_neighbour[temp_node];
+                }
+            }
+            else
+            {
+                return;
+            }
+        }
+        compare_depth += 1;
+        if (leftmost->get_task()->get_child_count() == 0)
+        {
+            leftmost = get_leftmost(node, 0, compare_depth, utils, task_to_node);
+        }
+        else
+        {
+            leftmost = task_to_node[leftmost->get_task()->get_child(0)];
+        }
+    }
+}
+
+void first_walk(BTGraphNode* node, BTGraphEditor::TreeArrangeUtils& utils, const godot::HashMap<godot::Ref<BTTask>, BTGraphNode*>& task_to_node, int level = 0)
 {
     ERR_FAIL_COND(node == nullptr);
 
@@ -534,7 +640,7 @@ void first_walk(BTGraphNode* node, BTGraphEditor::TreeArrangeUtils& utils, const
         int size = task_children.size();
         for (int i = 0; i < size; i++)
         {
-            first_walk(task_to_node[task_children[0]], utils, task_to_node);
+            first_walk(task_to_node[task_children[0]], utils, task_to_node, level + 1);
         }
         int midpoint = utils.prelim[task_to_node[task_children[0]]] + utils.prelim[task_to_node[task_children[size - 1]]];
         if (has_left_sibling(node, utils))
@@ -543,7 +649,7 @@ void first_walk(BTGraphNode* node, BTGraphEditor::TreeArrangeUtils& utils, const
                                  utils.sibling_separation +
                                  (node->get_size().y + utils.left_neighbour[node]->get_size().y)/2;
             utils.modifier[node] = utils.prelim[node] - midpoint;
-            /* apportion(node); */
+            apportion(node, utils, task_to_node, level);
         }
         else
         {
