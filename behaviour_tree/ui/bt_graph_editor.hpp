@@ -77,9 +77,9 @@ public:
         godot::HashMap<BTGraphNode*, BTGraphNode*> right_neighbour;
         godot::HashMap<BTGraphNode*, int> prelim;
         godot::HashMap<BTGraphNode*, int> modifier;
-        int sibling_separation = 50;
-        int subtree_separation = 50;
-        int level_adjustment = 100;
+        int sibling_separation = 30;
+        int subtree_separation = 120;
+        int level_adjustment = 170;
     };
 
 private:
