@@ -513,9 +513,9 @@ BTGraphNode* get_leftmost(BTGraphNode* node, int level, int depth, const BTGraph
 {
     if (node == nullptr)
     {
-        return node;
+        return nullptr;
     }
-    if (level > depth)
+    if (level >= depth)
     {
         return node;
     }
@@ -543,9 +543,9 @@ void apportion(BTGraphNode* node, BTGraphEditor::TreeArrangeUtils& utils, const 
     int portion = 0;
 
     BTGraphNode* leftmost = task_to_node[node->get_task()->get_child(0)];
-    BTGraphNode* neighbour = utils.left_neighbour[node];
+    BTGraphNode* neighbour = utils.left_neighbour[leftmost];
     int compare_depth = 1;
-    int depth_to_stop = 200;
+    int depth_to_stop = 5;
 
     while (leftmost != nullptr && neighbour != nullptr && compare_depth < depth_to_stop)
     {
@@ -601,7 +601,7 @@ void apportion(BTGraphNode* node, BTGraphEditor::TreeArrangeUtils& utils, const 
                 return;
             }
         }
-        compare_depth += 1;
+        compare_depth++;
         if (leftmost->get_task()->get_child_count() == 0)
         {
             leftmost = get_leftmost(node, 0, compare_depth, utils, task_to_node);
