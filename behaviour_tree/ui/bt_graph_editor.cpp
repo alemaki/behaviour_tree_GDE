@@ -545,7 +545,7 @@ void apportion(BTGraphNode* node, BTGraphEditor::TreeArrangeUtils& utils, const 
     BTGraphNode* leftmost = task_to_node[node->get_task()->get_child(0)];
     BTGraphNode* neighbour = utils.left_neighbour[leftmost];
     int compare_depth = 1;
-    int depth_to_stop = 5;
+    int depth_to_stop = 20;
 
     while (leftmost != nullptr && neighbour != nullptr && compare_depth < depth_to_stop)
     {
@@ -654,29 +654,42 @@ void first_walk(BTGraphNode* node, BTGraphEditor::TreeArrangeUtils& utils, const
     }
 }
 
-void second_walk(BTGraphNode* node, BTGraphEditor::TreeArrangeUtils& utils, const godot::HashMap<godot::Ref<BTTask>, BTGraphNode*>& task_to_node, int level = 0, int modsum = 0)
+void second_walk(BTGraphNode* node,
+                 BTGraphEditor::TreeArrangeUtils& utils,
+                 const godot::HashMap<godot::Ref<BTTask>,
+                 BTGraphNode*>& task_to_node,
+                 godot::EditorUndoRedoManager* undo_redo = nullptr,
+                 int level = 0,
+                 int modsum = 0)
 {
     ERR_FAIL_COND(node == nullptr);
 
-    int x_temp = level*(utils.level_adjustment);
+    int x_temp = level*(utils.level_separation);
     int y_temp = utils.prelim[node] + modsum;
 
-    /* TODO: undo-redo*/
-    node->set_position_offset(godot::Vector2(x_temp, y_temp));
+    if (undo_redo!= nullptr)
+    {
+        undo_redo->add_do_method(node, "set_position_offset", godot::Vector2(x_temp, y_temp));
+        undo_redo->add_undo_method(node, "set_position_offset", node->get_position_offset());
+    }
+    else
+    {
+        node->set_position_offset(godot::Vector2(x_temp, y_temp));
+    }
     
     /* preorder walk*/
     if (node->get_task()->get_child_count() > 0)
     {
         BTGraphNode* first_child = task_to_node[node->get_task()->get_child(0)];
-        second_walk(first_child, utils, task_to_node, level + 1, utils.modifier[node] + modsum);
+        second_walk(first_child, utils, task_to_node, undo_redo, level + 1, utils.modifier[node] + modsum);
     }
     if (has_right_sibling(node, utils))
     {
-        second_walk(utils.right_neighbour[node], utils, task_to_node, level, modsum);
+        second_walk(utils.right_neighbour[node], utils, task_to_node, undo_redo, level, modsum);
     }
 }
 
-void BTGraphEditor::arrange_nodes()
+void BTGraphEditor::arrange_nodes(bool with_undo_redo)
 {
     if (!(this->behaviour_tree->get_root_task().is_valid()))
     {
@@ -686,12 +699,23 @@ void BTGraphEditor::arrange_nodes()
     BTGraphNode* root = this->task_to_node[this->behaviour_tree->get_root_task()];
     ERR_FAIL_COND(root == nullptr);
 
-    TreeArrangeUtils utils;
+    BTGraphEditor::TreeArrangeUtils utils;
     init_tree_utils(root, utils, this->task_to_node);
 
     first_walk(root, utils, this->task_to_node);
 
-    second_walk(root, utils, this->task_to_node);
+
+    if (with_undo_redo)
+    {
+        godot::EditorUndoRedoManager* undo_redo = this->editor_plugin->get_undo_redo();
+        undo_redo->create_action("Arrange nodes");
+        second_walk(root, utils, this->task_to_node, undo_redo);
+        undo_redo->commit_action();
+    }
+    else
+    {
+        second_walk(root, utils, this->task_to_node, nullptr);
+    }
 }
 
 void BTGraphEditor::color_root_node()
@@ -833,44 +857,7 @@ void BTGraphEditor::_add_new_subtree_node_button_pressed()
 
 void BTGraphEditor::_arrange_nodes_button_pressed()
 {
-    if (!(this->behaviour_tree->get_root_task().is_valid()))
-    {
-        return;
-    }
-
-    BTGraphNode* root_node = this->task_to_node[this->behaviour_tree->get_root_task()];
-    ERR_FAIL_COND(root_node == nullptr);
-
-    godot::Vector<godot::Pair<BTGraphNode*, int>> stack;
-    this->_extract_node_levels_into_stack(root_node, stack);
-
-    godot::HashMap<int, int> level_to_node_count;
-    godot::Vector2 root_node_position = root_node->get_position_offset();
-    godot::Vector2 node_padding = root_node->get_size() + godot::Vector2(80, 20);
-    int current_index = stack.size() - 1;
-
-    godot::EditorUndoRedoManager* undo_redo_manager = this->editor_plugin->get_undo_redo();
-
-    undo_redo_manager->create_action("Arrange node(s)");
-
-    while (current_index >= 0)
-    {
-        godot::Pair<BTGraphNode*, int> pair_node_level = stack[current_index];
-
-        godot::Vector2 position = godot::Vector2(0, 0);
-        position.x += node_padding.x*pair_node_level.second;
-        position.y += node_padding.y*level_to_node_count[pair_node_level.second];
-        position += root_node_position;
-
-        /*NOTE: won't save in scene of behaviour tree*/
-        undo_redo_manager->add_do_method(pair_node_level.first, "set_position_offset", position);
-        undo_redo_manager->add_undo_method(pair_node_level.first, "set_position_offset", pair_node_level.first->get_position_offset());
-
-        level_to_node_count[pair_node_level.second]++;
-        current_index--;
-    }
-
-    undo_redo_manager->commit_action();
+    this->arrange_nodes(true);
 }
 
 void BTGraphEditor::_on_rename_edit_text_submitted(const godot::String& new_text)
@@ -1251,7 +1238,7 @@ void BTGraphEditor::_bind_methods()
     ClassDB::bind_method(D_METHOD("clear_graph_nodes"), &BTGraphEditor::clear_graph_nodes);
     ClassDB::bind_method(D_METHOD("create_default_graph_nodes"), &BTGraphEditor::create_default_graph_nodes);
     ClassDB::bind_method(D_METHOD("set_root_node", "new_root_node"), &BTGraphEditor::set_root_node);
-    ClassDB::bind_method(D_METHOD("arrange_nodes"), &BTGraphEditor::arrange_nodes);
+    ClassDB::bind_method(D_METHOD("arrange_nodes", "with_undo_redo"), &BTGraphEditor::arrange_nodes);
     ClassDB::bind_method(D_METHOD("color_root_node"), &BTGraphEditor::color_root_node);
 
     // Drag and Drop

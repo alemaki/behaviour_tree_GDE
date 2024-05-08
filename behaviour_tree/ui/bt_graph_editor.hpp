@@ -77,9 +77,9 @@ public:
         godot::HashMap<BTGraphNode*, BTGraphNode*> right_neighbour;
         godot::HashMap<BTGraphNode*, int> prelim;
         godot::HashMap<BTGraphNode*, int> modifier;
-        int sibling_separation = 30;
-        int subtree_separation = 120;
-        int level_adjustment = 170;
+        int sibling_separation = 20;
+        int subtree_separation = 30;
+        int level_separation = 220;
     };
 
 private:
@@ -109,7 +109,7 @@ private:
     void clear_graph_nodes();
     void create_default_graph_nodes();
     void set_root_node(BTGraphNode* new_root_node);
-    void arrange_nodes();
+    void arrange_nodes(bool with_undo_redo = false);
     void color_root_node();
 
     /* Drag and Drop */
