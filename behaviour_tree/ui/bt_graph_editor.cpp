@@ -460,7 +460,9 @@ void init_tree_utils(BTGraphNode* root_node, BTGraphEditor::TreeArrangeUtils& ut
 {
     ERR_FAIL_COND(root_node == nullptr);
 
-    
+    utils.left_neighbour.clear();
+    utils.right_neighbour.clear();
+
     godot::Vector<godot::Vector<BTGraphNode*>> node_level_array;
     node_level_array.push_back(godot::Vector<BTGraphNode*>({root_node}));
     
@@ -496,6 +498,8 @@ void init_tree_utils(BTGraphNode* root_node, BTGraphEditor::TreeArrangeUtils& ut
             utils.modifier.insert(node_array[i], 0);
         }
     }
+    utils.left_neighbour.insert(nullptr, nullptr);
+    utils.right_neighbour.insert(nullptr, nullptr); 
     
 }
 
@@ -511,10 +515,6 @@ bool has_right_sibling(BTGraphNode* node, const BTGraphEditor::TreeArrangeUtils&
 
 BTGraphNode* get_leftmost(BTGraphNode* node, int level, int depth, const BTGraphEditor::TreeArrangeUtils& utils, const godot::HashMap<godot::Ref<BTTask>, BTGraphNode*>& task_to_node)
 {
-    if (node == nullptr)
-    {
-        return nullptr;
-    }
     if (level >= depth)
     {
         return node;
@@ -545,9 +545,8 @@ void apportion(BTGraphNode* node, BTGraphEditor::TreeArrangeUtils& utils, const 
     BTGraphNode* leftmost = task_to_node[node->get_task()->get_child(0)];
     BTGraphNode* neighbour = utils.left_neighbour[leftmost];
     int compare_depth = 1;
-    int depth_to_stop = 20;
-
-    while (leftmost != nullptr && neighbour != nullptr && compare_depth < depth_to_stop)
+    int depth_to_stop = 200 - level;
+    while (leftmost != nullptr && neighbour != nullptr && compare_depth <= depth_to_stop)
     {
         int left_modsum = 0;
         int right_modsum = 0;
@@ -555,10 +554,9 @@ void apportion(BTGraphNode* node, BTGraphEditor::TreeArrangeUtils& utils, const 
         BTGraphNode* ancestor_neighbour = neighbour;
         for (int i = 0; i < compare_depth; i++)
         {
+            
             ancestor_leftmost = task_to_node[ancestor_leftmost->get_task()->get_parent()];
             ancestor_neighbour = task_to_node[ancestor_neighbour->get_task()->get_parent()];
-
-            ERR_FAIL_COND(ancestor_neighbour == nullptr);
 
             right_modsum += utils.modifier[ancestor_leftmost];
             left_modsum += utils.modifier[ancestor_neighbour];
@@ -567,7 +565,7 @@ void apportion(BTGraphNode* node, BTGraphEditor::TreeArrangeUtils& utils, const 
                              left_modsum +
                              utils.subtree_separation +
                              (leftmost->get_size().y + neighbour->get_size().y)/2 -
-                             (utils.prelim[leftmost] + right_modsum));
+                             (utils.prelim[leftmost] + right_modsum));  
         if (move_distance > 0)
         {
             BTGraphNode* temp_node = node;
@@ -584,6 +582,7 @@ void apportion(BTGraphNode* node, BTGraphEditor::TreeArrangeUtils& utils, const 
                     temp_node = nullptr;
                 }
             }
+
             if (temp_node != nullptr)
             {
                 portion = move_distance/left_siblings;
@@ -610,13 +609,13 @@ void apportion(BTGraphNode* node, BTGraphEditor::TreeArrangeUtils& utils, const 
         {
             leftmost = task_to_node[leftmost->get_task()->get_child(0)];
         }
+        neighbour = utils.left_neighbour[leftmost];
     }
 }
 
 void first_walk(BTGraphNode* node, BTGraphEditor::TreeArrangeUtils& utils, const godot::HashMap<godot::Ref<BTTask>, BTGraphNode*>& task_to_node, int level = 0)
 {
     ERR_FAIL_COND(node == nullptr);
-
     if (node->get_task()->get_child_count() == 0)
     {
         if (has_left_sibling(node, utils))
