@@ -1,0 +1,131 @@
+[gd_scene load_steps=29 format=3 uid="uid://dmas3w3kwv5gq"]
+
+[sub_resource type="BTCondition" id="BTCondition_n4qli"]
+custom_name = "2"
+
+[sub_resource type="BTTask" id="BTTask_0brnw"]
+custom_name = "25"
+
+[sub_resource type="BTTask" id="BTTask_a7q2h"]
+custom_name = "24"
+
+[sub_resource type="BTTask" id="BTTask_bgxsh"]
+custom_name = "8"
+children = [SubResource("BTTask_0brnw"), SubResource("BTTask_a7q2h")]
+
+[sub_resource type="BTTask" id="BTTask_h5m4i"]
+custom_name = "11"
+children = [SubResource("BTTask_bgxsh")]
+
+[sub_resource type="BTTask" id="BTTask_1ehj1"]
+custom_name = "22"
+
+[sub_resource type="BTTask" id="BTTask_vr68h"]
+custom_name = "21"
+
+[sub_resource type="BTTask" id="BTTask_rh6qx"]
+custom_name = "23"
+children = [SubResource("BTTask_1ehj1"), SubResource("BTTask_vr68h")]
+
+[sub_resource type="BTTask" id="BTTask_qjigu"]
+custom_name = "4"
+
+[sub_resource type="BTTask" id="BTTask_jhjhr"]
+custom_name = "3"
+
+[sub_resource type="BTTask" id="BTTask_pw4lh"]
+custom_name = "19"
+
+[sub_resource type="BTTask" id="BTTask_t8oct"]
+custom_name = "20"
+
+[sub_resource type="BTTask" id="BTTask_hab8l"]
+custom_name = "5"
+children = [SubResource("BTTask_pw4lh"), SubResource("BTTask_t8oct")]
+
+[sub_resource type="BTTask" id="BTTask_021rr"]
+custom_name = "9"
+children = [SubResource("BTTask_qjigu"), SubResource("BTTask_jhjhr"), SubResource("BTTask_hab8l")]
+
+[sub_resource type="BTTask" id="BTTask_j1qow"]
+custom_name = "16"
+
+[sub_resource type="BTTask" id="BTTask_rr3u7"]
+custom_name = "27"
+
+[sub_resource type="BTTask" id="BTTask_0wet1"]
+custom_name = "15"
+
+[sub_resource type="BTTask" id="BTTask_3y6lk"]
+custom_name = "10"
+children = [SubResource("BTTask_j1qow"), SubResource("BTTask_rr3u7"), SubResource("BTTask_0wet1")]
+
+[sub_resource type="BTTask" id="BTTask_5d666"]
+custom_name = "13"
+children = [SubResource("BTTask_rh6qx"), SubResource("BTTask_021rr"), SubResource("BTTask_3y6lk")]
+
+[sub_resource type="BTTask" id="BTTask_bdqkr"]
+custom_name = "26"
+
+[sub_resource type="BTTask" id="BTTask_jvtyx"]
+custom_name = "17"
+
+[sub_resource type="BTTask" id="BTTask_8w1rk"]
+custom_name = "18"
+children = [SubResource("BTTask_jvtyx")]
+
+[sub_resource type="BTTask" id="BTTask_8i7o1"]
+custom_name = "7"
+children = [SubResource("BTTask_bdqkr"), SubResource("BTTask_8w1rk")]
+
+[sub_resource type="BTTask" id="BTTask_qdh8k"]
+custom_name = "28"
+
+[sub_resource type="BTTask" id="BTTask_35cww"]
+custom_name = "6"
+children = [SubResource("BTTask_qdh8k")]
+
+[sub_resource type="BTTask" id="BTTask_f3ggw"]
+custom_name = "12"
+children = [SubResource("BTTask_8i7o1"), SubResource("BTTask_35cww")]
+
+[sub_resource type="BTTask" id="BTTask_tq6sb"]
+custom_name = "14"
+
+[sub_resource type="BTProbability" id="BTProbability_f228r"]
+run_chance = 1.0
+custom_name = "stuff"
+children = [SubResource("BTCondition_n4qli"), SubResource("BTTask_h5m4i"), SubResource("BTTask_5d666"), SubResource("BTTask_f3ggw"), SubResource("BTTask_tq6sb")]
+
+[node name="JustTestTree" type="BehaviourTree"]
+task_map = {
+1: SubResource("BTProbability_f228r"),
+2: SubResource("BTCondition_n4qli"),
+3: SubResource("BTTask_jhjhr"),
+4: SubResource("BTTask_qjigu"),
+5: SubResource("BTTask_hab8l"),
+6: SubResource("BTTask_35cww"),
+7: SubResource("BTTask_8i7o1"),
+8: SubResource("BTTask_bgxsh"),
+9: SubResource("BTTask_021rr"),
+10: SubResource("BTTask_3y6lk"),
+11: SubResource("BTTask_h5m4i"),
+12: SubResource("BTTask_f3ggw"),
+13: SubResource("BTTask_5d666"),
+14: SubResource("BTTask_tq6sb"),
+15: SubResource("BTTask_0wet1"),
+16: SubResource("BTTask_j1qow"),
+17: SubResource("BTTask_jvtyx"),
+18: SubResource("BTTask_8w1rk"),
+19: SubResource("BTTask_pw4lh"),
+20: SubResource("BTTask_t8oct"),
+21: SubResource("BTTask_vr68h"),
+22: SubResource("BTTask_1ehj1"),
+23: SubResource("BTTask_rh6qx"),
+24: SubResource("BTTask_a7q2h"),
+25: SubResource("BTTask_0brnw"),
+26: SubResource("BTTask_bdqkr"),
+27: SubResource("BTTask_rr3u7"),
+28: SubResource("BTTask_qdh8k")
+}
+root_task = SubResource("BTProbability_f228r")

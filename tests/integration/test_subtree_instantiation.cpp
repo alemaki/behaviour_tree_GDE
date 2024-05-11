@@ -16,8 +16,8 @@ TEST_SUITE("SubtreeInstantioationTest")
         BehaviourTree* mock_behaviour_tree;
         BehaviourTree* mock_behaviour_tree_with_sub;
 
-        const godot::String mock_behaviour_tree_path = "res://tests/mock/mock_behaviour_tree.tscn";
-        const godot::String mock_behaviour_tree_with_sub_path = "res://tests/mock/mock_behaviour_tree_with_sub.tscn";
+        const godot::String mock_behaviour_tree_path = "res://gdextension/behaviour_tree/tests/behaviour_tree_mocks/mock_behaviour_tree.tscn";
+        const godot::String mock_behaviour_tree_with_sub_path = "res://gdextension/behaviour_tree/tests/behaviour_tree_mocks/mock_behaviour_tree_with_sub.tscn";
 
         godot::Ref<godot::PackedScene> mock_behaviour_tree_scene = godot::Ref<godot::PackedScene>(godot::ResourceLoader::get_singleton()->load(mock_behaviour_tree_path));
         REQUIRE(mock_behaviour_tree_scene != nullptr);
