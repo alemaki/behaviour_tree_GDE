@@ -44,8 +44,8 @@ void BTGraphEditor::_setup_graph_edit()
 
 void BTGraphEditor::_setup_task_names()
 {
-    this->composite_names = get_subclasses(BTComposite::get_class_static());
-    this->decorator_names = get_subclasses(BTDecorator::get_class_static());
+    this->composite_names = utils::get_subclasses(BTComposite::get_class_static());
+    this->decorator_names = utils::get_subclasses(BTDecorator::get_class_static());
 }
 
 void BTGraphEditor::_setup_rename_edit()
@@ -125,7 +125,7 @@ void BTGraphEditor::_fill_action_condition_type_popup_menu(const godot::StringNa
 {
     ERR_FAIL_COND(this->action_condition_type_popup_menu == nullptr);
     this->action_condition_type_popup_menu->clear(true);
-    godot::Vector<godot::StringName> subclasses = get_subclasses(action_condition);
+    godot::Vector<godot::StringName> subclasses = utils::get_subclasses(action_condition);
     for (int i = 0; i < subclasses.size(); i++)
     {
         this->action_condition_type_popup_menu->add_item(subclasses[i]);

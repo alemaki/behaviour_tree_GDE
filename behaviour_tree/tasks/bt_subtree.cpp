@@ -6,6 +6,8 @@
 #include <godot_cpp/core/class_db.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
 
+#include "behaviour_tree/utils/utils.hpp"
+
 void BTSubtree::set_file_path(const godot::String& file_path)
 {
     this->file_path = file_path;
@@ -13,40 +15,7 @@ void BTSubtree::set_file_path(const godot::String& file_path)
 
 BehaviourTree* BTSubtree::load_behavior_tree() const
 {
-    if(!file_path.ends_with(".tscn") && !file_path.ends_with(".scn"))
-    {
-        godot::UtilityFunctions::printerr("File path is not a valid scene file: " + this->file_path);
-        return nullptr;
-    }
-
-    godot::Ref<godot::PackedScene> packed_scene = godot::ResourceLoader::get_singleton()->load(this->file_path);
-    if (packed_scene.is_null())
-    {
-        godot::UtilityFunctions::printerr("Failed to load scene: ", this->file_path);
-        return nullptr;
-    }
-
-    if(!(packed_scene->can_instantiate()))
-    {
-        godot::UtilityFunctions::printerr("Cannot instantiate scene: ", this->file_path);
-        return nullptr;
-    }
-
-    godot::Node* node = packed_scene->instantiate();
-    if (node == nullptr)
-    {
-        godot::UtilityFunctions::printerr("Failed to instantiate scene: ", this->file_path);
-        return nullptr;
-    }
-
-    BehaviourTree* behaviour_tree = godot::Object::cast_to<BehaviourTree>(node);
-    if (behaviour_tree == nullptr)
-    {
-        godot::UtilityFunctions::printerr("Path to scene is not a behaviour tree node: ", this->file_path);
-        return nullptr;
-    }
-
-    return behaviour_tree;
+    return utils::load_scene_node<BehaviourTree>(this->file_path);
 }
 
 godot::Ref<BTTask> BTSubtree::clone() const
