@@ -1,7 +1,7 @@
 [gd_scene load_steps=4 format=3 uid="uid://bhj8c4o8ivcpi"]
 
 [sub_resource type="BTSubtree" id="BTSubtree_0eoah"]
-file_path = "res://tests/mock/mock_behaviour_tree.tscn"
+file_path = "res://gdextension/behaviour_tree/tests/behaviour_tree_mocks/mock_behaviour_tree.tscn"
 custom_name = "3"
 
 [sub_resource type="BTProbability" id="BTProbability_jffvy"]
