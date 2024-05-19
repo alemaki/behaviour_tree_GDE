@@ -6,6 +6,8 @@
 #include <godot_cpp/templates/vector.hpp>
 #include <godot_cpp/variant/array.hpp>
 
+#include "behaviour_tree/utils/macros.hpp"
+
 class BTTask : public godot::Resource
 {
     GDCLASS(BTTask, godot::Resource);
