@@ -1,12 +1,8 @@
 #include "signal_watcher.hpp"
 
-#ifndef SIGNAL_WATCHER_GLOBALS
-#define SIGNAL_WATCHER_GLOBALS
 std::unordered_map<std::string, int> SignalWatcher::signal_count;
 std::unordered_map<std::string, godot::Array> SignalWatcher::signal_last_arguments;
 std::unordered_set<void*> SignalWatcher::watched_objects;
-#endif /* SIGNAL_WATCHER_GLOBALS */
-
 
 void SignalWatcher::on_signal_emitted_0_params(const godot::String& signal_key)
 {
