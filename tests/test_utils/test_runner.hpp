@@ -4,7 +4,7 @@
 #include <godot_cpp/classes/node.hpp>
 #include <godot_cpp/classes/scene_tree.hpp>
 
-godot::SceneTree* get_test_runner_scene_tree();
+godot::Node* get_scene_root();
 
 class TestRunner : public godot::Node
 {
@@ -18,7 +18,7 @@ private:
 
 public:
    void run();
-   virtual void _process(double delta) override;
+   virtual void _ready() override;
 
 protected:
     static void _bind_methods();

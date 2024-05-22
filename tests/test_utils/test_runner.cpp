@@ -1,19 +1,19 @@
 #include "test_runner.hpp"
 #include <doctest.h>
 
+#include <godot_cpp/variant/utility_functions.hpp>
 
 godot::SceneTree* test_runner_scene_tree;
 
-godot::SceneTree* get_test_runner_scene_tree()
+godot::Node* get_scene_root()
 {
-    return test_runner_scene_tree;
+    return test_runner_scene_tree->get_current_scene();
 }
 
 void TestRunner::run()
 {
     doctest::Context context;
     context.applyCommandLine(0, nullptr);
-    this->set_scene_tree();
     /* TODO: doctest allows to change the stdout. Try to redirect to godot.*/
     int res = context.run();
 
@@ -26,18 +26,20 @@ void TestRunner::run()
 void TestRunner::set_scene_tree()
 {
     test_runner_scene_tree = this->get_tree();
-    ERR_FAIL_COND(test_runner_scene_tree == nullptr);
+    godot::UtilityFunctions::print(test_runner_scene_tree);
 }
 
-void TestRunner::_process(double delta)
+void TestRunner::_ready()
 {
-    if (!tests_ran)
+    this->set_scene_tree();
+    ERR_FAIL_COND(test_runner_scene_tree == nullptr);
+    godot::Node* current_scene = get_scene_root();
+    /* Ensure tests run only in executed scene */
+    if (current_scene != nullptr) 
     {
-        tests_ran = true;
         this->run();
     }
 }
-
 
 void TestRunner::_bind_methods()
 {
