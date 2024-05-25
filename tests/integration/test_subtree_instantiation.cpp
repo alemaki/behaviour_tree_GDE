@@ -55,7 +55,7 @@ TEST_SUITE("SubtreeInstantioationTest")
             REQUIRE(sub_behaviour_tree != nullptr);
             CHECK(sub_behaviour_tree->get_root_task() != nullptr);
 
-            memfree(sub_behaviour_tree);
+            memdelete(sub_behaviour_tree);
         }
 
         SUBCASE("Test clone subtree task")
@@ -125,7 +125,7 @@ TEST_SUITE("SubtreeInstantioationTest")
             CHECK(leaf2->get_class() == cloned_leaf2->get_class());
         }
             
-        memfree(mock_behaviour_tree);
-        memfree(mock_behaviour_tree_with_sub);
+        memdelete(mock_behaviour_tree);
+        memdelete(mock_behaviour_tree_with_sub);
     }
 }

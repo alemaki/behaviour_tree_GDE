@@ -34,7 +34,7 @@ godot::Ref<BTTask> BTSubtree::clone() const
 
     godot::Ref<BTTask> subtree = temp_behaviour_tree->get_root_task()->clone();
 
-    memfree(temp_behaviour_tree);
+    memdelete(temp_behaviour_tree);
 
     return subtree;
 }

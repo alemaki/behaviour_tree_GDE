@@ -26,7 +26,6 @@ void TestRunner::run()
 void TestRunner::set_scene_tree()
 {
     test_runner_scene_tree = this->get_tree();
-    godot::UtilityFunctions::print(test_runner_scene_tree);
 }
 
 void TestRunner::_ready()

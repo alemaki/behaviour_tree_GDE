@@ -45,7 +45,7 @@ void BTGraphNodeSubtree::set_file_path(const godot::String& path)
 
     this->set_title(behaviour_tree->get_name());
     /* TODO: bad structure if I have to free memory here. Fix*/
-    memfree(behaviour_tree);
+    memdelete(behaviour_tree);
 }
 
 void BTGraphNodeSubtree::_bind_methods()

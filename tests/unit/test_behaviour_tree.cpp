@@ -11,7 +11,7 @@ TEST_SUITE("BehaviourTreeTests")
         godot::String description = "Test Behaviour Tree";
         tree->set_description(description);
         CHECK(tree->get_description() == description);
-        memfree(tree);
+        memdelete(tree);
     }
 
     TEST_CASE("Test add and get task")
@@ -21,7 +21,7 @@ TEST_SUITE("BehaviourTreeTests")
         tree->add_task_by_ref(task);
         int task_id = tree->get_task_id(task);
         CHECK(tree->get_task(task_id) == task);
-        memfree(tree);
+        memdelete(tree);
     }
 
     TEST_CASE("Test has task")
@@ -33,7 +33,7 @@ TEST_SUITE("BehaviourTreeTests")
         CHECK(tree->has_task(task));
         godot::Ref<BTTask> fake_task = memnew(BTTask);
         CHECK_FALSE(tree->has_task(fake_task));
-        memfree(tree);
+        memdelete(tree);
     }
 
     TEST_CASE("Test remove task")
@@ -52,7 +52,7 @@ TEST_SUITE("BehaviourTreeTests")
         tree->remove_task_by_ref(task);
         CHECK_FALSE(tree->has_task(task));
 
-        memfree(tree);
+        memdelete(tree);
     }
 
     TEST_CASE("Test remove task count")
@@ -71,7 +71,7 @@ TEST_SUITE("BehaviourTreeTests")
         tree->remove_task_by_ref(task2);
         CHECK(tree->get_tasks().size() == 0);
 
-        memfree(tree);
+        memdelete(tree);
     }
 
     TEST_CASE("Test connect and disconnect tasks")
@@ -90,7 +90,7 @@ TEST_SUITE("BehaviourTreeTests")
         CHECK_FALSE(parent_task->has_child(child_task));
         CHECK(child_task->get_parent() == nullptr);
 
-        memfree(tree);
+        memdelete(tree);
     }
 
     TEST_CASE("Test clear tasks")
@@ -104,7 +104,7 @@ TEST_SUITE("BehaviourTreeTests")
         CHECK(tree->get_tasks().size() == 0);
         CHECK(tree->get_root_task() == nullptr);
 
-        memfree(tree);
+        memdelete(tree);
     }
 
     TEST_CASE("Test set and get root task")
@@ -115,7 +115,7 @@ TEST_SUITE("BehaviourTreeTests")
         tree->set_root_task(root_task);
         CHECK(tree->get_root_task() == root_task);
 
-        memfree(tree);
+        memdelete(tree);
     }
 
     TEST_CASE("Test detach task")
@@ -130,7 +130,7 @@ TEST_SUITE("BehaviourTreeTests")
         CHECK_FALSE(root_task->has_child(child_task));
         CHECK(child_task->get_parent() == nullptr);
 
-        memfree(tree);
+        memdelete(tree);
     }
 
     TEST_CASE("Test set tasks of parent")
@@ -151,7 +151,7 @@ TEST_SUITE("BehaviourTreeTests")
         CHECK(children[0] == child_task1);
         CHECK(children[1] == child_task2);
 
-        memfree(tree);
+        memdelete(tree);
     }
 
     TEST_CASE("Test root task initially null")
@@ -159,7 +159,7 @@ TEST_SUITE("BehaviourTreeTests")
         BehaviourTree* tree = memnew(BehaviourTree);
         CHECK(tree->get_root_task() == nullptr);
 
-        memfree(tree);
+        memdelete(tree);
     }
 
     TEST_CASE("Test added task becomes root")
@@ -172,7 +172,7 @@ TEST_SUITE("BehaviourTreeTests")
         tree->add_task_by_ref(task1);
         CHECK(tree->get_root_task() == task);
 
-        memfree(tree);
+        memdelete(tree);
     }
 
     TEST_CASE("Test set root task")
@@ -185,7 +185,7 @@ TEST_SUITE("BehaviourTreeTests")
         tree->set_root_task(root_task2);
         CHECK(tree->get_root_task() == root_task2);
 
-        memfree(tree);
+        memdelete(tree);
     }
 
     TEST_CASE("Test remove root task")
@@ -200,7 +200,7 @@ TEST_SUITE("BehaviourTreeTests")
         CHECK(tree->get_root_task() != root_task);
         CHECK(tree->get_root_task() != nullptr);
 
-        memfree(tree);
+        memdelete(tree);
     }
 
     TEST_CASE("Test get valid id increment")
@@ -212,7 +212,7 @@ TEST_SUITE("BehaviourTreeTests")
         int second_id = tree->get_valid_id();
         CHECK(second_id == first_id + 1);
 
-        memfree(tree);
+        memdelete(tree);
     }
 
     TEST_CASE("Test task hierarchy")
@@ -238,7 +238,7 @@ TEST_SUITE("BehaviourTreeTests")
         CHECK(grandchild_task->get_root() == root_task);
         CHECK(grandchild_task->get_parent() == child_task1);
 
-        memfree(tree);
+        memdelete(tree);
     }
 
     TEST_CASE("Test set custom name task by ref")
@@ -251,7 +251,7 @@ TEST_SUITE("BehaviourTreeTests")
 
         CHECK(task->get_custom_name() == new_name);
 
-        memfree(tree);
+        memdelete(tree);
     }
 
     TEST_CASE("Test swap root task in")
@@ -275,7 +275,7 @@ TEST_SUITE("BehaviourTreeTests")
         CHECK(new_task->has_child(child_task));
         CHECK(child_task->get_parent() == new_task);
 
-        memfree(tree);
+        memdelete(tree);
     }
 
     TEST_CASE("Test swap non root task in")
@@ -310,7 +310,7 @@ TEST_SUITE("BehaviourTreeTests")
         CHECK(root_task->get_children().size() == 1);
         CHECK(root_task->has_child(new_task));
 
-        memfree(tree);
+        memdelete(tree);
     }
 
 }
