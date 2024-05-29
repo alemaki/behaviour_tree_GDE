@@ -2,7 +2,7 @@
 
 #include<godot_cpp/variant/utility_functions.hpp>
 
-Variant Blackboard::get_var(const StringName &name, const Variant &default_var = Variant(), bool complain = true) const
+Variant Blackboard::get_var(const StringName &name, const Variant &default_var, bool complain) const
 {
     if (this->has_var(name))
     {

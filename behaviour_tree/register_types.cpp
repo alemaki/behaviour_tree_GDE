@@ -10,9 +10,6 @@
 #include <godot_cpp/core/class_db.hpp>
 #include <godot_cpp/core/defs.hpp>
 #include <godot_cpp/godot.hpp>
-
-#include "tests/test_utils/test_runner.hpp"
-
 #include "behaviour_tree/behaviour_tree.hpp"
 #include "behaviour_tree/tasks/bt_action.hpp"
 #include "behaviour_tree/tasks/bt_composite.hpp"
@@ -31,6 +28,9 @@
 #include "behaviour_tree/ui/bt_editor_plugin.hpp"
 #include "behaviour_tree/ui/bt_graph_node.hpp"
 #include "behaviour_tree/ui/bt_graph_node_subtree.hpp"
+#include "blackboard/blackboard.hpp"
+
+#include "tests/test_utils/test_runner.hpp"
 
 
 using namespace godot;
@@ -56,6 +56,8 @@ void initialize_behaviour_tree_module(ModuleInitializationLevel p_level)
 		ClassDB::register_class<BTSubtree>();
 
 		ClassDB::register_class<BehaviourTree>();
+
+		ClassDB::register_class<Blackboard>();
 	}
 	if (p_level == MODULE_INITIALIZATION_LEVEL_EDITOR)
 	{
