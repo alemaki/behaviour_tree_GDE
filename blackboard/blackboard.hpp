@@ -1,5 +1,5 @@
 #ifndef BLACKBOARD_HPP
-#define BLACKBOARD_HPZP
+#define BLACKBOARD_HPP
 
 #include <godot_cpp/classes/ref_counted.hpp>
 #include <godot_cpp/templates/hash_map.hpp>
@@ -30,4 +30,5 @@ protected:
 	static void _bind_methods();
 };
 
-#endif // BLACKBOARD_H
+#endif /* BLACKBOARD_HPP */
+

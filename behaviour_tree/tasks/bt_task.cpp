@@ -71,6 +71,11 @@ void BTTask::set_children(const godot::Array& children)
     }
 }
 
+void BTTask::set_blackboard(godot::Ref<Blackboard> blackboard)
+{
+    this->blackboard = blackboard;
+}
+
 void BTTask::set_status(BTTask::Status status) 
 {
     this->status = status;
@@ -255,13 +260,14 @@ godot::Ref<BTTask> BTTask::clone() const
     return new_task;
 }
 
-void BTTask::initialize(godot::Node* actor)
+void BTTask::initialize(godot::Node* actor, godot::Ref<Blackboard> blackboard)
 {
     ERR_FAIL_COND(actor == nullptr);
-    this->actor = actor;
+    this->set_actor(actor);
+    this->set_blackboard(blackboard);
     for (int i = 0, size = children.size(); i < size; i++)
     {
-        children[i]->initialize(actor);
+        children[i]->initialize(actor, blackboard);
     }
     this->_setup();
 }
@@ -281,6 +287,7 @@ void BTTask::_bind_methods()
 	ClassDB::bind_method(D_METHOD("has_child", "child"), &BTTask::has_child);
     ClassDB::bind_method(D_METHOD("swap_child", "old_child", "new_child"), &BTTask::swap_child);
     ClassDB::bind_method(D_METHOD("clone"), &BTTask::clone);
+    ClassDB::bind_method(D_METHOD("initialize", "actor", "blackboard"), &BTTask::initialize);
 
     ClassDB::bind_method(D_METHOD("set_parent", "parent"), &BTTask::set_parent);
     ClassDB::bind_method(D_METHOD("get_parent"), &BTTask::get_parent);
@@ -299,7 +306,7 @@ void BTTask::_bind_methods()
     ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "parent", PROPERTY_HINT_NONE, "Parent of the task.", PROPERTY_USAGE_NONE), "set_parent", "get_parent");
     ADD_PROPERTY(PropertyInfo(Variant::STRING, "custom_name", PROPERTY_HINT_RESOURCE_TYPE, "Name of the task.", PROPERTY_USAGE_NO_EDITOR | PROPERTY_USAGE_INTERNAL), "set_custom_name", "get_custom_name");
     ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "actor", PROPERTY_HINT_RESOURCE_TYPE, "Actor to be controlled.", PROPERTY_USAGE_NONE), "set_actor", "get_actor");
-    ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "children", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NO_EDITOR | PROPERTY_USAGE_INTERNAL), "set_children", "get_children");
+    ADD_PROPERTY(PropertyInfo(Variant::ARRAY, "children", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NO_EDITOR | PROPERTY_USAGE_INTERNAL), "set_children", "get_children");
     ADD_PROPERTY(PropertyInfo(Variant::INT, "status", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NONE), "", "get_status");
     
     BIND_ENUM_CONSTANT(Status::FRESH);

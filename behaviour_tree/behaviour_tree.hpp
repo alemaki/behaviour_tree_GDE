@@ -5,6 +5,7 @@
 #include <godot_cpp/templates/rb_map.hpp>
 
 #include "behaviour_tree/tasks/bt_task.hpp"
+#include "blackboard/blackboard.hpp"
 
 class BehaviourTree : public godot::Node
 {
@@ -74,7 +75,7 @@ public:
         return this->task_map.size();
     }
 
-    godot::Ref<BTTask> instantiate(Node* actor) const;
+    godot::Ref<BTTask> instantiate(Node* actor, godot::Ref<Blackboard> blackboard) const;
 
 protected:
     static void _bind_methods();

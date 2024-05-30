@@ -201,7 +201,7 @@ void BehaviourTree::swap_task_in(godot::Ref<BTTask> old_task, godot::Ref<BTTask>
     this->add_task(id, new_task);
 }
 
-godot::Ref<BTTask> BehaviourTree::instantiate(godot::Node* actor) const
+godot::Ref<BTTask> BehaviourTree::instantiate(Node* actor, godot::Ref<Blackboard> blackboard) const
 {
     if (root_task.is_null())
     {
@@ -209,7 +209,7 @@ godot::Ref<BTTask> BehaviourTree::instantiate(godot::Node* actor) const
         return nullptr;
     }
     godot::Ref<BTTask> task = this->root_task->clone();
-    task->initialize(actor);
+    task->initialize(actor, blackboard);
     return task;
 }
 

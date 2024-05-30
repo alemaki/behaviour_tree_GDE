@@ -6,6 +6,8 @@
 #include <godot_cpp/templates/vector.hpp>
 #include <godot_cpp/variant/array.hpp>
 
+#include "blackboard/blackboard.hpp"
+
 #include "behaviour_tree/utils/macros.hpp"
 
 class BTTask : public godot::Resource
@@ -26,6 +28,7 @@ private:
     BTTask* parent;
     godot::String custom_name;
     godot::Node* actor;
+    godot::Ref<Blackboard> blackboard;
     godot::Vector<godot::Ref<BTTask>> children;
 
 protected:
@@ -46,6 +49,7 @@ public:
     {
         return this->actor;
     }
+    void set_blackboard(godot::Ref<Blackboard> blackboard);
     void set_status(BTTask::Status status);
     _FORCE_INLINE_ Status get_status() const
     {
@@ -92,7 +96,7 @@ public:
 
     virtual godot::Ref<BTTask> clone() const;
 
-    void initialize(godot::Node* actor);
+    void initialize(godot::Node* actor, godot::Ref<Blackboard> blackboard);
 
 protected:
     static void _bind_methods();
