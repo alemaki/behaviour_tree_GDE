@@ -263,6 +263,7 @@ godot::Ref<BTTask> BTTask::clone() const
 void BTTask::initialize(godot::Node* actor, godot::Ref<Blackboard> blackboard)
 {
     ERR_FAIL_COND(actor == nullptr);
+    ERR_FAIL_COND(blackboard == nullptr);
     this->set_actor(actor);
     this->set_blackboard(blackboard);
     for (int i = 0, size = children.size(); i < size; i++)
@@ -291,6 +292,8 @@ void BTTask::_bind_methods()
 
     ClassDB::bind_method(D_METHOD("set_parent", "parent"), &BTTask::set_parent);
     ClassDB::bind_method(D_METHOD("get_parent"), &BTTask::get_parent);
+    ClassDB::bind_method(D_METHOD("set_blackboard", "blackboard"), &BTTask::set_blackboard);
+    ClassDB::bind_method(D_METHOD("get_blackboard"), &BTTask::get_blackboard);
     ClassDB::bind_method(D_METHOD("set_custom_name", "name"), &BTTask::set_custom_name);
     ClassDB::bind_method(D_METHOD("get_custom_name"), &BTTask::get_custom_name);
     ClassDB::bind_method(D_METHOD("set_actor", "actor"), &BTTask::set_actor);

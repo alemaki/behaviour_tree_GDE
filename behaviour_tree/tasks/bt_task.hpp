@@ -50,6 +50,10 @@ public:
         return this->actor;
     }
     void set_blackboard(godot::Ref<Blackboard> blackboard);
+    _FORCE_INLINE_ godot::Ref<Blackboard> get_blackboard() const
+    {
+        return this->blackboard;
+    }
     void set_status(BTTask::Status status);
     _FORCE_INLINE_ Status get_status() const
     {
