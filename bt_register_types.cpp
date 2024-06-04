@@ -29,6 +29,7 @@
 #include "behaviour_tree/ui/bt_graph_node.hpp"
 #include "behaviour_tree/ui/bt_graph_node_subtree.hpp"
 #include "blackboard/blackboard.hpp"
+#include "conditions/bt_check_int_equal.hpp"
 
 #include "tests/test_utils/test_runner.hpp"
 
@@ -58,6 +59,8 @@ void initialize_behaviour_tree_module(ModuleInitializationLevel p_level)
 		ClassDB::register_class<BehaviourTree>();
 
 		ClassDB::register_class<Blackboard>();
+
+		ClassDB::register_class<BTCheckIntEqual>();
 	}
 	if (p_level == MODULE_INITIALIZATION_LEVEL_EDITOR)
 	{
