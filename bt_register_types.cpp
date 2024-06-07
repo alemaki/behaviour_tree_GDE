@@ -60,7 +60,7 @@ void initialize_behaviour_tree_module(ModuleInitializationLevel p_level)
 
 		ClassDB::register_class<Blackboard>();
 
-		ClassDB::register_class<BTCheckIntEqual>();
+		ClassDB::register_class<BTCheckInt>();
 	}
 	if (p_level == MODULE_INITIALIZATION_LEVEL_EDITOR)
 	{

@@ -4,14 +4,14 @@
 #include <godot_cpp/variant/utility_functions.hpp>
 
 #include "tests/test_utils/test_runner.hpp"
-#include "conditions/bt_check_int_equal.hpp"
+#include "conditions/bt_check_int.hpp"
 #include "blackboard/blackboard.hpp"
 
-TEST_SUITE("BTCheckIntEqual")
+TEST_SUITE("BTCheckInt")
 {
     TEST_CASE("Basics")
     {
-        godot::Ref<BTCheckIntEqual> task = memnew(BTCheckIntEqual);
+        godot::Ref<BTCheckInt> task = memnew(BTCheckInt);
         task->set_value(10);
         task->set_var_name("TestVar");
 
