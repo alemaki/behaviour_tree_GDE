@@ -10,7 +10,7 @@ class BTCheckInt : public BTCondition
 private:
     int value;
     godot::StringName var_name;
-    bool complain;
+    bool complain = false;
 
 protected:
     virtual BTTask::Status _tick(double delta) override;
