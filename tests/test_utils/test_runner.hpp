@@ -17,7 +17,7 @@ private:
    void set_scene_tree();
 
 public:
-   void run();
+   void run(const char* filter = nullptr);
    virtual void _ready() override;
 
 protected:

@@ -1,6 +1,13 @@
 #include "bt_editor_plugin.hpp"
 #include <godot_cpp/variant/utility_functions.hpp>
 
+BTEditorPlugin* bt_editor_plugin_singleton;
+
+BTEditorPlugin* BTEditorPlugin::get_singleton()
+{
+    return bt_editor_plugin_singleton;
+}
+
 BTEditorPlugin::BTEditorPlugin()
 {
     this->set_graph_editor(memnew(BTGraphEditor));
@@ -34,6 +41,9 @@ BTEditorPlugin::BTEditorPlugin()
 
     this->_make_visible(false);
 
+    
+    bt_editor_plugin_singleton = this;
+    godot::UtilityFunctions::print(BTEditorPlugin::get_singleton());
 }
 
 BTEditorPlugin::~BTEditorPlugin()

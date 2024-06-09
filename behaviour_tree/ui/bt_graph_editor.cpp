@@ -971,6 +971,7 @@ void BTGraphEditor::_on_node_right_clicked(BTGraphNode* clicked_node)
     this->main_popup_menu->set_current_screen(current_screen);
     this->main_popup_menu->call_deferred("grab_focus");
 
+    clicked_node->focus_task_in_inspector();
     
 
     /* TODO: find better solution. */

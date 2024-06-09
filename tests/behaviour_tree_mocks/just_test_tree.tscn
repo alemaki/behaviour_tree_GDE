@@ -1,6 +1,6 @@
 [gd_scene load_steps=29 format=3 uid="uid://dmas3w3kwv5gq"]
 
-[sub_resource type="BTComposite" id="BTComposite_ldg1b"]
+[sub_resource type="BTCheckInt" id="BTCheckInt_s0hux"]
 custom_name = "2"
 
 [sub_resource type="BTTask" id="BTTask_0brnw"]
@@ -95,12 +95,12 @@ custom_name = "14"
 [sub_resource type="BTProbability" id="BTProbability_f228r"]
 run_chance = 1.0
 custom_name = "stuff"
-children = [SubResource("BTComposite_ldg1b"), SubResource("BTTask_h5m4i"), SubResource("BTTask_5d666"), SubResource("BTTask_f3ggw"), SubResource("BTTask_tq6sb")]
+children = [SubResource("BTCheckInt_s0hux"), SubResource("BTTask_h5m4i"), SubResource("BTTask_5d666"), SubResource("BTTask_f3ggw"), SubResource("BTTask_tq6sb")]
 
 [node name="JustTestTree" type="BehaviourTree"]
 task_map = {
 1: SubResource("BTProbability_f228r"),
-2: SubResource("BTComposite_ldg1b"),
+2: SubResource("BTCheckInt_s0hux"),
 3: SubResource("BTTask_jhjhr"),
 4: SubResource("BTTask_qjigu"),
 5: SubResource("BTTask_hab8l"),

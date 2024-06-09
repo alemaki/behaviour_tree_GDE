@@ -82,6 +82,11 @@ public:
         int level_separation = 220;
     };
 
+
+public:
+    BTGraphEditor();
+    ~BTGraphEditor();
+
 private:
     /* Setup Methods */
     void _setup_graph_edit();
@@ -112,6 +117,14 @@ private:
     void arrange_nodes(bool with_undo_redo = false);
     void color_root_node();
 
+    /* Connection Handling */
+    void connection_request(godot::StringName _from_node, int from_port, godot::StringName _to_node, int to_port);
+    void disconnection_request(godot::StringName _from_node, int from_port, godot::StringName _to_node, int to_port);
+
+    /* Task Management */
+    void change_task_type(const godot::StringName& class_name, BTGraphNode* node);
+
+public:
     /* Drag and Drop */
     void _node_dragged(const godot::Vector2 &_from, const godot::Vector2 &_to, BTGraphNode *node);
     void _move_nodes();
@@ -136,28 +149,17 @@ private:
     void _on_action_condition_type_popup_menu_show(const godot::StringName& action_condition);
     void _delete_nodes_request(godot::TypedArray<godot::StringName> _nodes_to_delete);
 
-    /* Connection Handling */
-    void connection_request(godot::StringName _from_node, int from_port, godot::StringName _to_node, int to_port);
-    void disconnection_request(godot::StringName _from_node, int from_port, godot::StringName _to_node, int to_port);
-
-    /* Task Management */
-    void change_task_type(const godot::StringName& class_name, BTGraphNode* node);
-
     /* Getters and Setters */
     void set_editor_plugin(godot::EditorPlugin* editor_plugin);
     _FORCE_INLINE_ godot::GraphEdit* get_graph_edit() const
     {
         return this->graph_edit;
-        }
+    }
     void set_behaviour_tree(BehaviourTree* new_tree);
     _FORCE_INLINE_ BehaviourTree* get_behaviour_tree() const
     {
         return this->behaviour_tree; 
     }
-
-public:
-    BTGraphEditor();
-    ~BTGraphEditor();
 
 protected:
     static void _bind_methods();
