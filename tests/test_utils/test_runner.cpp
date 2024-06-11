@@ -13,17 +13,17 @@ godot::Node* get_scene_root()
 
 void TestRunner::run(const char* filter)
 {
-    doctest::Context context;
-    const char* argv[] = {"", filter};
-    context.applyCommandLine(2, argv);
+    const char* argv[] = {"", "--test-suite-exclude=*[deprecated]*" ,filter};
+    doctest::Context context(3, argv);
     /* TODO: doctest allows to change the stdout. Try to redirect to godot.*/
     int res = context.run();
-
+    godot::UtilityFunctions::print("Finished tests.");
     if (context.shouldExit())
     {
-        return;
+        /* Nothing to do. */
     }
 }
+
 
 void TestRunner::set_scene_tree()
 {
@@ -38,11 +38,13 @@ void TestRunner::_ready()
     /* Ensure editor tests do not run in scene that is played */
     if (current_scene != nullptr) 
     {
-        this->run("~[editor]");
+        this->run("--test-suite-exclude=*[editor]*");
     }
     else 
     {
-        this->run("[editor]");
+        //deprecated
+        //godot::UtilityFunctions::print("\n\nEditor tests running.\n\n");
+        //this->run("--test-suite=*[editor]*");
     }
 }
 

@@ -1,6 +1,7 @@
 #define DOCTEST_CONFIG_NO_EXCEPTIONS_BUT_WITH_ALL_ASSERTS
 #include <doctest.h>
 #include "behaviour_tree/behaviour_tree.hpp"
+#include <godot_cpp/variant/utility_functions.hpp>
 
 TEST_SUITE("BehaviourTreeTests")
 {
