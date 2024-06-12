@@ -1,6 +1,8 @@
 #ifndef BT_MACROS_HPP
 #define BT_MACROS_HPP
 
+#include <godot_cpp/variant/utility_functions.hpp>
+
 #include "behaviour_tree/tasks/bt_task.hpp"
 
 #define TASK_FAIL_COND(condition) /********************************************************************************************************************************************/\

@@ -2,13 +2,21 @@
 #include <doctest.h>
 
 #include <godot_cpp/variant/utility_functions.hpp>
+#include <godot_cpp/classes/engine.hpp>
+#include <godot_cpp/classes/scene_tree.hpp>
 
 godot::SceneTree* test_runner_scene_tree;
 
 
+godot::SceneTree* get_scene_tree()
+{
+    return godot::Object::cast_to<godot::SceneTree>(godot::Engine::get_singleton()->get_main_loop());
+}
+
 godot::Node* get_scene_root()
 {
-    return test_runner_scene_tree->get_current_scene();
+    return get_scene_tree()->get_current_scene();
+;
 }
 
 void TestRunner::run(const char* filter)
@@ -32,8 +40,6 @@ void TestRunner::set_scene_tree()
 
 void TestRunner::_ready()
 {
-    this->set_scene_tree();
-    ERR_FAIL_COND(test_runner_scene_tree == nullptr);
     godot::Node* current_scene = get_scene_root();
     /* Ensure editor tests do not run in scene that is played */
     if (current_scene != nullptr) 
