@@ -12,7 +12,7 @@ class BTCooldown : public BTDecorator
     double duration;
     bool trigger_on_failure;
     bool start_cooled;
-    bool is_cooldown_active;
+    bool cooldown_active;
 
     Ref<SceneTreeTimer> timer;
 
@@ -39,6 +39,10 @@ public:
     _FORCE_INLINE_ bool is_start_cooled() const
     {
         return this->start_cooled;
+    }
+    _FORCE_INLINE_ bool is_cooldown_active() const
+    {
+        return this->cooldown_active;
     }
     
 

@@ -23,6 +23,7 @@
 #include "behaviour_tree/tasks/composites/bt_random_selector.hpp"
 #include "behaviour_tree/tasks/decorators/bt_always_fail.hpp"
 #include "behaviour_tree/tasks/decorators/bt_always_succeed.hpp"
+#include "behaviour_tree/tasks/decorators/bt_cooldown.hpp"
 #include "behaviour_tree/tasks/decorators/bt_invert.hpp"
 #include "behaviour_tree/tasks/decorators/bt_probability.hpp"
 #include "behaviour_tree/ui/bt_editor_plugin.hpp"
@@ -54,6 +55,8 @@ void initialize_behaviour_tree_module(ModuleInitializationLevel p_level)
 		ClassDB::register_class<BTInvert>();
 		ClassDB::register_class<BTProbability>();
 		ClassDB::register_class<BTRepeat>();
+		ClassDB::register_class<BTCooldown>();
+
 		ClassDB::register_class<BTAction>();
 		ClassDB::register_class<BTSubtree>();
 

@@ -1,12 +1,15 @@
 #define DOCTEST_CONFIG_NO_EXCEPTIONS_BUT_WITH_ALL_ASSERTS
 #include <doctest.h>
 
+#include <godot_cpp/classes/scene_tree.hpp>
+
 #include "behaviour_tree/tasks/bt_task.hpp"
 #include "behaviour_tree/tasks/composites/bt_sequence.hpp"
 #include "behaviour_tree/tasks/composites/bt_selector.hpp"
 #include "behaviour_tree/tasks/decorators/bt_always_fail.hpp"
 #include "behaviour_tree/tasks/decorators/bt_always_succeed.hpp"
 #include "behaviour_tree/tasks/decorators/bt_invert.hpp"
+#include "behaviour_tree/tasks/decorators/bt_cooldown.hpp"
 
 TEST_SUITE("Test task execution")
 {
@@ -184,6 +187,87 @@ TEST_SUITE("Test task execution")
             invert->execute(0.1);
             CHECK(invert->get_status() == BTTask::Status::SUCCESS);
             CHECK(task_fail->get_status() == BTTask::Status::FAILURE);
+        }
+    }
+
+    TEST_CASE("Cooldown task behaviour")
+    {
+        godot::Ref<BTCooldown> cooldown_task = memnew(BTCooldown);
+        cooldown_task->set_duration(1.0);
+
+        godot::Ref<BTAlwaysSucceed> task_succeed = memnew(BTAlwaysSucceed);
+
+        godot::Ref<BTAlwaysFail> task_fail = memnew(BTAlwaysFail);
+
+        SUBCASE("Enters cooldown after success")
+        {
+            cooldown_task->add_child(task_succeed);
+            CHECK(cooldown_task->get_status() == BTTask::Status::FRESH);
+
+            cooldown_task->execute(0.1);
+            CHECK(cooldown_task->get_status() == BTTask::Status::SUCCESS);
+            CHECK(cooldown_task->is_cooldown_active() == true);
+        }
+
+        SUBCASE("Cooldown task fails and cools down when trigger_on_failure is true")
+        {
+            cooldown_task->set_trigger_on_failure(true);
+            cooldown_task->add_child(task_fail);
+
+            CHECK(cooldown_task->get_status() == BTTask::Status::FRESH);
+
+            cooldown_task->execute(0.1);
+            CHECK(cooldown_task->get_status() == BTTask::Status::FAILURE);
+            CHECK(cooldown_task->is_cooldown_active() == true);
+        }
+
+        SUBCASE("Cooldown task does not cool down on failure when trigger_on_failure is false")
+        {
+            cooldown_task->set_trigger_on_failure(false);
+            cooldown_task->add_child(task_fail);
+
+            CHECK(cooldown_task->get_status() == BTTask::Status::FRESH);
+
+            cooldown_task->execute(0.1);
+            CHECK(cooldown_task->get_status() == BTTask::Status::FAILURE);
+            CHECK(cooldown_task->is_cooldown_active() == false);
+        }
+
+        SUBCASE("Cooldown task starts cooled")
+        {
+            godot::Node* actor = memnew(godot::Node);
+            godot::Ref<Blackboard> blackboard = memnew(Blackboard);
+            cooldown_task->set_duration(1.0);
+            cooldown_task->set_start_cooled(true);
+            cooldown_task->initialize(actor, blackboard);
+
+            CHECK(cooldown_task->is_cooldown_active() == true);
+
+            memdelete(actor);
+        }
+
+        SUBCASE("Cooldown resets on timeout")
+        {
+            cooldown_task->set_duration(0.01);  /* short cooldown so tests are not slow */
+            cooldown_task->add_child(task_succeed);
+
+            cooldown_task->execute(0.1);
+            CHECK(cooldown_task->is_cooldown_active() == true);
+
+            cooldown_task->call("_on_timeout");
+
+            CHECK(cooldown_task->is_cooldown_active() == false);
+        }
+        
+        SUBCASE("Task won't execute in a cooldown state")
+        {
+            cooldown_task->add_child(task_succeed);
+            cooldown_task->execute(0.1);
+            task_succeed->set_status(BTTask::Status::FRESH);
+
+            CHECK(cooldown_task->execute(0.1) == BTTask::Status::FAILURE);
+            CHECK(cooldown_task->is_cooldown_active() == true);
+            CHECK(task_succeed->get_status() == BTTask::Status::FRESH);
         }
     }
 
