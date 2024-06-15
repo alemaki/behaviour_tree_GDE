@@ -44,6 +44,7 @@ public:
     {
         return this->cooldown_active;
     }
+    void reset();
     
 
 protected:

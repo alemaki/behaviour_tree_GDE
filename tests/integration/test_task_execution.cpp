@@ -193,7 +193,7 @@ TEST_SUITE("Test task execution")
     TEST_CASE("Cooldown task behaviour")
     {
         godot::Ref<BTCooldown> cooldown_task = memnew(BTCooldown);
-        cooldown_task->set_duration(1.0);
+        cooldown_task->set_duration(100.0);
 
         godot::Ref<BTAlwaysSucceed> task_succeed = memnew(BTAlwaysSucceed);
 
@@ -248,7 +248,6 @@ TEST_SUITE("Test task execution")
 
         SUBCASE("Cooldown resets on timeout")
         {
-            cooldown_task->set_duration(0.01);  /* short cooldown so tests are not slow */
             cooldown_task->add_child(task_succeed);
 
             cooldown_task->execute(0.1);

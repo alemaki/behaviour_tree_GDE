@@ -43,7 +43,6 @@ BTEditorPlugin::BTEditorPlugin()
 
     
     bt_editor_plugin_singleton = this;
-    godot::UtilityFunctions::print(BTEditorPlugin::get_singleton());
 }
 
 BTEditorPlugin::~BTEditorPlugin()

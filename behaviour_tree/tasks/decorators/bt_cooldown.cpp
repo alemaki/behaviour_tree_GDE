@@ -49,6 +49,11 @@ void BTCooldown::_setup()
     }
 }
 
+void BTCooldown::reset()
+{
+    this->_on_timeout();
+}
+
 void BTCooldown::set_duration(double duration)
 {
     this->duration = duration;
