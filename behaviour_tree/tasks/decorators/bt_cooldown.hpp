@@ -9,10 +9,10 @@ class BTCooldown : public BTDecorator
 {
     GDCLASS(BTCooldown, BTDecorator);
 
-    double duration;
-    bool trigger_on_failure;
-    bool start_cooled;
-    bool cooldown_active;
+    double duration = 0;
+    bool trigger_on_failure = false;
+    bool start_cooled = false;
+    bool cooldown_active = false;
 
     Ref<SceneTreeTimer> timer;
 
