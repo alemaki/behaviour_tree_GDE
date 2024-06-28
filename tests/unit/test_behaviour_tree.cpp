@@ -11,7 +11,7 @@ TEST_SUITE("BehaviourTreeTests")
         BehaviourTree* tree = memnew(BehaviourTree);
         godot::String description = "Test Behaviour Tree";
         tree->set_description(description);
-        CHECK(tree->get_description() == description);
+        CHECK_EQ(tree->get_description(), description);
         memdelete(tree);
     }
 
@@ -21,7 +21,7 @@ TEST_SUITE("BehaviourTreeTests")
         godot::Ref<BTTask> task = memnew(BTTask);
         tree->add_task_by_ref(task);
         int task_id = tree->get_task_id(task);
-        CHECK(tree->get_task(task_id) == task);
+        CHECK_EQ(tree->get_task(task_id), task);
         memdelete(tree);
     }
 
@@ -47,7 +47,7 @@ TEST_SUITE("BehaviourTreeTests")
         tree->remove_task(task_id);
 
         CHECK_FALSE(tree->has_task(task));
-        CHECK(tree->get_task(task_id) == nullptr);
+        CHECK_EQ(tree->get_task(task_id), nullptr);
 
         tree->add_task_by_ref(task);
         tree->remove_task_by_ref(task);
@@ -66,11 +66,11 @@ TEST_SUITE("BehaviourTreeTests")
         tree->add_task_by_ref(task1);
         tree->add_task_by_ref(task2);
         tree->remove_task_by_ref(task);
-        CHECK(tree->get_tasks().size() == 2);
+        CHECK_EQ(tree->get_tasks().size(), 2);
         tree->remove_task_by_ref(task1);
-        CHECK(tree->get_tasks().size() == 1);
+        CHECK_EQ(tree->get_tasks().size(), 1);
         tree->remove_task_by_ref(task2);
-        CHECK(tree->get_tasks().size() == 0);
+        CHECK_EQ(tree->get_tasks().size(), 0);
 
         memdelete(tree);
     }
@@ -85,11 +85,11 @@ TEST_SUITE("BehaviourTreeTests")
 
         tree->connect_tasks(parent_task, child_task, 0);
         CHECK(parent_task->has_child(child_task));
-        CHECK(child_task->get_parent() == parent_task);
+        CHECK_EQ(child_task->get_parent(), parent_task);
 
         tree->disconnect_tasks(parent_task, child_task);
         CHECK_FALSE(parent_task->has_child(child_task));
-        CHECK(child_task->get_parent() == nullptr);
+        CHECK_EQ(child_task->get_parent(), nullptr);
 
         memdelete(tree);
     }
@@ -102,8 +102,8 @@ TEST_SUITE("BehaviourTreeTests")
         tree->add_task_by_ref(task1);
         tree->add_task_by_ref(task2);
         tree->clear_tasks();
-        CHECK(tree->get_tasks().size() == 0);
-        CHECK(tree->get_root_task() == nullptr);
+        CHECK_EQ(tree->get_tasks().size(), 0);
+        CHECK_EQ(tree->get_root_task(), nullptr);
 
         memdelete(tree);
     }
@@ -114,7 +114,7 @@ TEST_SUITE("BehaviourTreeTests")
         godot::Ref<BTTask> root_task = memnew(BTTask);
         tree->add_task_by_ref(root_task);
         tree->set_root_task(root_task);
-        CHECK(tree->get_root_task() == root_task);
+        CHECK_EQ(tree->get_root_task(), root_task);
 
         memdelete(tree);
     }
@@ -129,7 +129,7 @@ TEST_SUITE("BehaviourTreeTests")
         tree->connect_tasks(root_task, child_task, 0);
         tree->detach_task_by_ref(child_task);
         CHECK_FALSE(root_task->has_child(child_task));
-        CHECK(child_task->get_parent() == nullptr);
+        CHECK_EQ(child_task->get_parent(), nullptr);
 
         memdelete(tree);
     }
@@ -149,8 +149,8 @@ TEST_SUITE("BehaviourTreeTests")
         tree->set_tasks_of_parent(parent_task, children_array);
         godot::Array children = parent_task->get_children();
         REQUIRE(children.size() == 2);
-        CHECK(children[0] == child_task1);
-        CHECK(children[1] == child_task2);
+        CHECK_EQ(children[0], child_task1);
+        CHECK_EQ(children[1], child_task2);
 
         memdelete(tree);
     }
@@ -158,7 +158,7 @@ TEST_SUITE("BehaviourTreeTests")
     TEST_CASE("Test root task initially null")
     {
         BehaviourTree* tree = memnew(BehaviourTree);
-        CHECK(tree->get_root_task() == nullptr);
+        CHECK_EQ(tree->get_root_task(), nullptr);
 
         memdelete(tree);
     }
@@ -169,9 +169,9 @@ TEST_SUITE("BehaviourTreeTests")
         godot::Ref<BTTask> task = memnew(BTTask);
         godot::Ref<BTTask> task1 = memnew(BTTask);
         tree->add_task_by_ref(task);
-        CHECK(tree->get_root_task() == task);
+        CHECK_EQ(tree->get_root_task(), task);
         tree->add_task_by_ref(task1);
-        CHECK(tree->get_root_task() == task);
+        CHECK_EQ(tree->get_root_task(), task);
 
         memdelete(tree);
     }
@@ -184,7 +184,7 @@ TEST_SUITE("BehaviourTreeTests")
         tree->add_task_by_ref(root_task1);
         tree->add_task_by_ref(root_task2);
         tree->set_root_task(root_task2);
-        CHECK(tree->get_root_task() == root_task2);
+        CHECK_EQ(tree->get_root_task(), root_task2);
 
         memdelete(tree);
     }
@@ -198,8 +198,8 @@ TEST_SUITE("BehaviourTreeTests")
         tree->add_task_by_ref(task1);
         godot::Ref<BTTask> root_task = tree->get_root_task();
         tree->remove_task_by_ref(root_task);
-        CHECK(tree->get_root_task() != root_task);
-        CHECK(tree->get_root_task() != nullptr);
+        CHECK_NE(tree->get_root_task(), root_task);
+        CHECK_NE(tree->get_root_task(), nullptr);
 
         memdelete(tree);
     }
@@ -211,7 +211,7 @@ TEST_SUITE("BehaviourTreeTests")
         godot::Ref<BTTask> task = memnew(BTTask);
         tree->add_task_by_ref(task);
         int second_id = tree->get_valid_id();
-        CHECK(second_id == first_id + 1);
+        CHECK_EQ(second_id, first_id + 1);
 
         memdelete(tree);
     }
@@ -236,8 +236,8 @@ TEST_SUITE("BehaviourTreeTests")
         CHECK(root_task->has_child(child_task1));
         CHECK(root_task->has_child(child_task2));
         CHECK(child_task1->has_child(grandchild_task));
-        CHECK(grandchild_task->get_root() == root_task);
-        CHECK(grandchild_task->get_parent() == child_task1);
+        CHECK_EQ(grandchild_task->get_root(), root_task);
+        CHECK_EQ(grandchild_task->get_parent(), child_task1);
 
         memdelete(tree);
     }
@@ -250,7 +250,7 @@ TEST_SUITE("BehaviourTreeTests")
         godot::String new_name = "New Task Name";
         tree->set_custom_name_task_by_ref(task, new_name);
 
-        CHECK(task->get_custom_name() == new_name);
+        CHECK_EQ(task->get_custom_name(), new_name);
 
         memdelete(tree);
     }
@@ -271,10 +271,10 @@ TEST_SUITE("BehaviourTreeTests")
 
         CHECK(tree->has_task(new_task));
         CHECK_FALSE(tree->has_task(old_task));
-        CHECK(tree->get_root_task() == new_task);
-        CHECK(new_task->get_children().size() == 1);
+        CHECK_EQ(tree->get_root_task(), new_task);
+        CHECK_EQ(new_task->get_children().size(), 1);
         CHECK(new_task->has_child(child_task));
-        CHECK(child_task->get_parent() == new_task);
+        CHECK_EQ(child_task->get_parent(), new_task);
 
         memdelete(tree);
     }
@@ -301,14 +301,14 @@ TEST_SUITE("BehaviourTreeTests")
 
         CHECK(tree->has_task(new_task));
         CHECK_FALSE(tree->has_task(old_task));
-        CHECK(tree->get_root_task() == root_task);
-        CHECK(new_task->get_children().size() == 2);
+        CHECK_EQ(tree->get_root_task(), root_task);
+        CHECK_EQ(new_task->get_children().size(), 2);
         CHECK(new_task->has_child(child1));
         CHECK(new_task->has_child(child2));
-        CHECK(child1->get_parent() == new_task);
-        CHECK(child2->get_parent() == new_task);
-        CHECK(new_task->get_parent() == root_task);
-        CHECK(root_task->get_children().size() == 1);
+        CHECK_EQ(child1->get_parent(), new_task);
+        CHECK_EQ(child2->get_parent(), new_task);
+        CHECK_EQ(new_task->get_parent(), root_task);
+        CHECK_EQ(root_task->get_children().size(), 1);
         CHECK(root_task->has_child(new_task));
 
         memdelete(tree);

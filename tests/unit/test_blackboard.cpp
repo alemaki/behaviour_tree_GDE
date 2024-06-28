@@ -12,7 +12,7 @@ TEST_SUITE("BlackboardBasic")
         godot::Ref<Blackboard> blackboard = memnew(Blackboard);
         
         blackboard->set_var("health", 100);
-        CHECK((int64_t)blackboard->get_var("health") == 100);
+        CHECK_EQ((int64_t)blackboard->get_var("health"), 100);
     }
 
     TEST_CASE("Set and get bool variable")
@@ -20,7 +20,7 @@ TEST_SUITE("BlackboardBasic")
         godot::Ref<Blackboard> blackboard = memnew(Blackboard);
 
         blackboard->set_var("is_active", true);
-        CHECK((bool)blackboard->get_var("is_active") == true);
+        CHECK((bool)blackboard->get_var("is_active"));
     }
 
     TEST_CASE("Set and get array variable")
@@ -32,7 +32,7 @@ TEST_SUITE("BlackboardBasic")
         positions.push_back(Vector2(1, 1));
 
         blackboard->set_var("positions", positions);
-        CHECK(blackboard->get_var("positions") == positions);
+        CHECK_EQ(blackboard->get_var("positions"), positions);
     }
 
     TEST_CASE("Set and get Node2D pointer")
@@ -41,7 +41,7 @@ TEST_SUITE("BlackboardBasic")
         godot::Node2D *node = memnew(godot::Node2D);
 
         blackboard->set_var("node", node);
-        CHECK(blackboard->get_var("node").operator Object*() == node);
+        CHECK_EQ(blackboard->get_var("node").operator Object*(), node);
 
         memdelete(node);
     }
@@ -51,8 +51,8 @@ TEST_SUITE("BlackboardBasic")
         godot::Ref<Blackboard> blackboard = memnew(Blackboard);
         
         blackboard->set_var("health", 100);
-        CHECK(blackboard->has_var("health") == true);
-        CHECK(blackboard->has_var("mana") == false);
+        CHECK(blackboard->has_var("health"));
+        CHECK_FALSE(blackboard->has_var("mana"));
     }
 
     TEST_CASE("Erase variable")
@@ -61,7 +61,7 @@ TEST_SUITE("BlackboardBasic")
         
         blackboard->set_var("health", 100);
         blackboard->erase_var("health");
-        CHECK(blackboard->has_var("health") == false);
+        CHECK_FALSE(blackboard->has_var("health"));
     }
 
     TEST_CASE("Clear variables")
@@ -71,8 +71,8 @@ TEST_SUITE("BlackboardBasic")
         blackboard->set_var("health", 100);
         blackboard->set_var("mana", 50);
         blackboard->clear();
-        CHECK(blackboard->has_var("health") == false);
-        CHECK(blackboard->has_var("mana") == false);
+        CHECK_FALSE(blackboard->has_var("health"));
+        CHECK_FALSE(blackboard->has_var("mana"));
     }
 
     TEST_CASE("List variables")
@@ -83,7 +83,7 @@ TEST_SUITE("BlackboardBasic")
         blackboard->set_var("mana", 50);
         
         TypedArray<StringName> vars = blackboard->list_vars();
-        CHECK(vars.size() == 2);
+        CHECK_EQ(vars.size(), 2);
         CHECK(vars.has("health"));
         CHECK(vars.has("mana"));
     }
@@ -96,15 +96,15 @@ TEST_SUITE("BlackboardBasic")
         blackboard->set_var("mana", 50);
         
         Dictionary vars = blackboard->get_vars_as_dict();
-        CHECK(vars.size() == 2);
-        CHECK(vars["health"] == godot::Variant(100));
-        CHECK(vars["mana"] == godot::Variant(50));
+        CHECK_EQ(vars.size(), 2);
+        CHECK_EQ(vars["health"], godot::Variant(100));
+        CHECK_EQ(vars["mana"], godot::Variant(50));
     }
 
     TEST_CASE("Get non-existent variable")
     {
         godot::Ref<Blackboard> blackboard = memnew(Blackboard);
         
-        CHECK(blackboard->get_var("non_existent", 42, false) == godot::Variant(42));
+        CHECK_EQ(blackboard->get_var("non_existent", 42, false), godot::Variant(42));
     }
 }

@@ -16,13 +16,13 @@ TEST_SUITE("BTTaskTests")
     TEST_CASE("Test basic functionality")
     {
         godot::Ref<BTTask> task = memnew(BTTask);
-        CHECK(task->get_status() == 0);
+        CHECK_EQ(task->get_status(), 0);
 
         godot::Node* actor_node = memnew(godot::Node);
         task->set_actor(actor_node);
-        CHECK(task->get_actor() == actor_node);
+        CHECK_EQ(task->get_actor(), actor_node);
 
-        CHECK(task->get_parent() == nullptr);
+        CHECK_EQ(task->get_parent(), nullptr);
     }
 
     TEST_CASE("Test child addition and array")
@@ -36,17 +36,17 @@ TEST_SUITE("BTTaskTests")
         root_task->add_child(child2);
 
         godot::Array children = root_task->get_children();
-        REQUIRE(children.size() == 2);
-        CHECK(children[0] == child1);
-        CHECK(children[1] == child2);
+        REQUIRE_EQ(children.size(), 2);
+        CHECK_EQ(children[0], child1);
+        CHECK_EQ(children[1], child2);
 
         root_task->add_child(child3);
 
         children = root_task->get_children();
-        REQUIRE(children.size() == 3);
-        CHECK(children[0] == child1);
-        CHECK(children[1] == child2);
-        CHECK(children[2] == child3);
+        REQUIRE_EQ(children.size(), 3);
+        CHECK_EQ(children[0], child1);
+        CHECK_EQ(children[1], child2);
+        CHECK_EQ(children[2], child3);
     }
 
     TEST_CASE("Test has child")
@@ -70,13 +70,13 @@ TEST_SUITE("BTTaskTests")
         godot::Ref<BTTask> child3 = memnew(BTTask);
 
         root_task->add_child(child1);
-        CHECK(root_task->get_child_count() == 1);
+        CHECK_EQ(root_task->get_child_count(), 1);
 
         root_task->add_child(child2);
-        CHECK(root_task->get_child_count() == 2);
+        CHECK_EQ(root_task->get_child_count(), 2);
 
         root_task->add_child(child3);
-        CHECK(root_task->get_child_count() == 3);
+        CHECK_EQ(root_task->get_child_count(), 3);
     }
 
     TEST_CASE("Test child twice addition")
@@ -89,7 +89,7 @@ TEST_SUITE("BTTaskTests")
         root_task->add_child(child2);
         root_task->add_child(child1);
         root_task->add_child(child2);
-        CHECK(root_task->get_child_count() == 2);
+        CHECK_EQ(root_task->get_child_count(), 2);
     }
 
     TEST_CASE("Test child addition at index")
@@ -103,17 +103,17 @@ TEST_SUITE("BTTaskTests")
         root_task->add_child_at_index(child2, 0);
 
         godot::Array children = root_task->get_children();
-        REQUIRE(children.size() == 2);
-        CHECK(children[0] == child2);
-        CHECK(children[1] == child1);
+        REQUIRE_EQ(children.size(), 2);
+        CHECK_EQ(children[0], child2);
+        CHECK_EQ(children[1], child1);
 
         root_task->add_child_at_index(child3, 1);
 
         children = root_task->get_children();
-        REQUIRE(children.size() == 3);
-        CHECK(children[0] == child2);
-        CHECK(children[1] == child3);
-        CHECK(children[2] == child1);
+        REQUIRE_EQ(children.size(), 3);
+        CHECK_EQ(children[0], child2);
+        CHECK_EQ(children[1], child3);
+        CHECK_EQ(children[2], child1);
     }
 
     TEST_CASE("Test child removal")
@@ -129,16 +129,16 @@ TEST_SUITE("BTTaskTests")
 
         root_task->remove_child(child1);
         CHECK_FALSE(root_task->has_child(child1));
-        REQUIRE(root_task->get_child_count() == 2);
-        CHECK(child1->get_parent() == nullptr);
+        REQUIRE_EQ(root_task->get_child_count(), 2);
+        CHECK_EQ(child1->get_parent(), nullptr);
 
         godot::Array children = root_task->get_children();
-        CHECK(children[0] == child2);
-        CHECK(children[1] == child3);
+        CHECK_EQ(children[0], child2);
+        CHECK_EQ(children[1], child3);
 
         root_task->remove_child(child3);
         CHECK_FALSE(root_task->has_child(child3));
-        CHECK(child3->get_parent() == nullptr);
+        CHECK_EQ(child3->get_parent(), nullptr);
         CHECK(root_task->has_child(child2));
     }
 
@@ -150,11 +150,11 @@ TEST_SUITE("BTTaskTests")
 
         root_task->add_child(child1);
         root_task->add_child(child2);
-        CHECK(root_task->get_child_count() == 2);
+        CHECK_EQ(root_task->get_child_count(), 2);
 
         root_task->remove_child(child1);
         root_task->remove_child(child1);
-        CHECK(root_task->get_child_count() == 1);
+        CHECK_EQ(root_task->get_child_count(), 1);
     }
 
     TEST_CASE("Test child removal at index")
@@ -170,16 +170,16 @@ TEST_SUITE("BTTaskTests")
 
         root_task->remove_child_at_index(1);
         CHECK_FALSE(root_task->has_child(child2));
-        CHECK(child2->get_parent() == nullptr);
-        REQUIRE(root_task->get_child_count() == 2);
+        CHECK_EQ(child2->get_parent(), nullptr);
+        REQUIRE_EQ(root_task->get_child_count(), 2);
 
         godot::Array children = root_task->get_children();
-        CHECK(children[0] == child1);
-        CHECK(children[1] == child3);
+        CHECK_EQ(children[0], child1);
+        CHECK_EQ(children[1], child3);
 
         root_task->remove_child_at_index(0);
         CHECK_FALSE(root_task->has_child(child1));
-        CHECK(child1->get_parent() == nullptr);
+        CHECK_EQ(child1->get_parent(), nullptr);
     }
 
     TEST_CASE("Test get parent after children added")
@@ -191,12 +191,12 @@ TEST_SUITE("BTTaskTests")
         root_task->add_child(child_task);
         child_task->add_child(grandchild_task);
 
-        CHECK(grandchild_task->get_parent() == child_task);
+        CHECK_EQ(grandchild_task->get_parent(), child_task);
 
         godot::Ref<BTTask> another_child_task = memnew(BTTask);
         root_task->add_child(another_child_task);
-        CHECK(another_child_task->get_parent() == root_task);
-        CHECK(child_task->get_parent() == root_task);
+        CHECK_EQ(another_child_task->get_parent(), root_task);
+        CHECK_EQ(child_task->get_parent(), root_task);
     }
 
     TEST_CASE("Test is root")
@@ -222,8 +222,8 @@ TEST_SUITE("BTTaskTests")
         root_task->add_child(child_task);
         child_task->add_child(grandchild_task);
 
-        CHECK(grandchild_task->get_root() == root_task);
-        CHECK(child_task->get_root() == root_task);
+        CHECK_EQ(grandchild_task->get_root(), root_task);
+        CHECK_EQ(child_task->get_root(), root_task);
     }
 
     TEST_CASE("Test clone basic")
@@ -231,11 +231,11 @@ TEST_SUITE("BTTaskTests")
         godot::Ref<BTTask> task = memnew(BTTask);
         godot::Ref<BTTask> cloned_task = task->clone();
 
-        REQUIRE(cloned_task != nullptr);
-        CHECK(cloned_task != task);
-        CHECK(cloned_task->get_class() == task->get_class());
-        CHECK(cloned_task->get_actor() == task->get_actor());
-        CHECK(cloned_task->get_status() == task->get_status());
+        REQUIRE_NE(cloned_task, nullptr);
+        CHECK_NE(cloned_task, task);
+        CHECK_EQ(cloned_task->get_class(), task->get_class());
+        CHECK_EQ(cloned_task->get_actor(), task->get_actor());
+        CHECK_EQ(cloned_task->get_status(), task->get_status());
     }
 
     TEST_CASE("Test clone keeps attributes")
@@ -244,9 +244,9 @@ TEST_SUITE("BTTaskTests")
         task_prob->set_run_chance(0.5);
         godot::Ref<BTTask> cloned_task = task_prob->clone();
 
-        CHECK(cloned_task != task_prob);
-        CHECK(cloned_task->get_class() == task_prob->get_class());
-        CHECK(static_cast<BTProbability*>(cloned_task.ptr())->get_run_chance() == task_prob->get_run_chance());
+        CHECK_NE(cloned_task, task_prob);
+        CHECK_EQ(cloned_task->get_class(), task_prob->get_class());
+        CHECK_EQ(static_cast<BTProbability*>(cloned_task.ptr())->get_run_chance(), task_prob->get_run_chance());
     }
 
     TEST_CASE("Test cloning children")
@@ -260,13 +260,13 @@ TEST_SUITE("BTTaskTests")
 
         godot::Ref<BTTask> cloned_task = task->clone();
 
-        CHECK(cloned_task != task);
-        REQUIRE(cloned_task->get_child_count() == 2);
+        CHECK_NE(cloned_task, task);
+        REQUIRE_EQ(cloned_task->get_child_count(), 2);
         CHECK_FALSE(cloned_task->has_child(child1));
         CHECK_FALSE(cloned_task->has_child(child2));
 
         godot::Array cloned_children = cloned_task->get_children();
-        CHECK(godot::Ref<BTTask>(cloned_children[0])->get_class() == child1->get_class());
-        CHECK(godot::Ref<BTTask>(cloned_children[1])->get_class() == child2->get_class());
+        CHECK_EQ(godot::Ref<BTTask>(cloned_children[0])->get_class(), child1->get_class());
+        CHECK_EQ(godot::Ref<BTTask>(cloned_children[1])->get_class(), child2->get_class());
     }
 }

@@ -16,44 +16,44 @@ TEST_SUITE("Test task execution")
     TEST_CASE("Task creation and status setting")
     {
         godot::Ref<BTTask> task = memnew(BTTask);
-        CHECK(task->get_status() == BTTask::Status::FRESH);
+        CHECK_EQ(task->get_status(), BTTask::Status::FRESH);
 
         task->set_status(BTTask::Status::RUNNING);
-        CHECK(task->get_status() == BTTask::Status::RUNNING);
+        CHECK_EQ(task->get_status(), BTTask::Status::RUNNING);
 
         task->set_status(BTTask::Status::SUCCESS);
-        CHECK(task->get_status() == BTTask::Status::SUCCESS);
+        CHECK_EQ(task->get_status(), BTTask::Status::SUCCESS);
     }
 
     TEST_CASE("Execute and abort task")
     {
         godot::Ref<BTTask> task = memnew(BTTask);
-        CHECK(task->get_status() == BTTask::Status::FRESH);
+        CHECK_EQ(task->get_status(), BTTask::Status::FRESH);
 
         task->execute(0.1);
-        CHECK(task->get_status() == BTTask::Status::FAILURE);
+        CHECK_EQ(task->get_status(), BTTask::Status::FAILURE);
 
         task->set_status(BTTask::Status::RUNNING);
         task->abort();
-        CHECK(task->get_status() == BTTask::Status::FRESH);
+        CHECK_EQ(task->get_status(), BTTask::Status::FRESH);
     }
 
     TEST_CASE("Always succeed basic")
     {
         godot::Ref<BTAlwaysSucceed> task = memnew(BTAlwaysSucceed);
-        CHECK(task->get_status() == BTTask::Status::FRESH);
+        CHECK_EQ(task->get_status(), BTTask::Status::FRESH);
 
         task->execute(0.1);
-        CHECK(task->get_status() == BTTask::Status::SUCCESS);
+        CHECK_EQ(task->get_status(), BTTask::Status::SUCCESS);
     }
 
     TEST_CASE("Always fail basic")
     {
         godot::Ref<BTAlwaysFail> task = memnew(BTAlwaysFail);
-        CHECK(task->get_status() == BTTask::Status::FRESH);
+        CHECK_EQ(task->get_status(), BTTask::Status::FRESH);
 
         task->execute(0.1);
-        CHECK(task->get_status() == BTTask::Status::FAILURE);
+        CHECK_EQ(task->get_status(), BTTask::Status::FAILURE);
     }
 
     TEST_CASE("Always succeed with children")
@@ -63,7 +63,7 @@ TEST_SUITE("Test task execution")
         task->add_child(task_fail);
 
         task->execute(0.1);
-        CHECK(task->get_status() == BTTask::Status::SUCCESS);
+        CHECK_EQ(task->get_status(), BTTask::Status::SUCCESS);
     }
 
     TEST_CASE("Always fail with children")
@@ -73,7 +73,7 @@ TEST_SUITE("Test task execution")
         task->add_child(task_succeed);
 
         task->execute(0.1);
-        CHECK(task->get_status() == BTTask::Status::FAILURE);
+        CHECK_EQ(task->get_status(), BTTask::Status::FAILURE);
     }
 
     TEST_CASE("Sequence task behavior")
@@ -89,10 +89,10 @@ TEST_SUITE("Test task execution")
             sequence->add_child(task_succeed2);
 
             BTTask::Status status = sequence->execute(0.1);
-            CHECK(status == BTTask::Status::SUCCESS);
+            CHECK_EQ(status, BTTask::Status::SUCCESS);
 
-            CHECK(task_succeed1->get_status() == BTTask::Status::SUCCESS);
-            CHECK(task_succeed2->get_status() == BTTask::Status::SUCCESS);
+            CHECK_EQ(task_succeed1->get_status(), BTTask::Status::SUCCESS);
+            CHECK_EQ(task_succeed2->get_status(), BTTask::Status::SUCCESS);
         }
 
         SUBCASE("Sequence fails on last child's failure")
@@ -101,10 +101,10 @@ TEST_SUITE("Test task execution")
             sequence->add_child(task_fail);
 
             BTTask::Status status = sequence->execute(0.1);
-            CHECK(status == BTTask::Status::FAILURE);
+            CHECK_EQ(status, BTTask::Status::FAILURE);
 
-            CHECK(task_succeed1->get_status() == BTTask::Status::SUCCESS);
-            CHECK(task_fail->get_status() == BTTask::Status::FAILURE);
+            CHECK_EQ(task_succeed1->get_status(), BTTask::Status::SUCCESS);
+            CHECK_EQ(task_fail->get_status(), BTTask::Status::FAILURE);
 
         }
 
@@ -114,10 +114,10 @@ TEST_SUITE("Test task execution")
             sequence->add_child(task_succeed1);
 
             BTTask::Status status = sequence->execute(0.1);
-            CHECK(status == BTTask::Status::FAILURE);
+            CHECK_EQ(status, BTTask::Status::FAILURE);
 
-            CHECK(task_fail->get_status() == BTTask::Status::FAILURE);
-            CHECK(task_succeed1->get_status() == BTTask::Status::FRESH);
+            CHECK_EQ(task_fail->get_status(), BTTask::Status::FAILURE);
+            CHECK_EQ(task_succeed1->get_status(), BTTask::Status::FRESH);
         }
     }
 
@@ -134,10 +134,10 @@ TEST_SUITE("Test task execution")
             selector->add_child(task_fail2);
 
             BTTask::Status status = selector->execute(0.1);
-            CHECK(status == BTTask::Status::FAILURE);
+            CHECK_EQ(status, BTTask::Status::FAILURE);
 
-            CHECK(task_fail1->get_status() == BTTask::Status::FAILURE);
-            CHECK(task_fail2->get_status() == BTTask::Status::FAILURE);
+            CHECK_EQ(task_fail1->get_status(), BTTask::Status::FAILURE);
+            CHECK_EQ(task_fail2->get_status(), BTTask::Status::FAILURE);
         }
 
         SUBCASE("Selector succeeds on last child's success")
@@ -146,10 +146,10 @@ TEST_SUITE("Test task execution")
             selector->add_child(task_succeed);
 
             BTTask::Status status = selector->execute(0.1);
-            CHECK(status == BTTask::Status::SUCCESS);
+            CHECK_EQ(status, BTTask::Status::SUCCESS);
 
-            CHECK(task_fail1->get_status() == BTTask::Status::FAILURE);
-            CHECK(task_succeed->get_status() == BTTask::Status::SUCCESS);
+            CHECK_EQ(task_fail1->get_status(), BTTask::Status::FAILURE);
+            CHECK_EQ(task_succeed->get_status(), BTTask::Status::SUCCESS);
         }
 
         SUBCASE("Selector succeeds early on first child's success")
@@ -158,10 +158,10 @@ TEST_SUITE("Test task execution")
             selector->add_child(task_fail1);
 
             BTTask::Status status = selector->execute(0.1);
-            CHECK(status == BTTask::Status::SUCCESS);
+            CHECK_EQ(status, BTTask::Status::SUCCESS);
 
-            CHECK(task_succeed->get_status() == BTTask::Status::SUCCESS);
-            CHECK(task_fail1->get_status() == BTTask::Status::FRESH);
+            CHECK_EQ(task_succeed->get_status(), BTTask::Status::SUCCESS);
+            CHECK_EQ(task_fail1->get_status(), BTTask::Status::FRESH);
         }
     }
 
@@ -175,8 +175,8 @@ TEST_SUITE("Test task execution")
             invert->add_child(task_succeed);
 
             invert->execute(0.1);
-            CHECK(invert->get_status() == BTTask::Status::FAILURE);
-            CHECK(task_succeed->get_status() == BTTask::Status::SUCCESS);
+            CHECK_EQ(invert->get_status(), BTTask::Status::FAILURE);
+            CHECK_EQ(task_succeed->get_status(), BTTask::Status::SUCCESS);
         }
 
         SUBCASE("Invert succeeds")
@@ -185,8 +185,8 @@ TEST_SUITE("Test task execution")
             invert->add_child(task_fail);
 
             invert->execute(0.1);
-            CHECK(invert->get_status() == BTTask::Status::SUCCESS);
-            CHECK(task_fail->get_status() == BTTask::Status::FAILURE);
+            CHECK_EQ(invert->get_status(), BTTask::Status::SUCCESS);
+            CHECK_EQ(task_fail->get_status(), BTTask::Status::FAILURE);
         }
     }
 
@@ -202,11 +202,11 @@ TEST_SUITE("Test task execution")
         SUBCASE("Enters cooldown after success")
         {
             cooldown_task->add_child(task_succeed);
-            CHECK(cooldown_task->get_status() == BTTask::Status::FRESH);
+            CHECK_EQ(cooldown_task->get_status(), BTTask::Status::FRESH);
 
             cooldown_task->execute(0.1);
-            CHECK(cooldown_task->get_status() == BTTask::Status::SUCCESS);
-            CHECK(cooldown_task->is_cooldown_active() == true);
+            CHECK_EQ(cooldown_task->get_status(), BTTask::Status::SUCCESS);
+            CHECK_EQ(cooldown_task->is_cooldown_active(), true);
         }
 
         SUBCASE("Cooldown task fails and cools down when trigger_on_failure is true")
@@ -214,11 +214,11 @@ TEST_SUITE("Test task execution")
             cooldown_task->set_trigger_on_failure(true);
             cooldown_task->add_child(task_fail);
 
-            CHECK(cooldown_task->get_status() == BTTask::Status::FRESH);
+            CHECK_EQ(cooldown_task->get_status(), BTTask::Status::FRESH);
 
             cooldown_task->execute(0.1);
-            CHECK(cooldown_task->get_status() == BTTask::Status::FAILURE);
-            CHECK(cooldown_task->is_cooldown_active() == true);
+            CHECK_EQ(cooldown_task->get_status(), BTTask::Status::FAILURE);
+            CHECK_EQ(cooldown_task->is_cooldown_active(), true);
         }
 
         SUBCASE("Cooldown task does not cool down on failure when trigger_on_failure is false")
@@ -226,11 +226,11 @@ TEST_SUITE("Test task execution")
             cooldown_task->set_trigger_on_failure(false);
             cooldown_task->add_child(task_fail);
 
-            CHECK(cooldown_task->get_status() == BTTask::Status::FRESH);
+            CHECK_EQ(cooldown_task->get_status(), BTTask::Status::FRESH);
 
             cooldown_task->execute(0.1);
-            CHECK(cooldown_task->get_status() == BTTask::Status::FAILURE);
-            CHECK(cooldown_task->is_cooldown_active() == false);
+            CHECK_EQ(cooldown_task->get_status(), BTTask::Status::FAILURE);
+            CHECK_EQ(cooldown_task->is_cooldown_active(), false);
         }
 
         SUBCASE("Cooldown task starts cooled")
@@ -241,7 +241,7 @@ TEST_SUITE("Test task execution")
             cooldown_task->set_start_cooled(true);
             cooldown_task->initialize(actor, blackboard);
 
-            CHECK(cooldown_task->is_cooldown_active() == true);
+            CHECK_EQ(cooldown_task->is_cooldown_active(), true);
 
             memdelete(actor);
         }
@@ -251,11 +251,11 @@ TEST_SUITE("Test task execution")
             cooldown_task->add_child(task_succeed);
 
             cooldown_task->execute(0.1);
-            CHECK(cooldown_task->is_cooldown_active() == true);
+            CHECK_EQ(cooldown_task->is_cooldown_active(), true);
 
             cooldown_task->call("_on_timeout");
 
-            CHECK(cooldown_task->is_cooldown_active() == false);
+            CHECK_EQ(cooldown_task->is_cooldown_active(), false);
         }
         
         SUBCASE("Task won't execute in a cooldown state")
@@ -264,9 +264,9 @@ TEST_SUITE("Test task execution")
             cooldown_task->execute(0.1);
             task_succeed->set_status(BTTask::Status::FRESH);
 
-            CHECK(cooldown_task->execute(0.1) == BTTask::Status::FAILURE);
-            CHECK(cooldown_task->is_cooldown_active() == true);
-            CHECK(task_succeed->get_status() == BTTask::Status::FRESH);
+            CHECK_EQ(cooldown_task->execute(0.1), BTTask::Status::FAILURE);
+            CHECK_EQ(cooldown_task->is_cooldown_active(), true);
+            CHECK_EQ(task_succeed->get_status(), BTTask::Status::FRESH);
         }
     }
 
@@ -275,6 +275,6 @@ TEST_SUITE("Test task execution")
         godot::Ref<BTTask> task = memnew(BTTask);
         task->set_status(BTTask::Status::RUNNING);
         task->abort();
-        CHECK(task->get_status() == BTTask::Status::FRESH);
+        CHECK_EQ(task->get_status(), BTTask::Status::FRESH);
     }
 }
