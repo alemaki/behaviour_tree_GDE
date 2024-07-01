@@ -26,3 +26,13 @@ bool FSM::transition_to(godot::String state)
     }
     return false;
 }
+
+void FSM::_bind_methods()
+{
+    using namespace godot;
+
+    ClassDB::bind_method(D_METHOD("set_initial_state"), &FSM::set_initial_state);
+    ClassDB::bind_method(D_METHOD("get_state"), &FSM::get_state);
+    ClassDB::bind_method(D_METHOD("add_transition"), &FSM::add_transition);
+    ClassDB::bind_method(D_METHOD("transition_to"), &FSM::transition_to);
+}

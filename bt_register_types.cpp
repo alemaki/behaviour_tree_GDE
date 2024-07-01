@@ -32,6 +32,7 @@
 #include "blackboard/blackboard.hpp"
 #include "conditions/bt_check_int.hpp"
 #include "conditions/bt_check_bool.hpp"
+#include "finite_state_machine/fsm.hpp"
 
 #include "tests/test_utils/test_runner.hpp"
 
@@ -42,6 +43,8 @@ void initialize_behaviour_tree_module(ModuleInitializationLevel p_level)
 {
 	if (p_level == MODULE_INITIALIZATION_LEVEL_SCENE)
 	{
+		ClassDB::register_class<Blackboard>();
+
 		ClassDB::register_class<BTTask>();
 		ClassDB::register_class<BTDecorator>();
 		ClassDB::register_class<BTComposite>();
@@ -56,16 +59,16 @@ void initialize_behaviour_tree_module(ModuleInitializationLevel p_level)
 		ClassDB::register_class<BTProbability>();
 		ClassDB::register_class<BTRepeat>();
 		ClassDB::register_class<BTCooldown>();
-
 		ClassDB::register_class<BTAction>();
-		ClassDB::register_class<BTSubtree>();
 
 		ClassDB::register_class<BehaviourTree>();
 
-		ClassDB::register_class<Blackboard>();
+		ClassDB::register_class<BTSubtree>();
 
 		ClassDB::register_class<BTCheckInt>();
 		ClassDB::register_class<BTCheckBool>();
+
+		ClassDB::register_class<FSM>();
 	}
 	if (p_level == MODULE_INITIALIZATION_LEVEL_EDITOR)
 	{

@@ -16,10 +16,16 @@ private:
 public:
 
     void set_initial_state(godot::String state);
-    _FORCE_INLINE_ godot::String get_state() const;
-    
+    _FORCE_INLINE_ godot::String get_state() const
+    {
+        return this->current_state;
+    }
+
     void add_transition(godot::String from, godot::String to);
     bool transition_to(godot::String state);
+
+protected:
+    static void _bind_methods();
 };
 
 #endif /* BT_FSM_HPP */
