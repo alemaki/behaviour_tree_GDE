@@ -1,13 +1,13 @@
 #ifndef BT_FSM_HPP
 #define BT_FSM_HPP
 
-#include <godot_cpp/classes/ref_counted.hpp>
+#include <godot_cpp/classes/node.hpp>
 #include <godot_cpp/templates/hash_map.hpp>
 #include <godot_cpp/templates/hash_set.hpp>
 
-class FSM : public godot::RefCounted
+class FSM : public godot::Node
 {
-    GDCLASS(FSM, godot::RefCounted);
+    GDCLASS(FSM, godot::Node);
 
 private: 
     godot::String current_state = "";

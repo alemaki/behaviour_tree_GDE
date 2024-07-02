@@ -3,20 +3,26 @@
 
 #include "finite_state_machine/fsm.hpp"
 
+struct FSMFixture
+{
+    FSM* fsm;
+    FSMFixture() : fsm(memnew(FSM)){}
+    ~FSMFixture()
+    {
+        memdelete(this->fsm);
+    }
+};
+
 TEST_SUITE("FSM")
 {
-    TEST_CASE("Set and get initial state")
+    TEST_CASE_FIXTURE(FSMFixture, "Set and get initial state")
     {
-        godot::Ref<FSM> fsm = memnew(FSM);
-
         fsm->set_initial_state("idle");
         CHECK_EQ(fsm->get_state(), "idle");
     }
 
-    TEST_CASE("Add transition and transition to valid state")
+    TEST_CASE_FIXTURE(FSMFixture, "Add transition and transition to valid state")
     {
-        godot::Ref<FSM> fsm = memnew(FSM);
-        
         fsm->set_initial_state("idle");
         fsm->add_transition("idle", "running");
 
@@ -24,10 +30,8 @@ TEST_SUITE("FSM")
         CHECK_EQ(fsm->get_state(), "running");
     }
 
-    TEST_CASE("Add transition and fail to transition to invalid state")
+    TEST_CASE_FIXTURE(FSMFixture, "Add transition and fail to transition to invalid state")
     {
-        godot::Ref<FSM> fsm = memnew(FSM);
-        
         fsm->set_initial_state("idle");
         fsm->add_transition("idle", "running");
 
@@ -35,20 +39,16 @@ TEST_SUITE("FSM")
         CHECK_EQ(fsm->get_state(), "idle");
     }
 
-    TEST_CASE("Set initial state only once")
+    TEST_CASE_FIXTURE(FSMFixture, "Set initial state only once")
     {
-        godot::Ref<FSM> fsm = memnew(FSM);
-
         fsm->set_initial_state("idle");
         fsm->set_initial_state("running");
 
         CHECK_EQ(fsm->get_state(), "idle");
     }
 
-    TEST_CASE("Transition without initial state")
+    TEST_CASE_FIXTURE(FSMFixture, "Transition without initial state")
     {
-        godot::Ref<FSM> fsm = memnew(FSM);
-
         fsm->add_transition("idle", "running");
 
         CHECK_FALSE(fsm->transition_to("running"));

@@ -3,43 +3,43 @@
 #include "behaviour_tree/behaviour_tree.hpp"
 #include <godot_cpp/variant/utility_functions.hpp>
 
+struct BehaviourTreeFixture
+{
+    BehaviourTree* tree;
+    BehaviourTreeFixture() : tree(memnew(BehaviourTree)) {}
+    ~BehaviourTreeFixture(){}
+};
+
 TEST_SUITE("BehaviourTreeTests")
 {
 
-    TEST_CASE("Test set and get description")
+    TEST_CASE_FIXTURE(BehaviourTreeFixture, "Test set and get description")
     {
-        BehaviourTree* tree = memnew(BehaviourTree);
         godot::String description = "Test Behaviour Tree";
         tree->set_description(description);
         CHECK_EQ(tree->get_description(), description);
-        memdelete(tree);
     }
 
-    TEST_CASE("Test add and get task")
+    TEST_CASE_FIXTURE(BehaviourTreeFixture, "Test add and get task")
     {
-        BehaviourTree* tree = memnew(BehaviourTree);
         godot::Ref<BTTask> task = memnew(BTTask);
         tree->add_task_by_ref(task);
         int task_id = tree->get_task_id(task);
         CHECK_EQ(tree->get_task(task_id), task);
-        memdelete(tree);
     }
 
-    TEST_CASE("Test has task")
+    TEST_CASE_FIXTURE(BehaviourTreeFixture, "Test has task")
     {
-        BehaviourTree* tree = memnew(BehaviourTree);
         godot::Ref<BTTask> task = memnew(BTTask);
         CHECK_FALSE(tree->has_task(task));
         tree->add_task_by_ref(task);
         CHECK(tree->has_task(task));
         godot::Ref<BTTask> fake_task = memnew(BTTask);
         CHECK_FALSE(tree->has_task(fake_task));
-        memdelete(tree);
     }
 
-    TEST_CASE("Test remove task")
+    TEST_CASE_FIXTURE(BehaviourTreeFixture, "Test remove task")
     {
-        BehaviourTree* tree = memnew(BehaviourTree);
         godot::Ref<BTTask> task = memnew(BTTask);
 
         tree->add_task_by_ref(task);
@@ -52,13 +52,10 @@ TEST_SUITE("BehaviourTreeTests")
         tree->add_task_by_ref(task);
         tree->remove_task_by_ref(task);
         CHECK_FALSE(tree->has_task(task));
-
-        memdelete(tree);
     }
 
-    TEST_CASE("Test remove task count")
+    TEST_CASE_FIXTURE(BehaviourTreeFixture, "Test remove task count")
     {
-        BehaviourTree* tree = memnew(BehaviourTree);
         godot::Ref<BTTask> task = memnew(BTTask);
         godot::Ref<BTTask> task1 = memnew(BTTask);
         godot::Ref<BTTask> task2 = memnew(BTTask);
@@ -71,13 +68,10 @@ TEST_SUITE("BehaviourTreeTests")
         CHECK_EQ(tree->get_tasks().size(), 1);
         tree->remove_task_by_ref(task2);
         CHECK_EQ(tree->get_tasks().size(), 0);
-
-        memdelete(tree);
     }
 
-    TEST_CASE("Test connect and disconnect tasks")
+    TEST_CASE_FIXTURE(BehaviourTreeFixture, "Test connect and disconnect tasks")
     {
-        BehaviourTree* tree = memnew(BehaviourTree);
         godot::Ref<BTTask> parent_task = memnew(BTTask);
         godot::Ref<BTTask> child_task = memnew(BTTask);
         tree->add_task_by_ref(parent_task);
@@ -90,13 +84,10 @@ TEST_SUITE("BehaviourTreeTests")
         tree->disconnect_tasks(parent_task, child_task);
         CHECK_FALSE(parent_task->has_child(child_task));
         CHECK_EQ(child_task->get_parent(), nullptr);
-
-        memdelete(tree);
     }
 
-    TEST_CASE("Test clear tasks")
+    TEST_CASE_FIXTURE(BehaviourTreeFixture, "Test clear tasks")
     {
-        BehaviourTree* tree = memnew(BehaviourTree);
         godot::Ref<BTTask> task1 = memnew(BTTask);
         godot::Ref<BTTask> task2 = memnew(BTTask);
         tree->add_task_by_ref(task1);
@@ -104,24 +95,18 @@ TEST_SUITE("BehaviourTreeTests")
         tree->clear_tasks();
         CHECK_EQ(tree->get_tasks().size(), 0);
         CHECK_EQ(tree->get_root_task(), nullptr);
-
-        memdelete(tree);
     }
 
-    TEST_CASE("Test set and get root task")
+    TEST_CASE_FIXTURE(BehaviourTreeFixture, "Test set and get root task")
     {
-        BehaviourTree* tree = memnew(BehaviourTree);
         godot::Ref<BTTask> root_task = memnew(BTTask);
         tree->add_task_by_ref(root_task);
         tree->set_root_task(root_task);
         CHECK_EQ(tree->get_root_task(), root_task);
-
-        memdelete(tree);
     }
 
-    TEST_CASE("Test detach task")
+    TEST_CASE_FIXTURE(BehaviourTreeFixture, "Test detach task")
     {
-        BehaviourTree* tree = memnew(BehaviourTree);
         godot::Ref<BTTask> root_task = memnew(BTTask);
         godot::Ref<BTTask> child_task = memnew(BTTask);
         tree->add_task_by_ref(root_task);
@@ -130,13 +115,10 @@ TEST_SUITE("BehaviourTreeTests")
         tree->detach_task_by_ref(child_task);
         CHECK_FALSE(root_task->has_child(child_task));
         CHECK_EQ(child_task->get_parent(), nullptr);
-
-        memdelete(tree);
     }
 
-    TEST_CASE("Test set tasks of parent")
+    TEST_CASE_FIXTURE(BehaviourTreeFixture, "Test set tasks of parent")
     {
-        BehaviourTree* tree = memnew(BehaviourTree);
         godot::Ref<BTTask> parent_task = memnew(BTTask);
         godot::Ref<BTTask> child_task1 = memnew(BTTask);
         godot::Ref<BTTask> child_task2 = memnew(BTTask);
@@ -151,47 +133,35 @@ TEST_SUITE("BehaviourTreeTests")
         REQUIRE(children.size() == 2);
         CHECK_EQ(children[0], child_task1);
         CHECK_EQ(children[1], child_task2);
-
-        memdelete(tree);
     }
 
-    TEST_CASE("Test root task initially null")
+    TEST_CASE_FIXTURE(BehaviourTreeFixture, "Test root task initially null")
     {
-        BehaviourTree* tree = memnew(BehaviourTree);
         CHECK_EQ(tree->get_root_task(), nullptr);
-
-        memdelete(tree);
     }
 
-    TEST_CASE("Test added task becomes root")
+    TEST_CASE_FIXTURE(BehaviourTreeFixture, "Test added task becomes root")
     {
-        BehaviourTree* tree = memnew(BehaviourTree);
         godot::Ref<BTTask> task = memnew(BTTask);
         godot::Ref<BTTask> task1 = memnew(BTTask);
         tree->add_task_by_ref(task);
         CHECK_EQ(tree->get_root_task(), task);
         tree->add_task_by_ref(task1);
         CHECK_EQ(tree->get_root_task(), task);
-
-        memdelete(tree);
     }
 
-    TEST_CASE("Test set root task")
+    TEST_CASE_FIXTURE(BehaviourTreeFixture, "Test set root task")
     {
-        BehaviourTree* tree = memnew(BehaviourTree);
         godot::Ref<BTTask> root_task1 = memnew(BTTask);
         godot::Ref<BTTask> root_task2 = memnew(BTTask);
         tree->add_task_by_ref(root_task1);
         tree->add_task_by_ref(root_task2);
         tree->set_root_task(root_task2);
         CHECK_EQ(tree->get_root_task(), root_task2);
-
-        memdelete(tree);
     }
 
-    TEST_CASE("Test remove root task")
+    TEST_CASE_FIXTURE(BehaviourTreeFixture, "Test remove root task")
     {
-        BehaviourTree* tree = memnew(BehaviourTree);
         godot::Ref<BTTask> task = memnew(BTTask);
         godot::Ref<BTTask> task1 = memnew(BTTask);
         tree->add_task_by_ref(task);
@@ -200,25 +170,19 @@ TEST_SUITE("BehaviourTreeTests")
         tree->remove_task_by_ref(root_task);
         CHECK_NE(tree->get_root_task(), root_task);
         CHECK_NE(tree->get_root_task(), nullptr);
-
-        memdelete(tree);
     }
 
-    TEST_CASE("Test get valid id increment")
+    TEST_CASE_FIXTURE(BehaviourTreeFixture, "Test get valid id increment")
     {
-        BehaviourTree* tree = memnew(BehaviourTree);
         int first_id = tree->get_valid_id();
         godot::Ref<BTTask> task = memnew(BTTask);
         tree->add_task_by_ref(task);
         int second_id = tree->get_valid_id();
         CHECK_EQ(second_id, first_id + 1);
-
-        memdelete(tree);
     }
 
-    TEST_CASE("Test task hierarchy")
+    TEST_CASE_FIXTURE(BehaviourTreeFixture, "Test task hierarchy")
     {
-        BehaviourTree* tree = memnew(BehaviourTree);
         godot::Ref<BTTask> root_task = memnew(BTTask);
         godot::Ref<BTTask> child_task1 = memnew(BTTask);
         godot::Ref<BTTask> child_task2 = memnew(BTTask);
@@ -238,26 +202,20 @@ TEST_SUITE("BehaviourTreeTests")
         CHECK(child_task1->has_child(grandchild_task));
         CHECK_EQ(grandchild_task->get_root(), root_task);
         CHECK_EQ(grandchild_task->get_parent(), child_task1);
-
-        memdelete(tree);
     }
 
-    TEST_CASE("Test set custom name task by ref")
+    TEST_CASE_FIXTURE(BehaviourTreeFixture, "Test set custom name task by ref")
     {
-        BehaviourTree* tree = memnew(BehaviourTree);
         godot::Ref<BTTask> task = memnew(BTTask);
         tree->add_task_by_ref(task);
         godot::String new_name = "New Task Name";
         tree->set_custom_name_task_by_ref(task, new_name);
 
         CHECK_EQ(task->get_custom_name(), new_name);
-
-        memdelete(tree);
     }
 
-    TEST_CASE("Test swap root task in")
+    TEST_CASE_FIXTURE(BehaviourTreeFixture, "Test swap root task in")
     {
-        BehaviourTree* tree = memnew(BehaviourTree);
         godot::Ref<BTTask> old_task = memnew(BTTask);
         godot::Ref<BTTask> new_task = memnew(BTTask);
 
@@ -275,13 +233,10 @@ TEST_SUITE("BehaviourTreeTests")
         CHECK_EQ(new_task->get_children().size(), 1);
         CHECK(new_task->has_child(child_task));
         CHECK_EQ(child_task->get_parent(), new_task);
-
-        memdelete(tree);
     }
 
-    TEST_CASE("Test swap non root task in")
+    TEST_CASE_FIXTURE(BehaviourTreeFixture, "Test swap non root task in")
     {
-        BehaviourTree* tree = memnew(BehaviourTree);
         godot::Ref<BTTask> old_task = memnew(BTTask);
         godot::Ref<BTTask> new_task = memnew(BTTask);
         godot::Ref<BTTask> root_task = memnew(BTTask);
@@ -310,8 +265,5 @@ TEST_SUITE("BehaviourTreeTests")
         CHECK_EQ(new_task->get_parent(), root_task);
         CHECK_EQ(root_task->get_children().size(), 1);
         CHECK(root_task->has_child(new_task));
-
-        memdelete(tree);
     }
-
 }
