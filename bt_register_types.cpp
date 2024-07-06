@@ -32,6 +32,7 @@
 #include "blackboard/blackboard.hpp"
 #include "conditions/bt_check_int.hpp"
 #include "conditions/bt_check_bool.hpp"
+#include "conditions/bt_check_fsm_state.hpp"
 #include "finite_state_machine/fsm.hpp"
 
 #include "tests/test_utils/test_runner.hpp"
@@ -67,6 +68,7 @@ void initialize_behaviour_tree_module(ModuleInitializationLevel p_level)
 
 		ClassDB::register_class<BTCheckInt>();
 		ClassDB::register_class<BTCheckBool>();
+		ClassDB::register_class<BTCheckFSMState>();
 
 		ClassDB::register_class<FSM>();
 	}

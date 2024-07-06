@@ -9,11 +9,11 @@ BTTask::Status BTCheckFSMState::_tick(double delta)
     const FSM* fsm = godot::Object::cast_to<FSM>(var);
     if (this->complain)
     {
-        TASK_FAIL_COND_MSG(this->complain && fsm == nullptr, this->get_name() + ": \"" + this->fsm_name + "\" is not a FSM.")
+        TASK_FAIL_COND_MSG(fsm == nullptr, this->get_name() + ": \"" + this->fsm_name + "\" is not a FSM.")
     }
     else
     {
-        TASK_FAIL_COND(this->complain && fsm == nullptr)
+        TASK_FAIL_COND(fsm == nullptr)
     }
 
     TASK_SUCCEED_COND(fsm->get_state() == this->state);

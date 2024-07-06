@@ -10,12 +10,12 @@ Variant Blackboard::get_var(const StringName &name, const Variant &default_var, 
     }
     else if (complain)
     {
-        godot::UtilityFunctions::printerr(vformat("Blackboard variable \"%s\" not found."), name);
+        godot::UtilityFunctions::printerr(vformat("Blackboard variable \"%s\" not found.", name));
     }
 
     return default_var;
-
 }
+
 void Blackboard::set_var(const StringName &name, const Variant &value)
 {
     this->data[name] = value;
