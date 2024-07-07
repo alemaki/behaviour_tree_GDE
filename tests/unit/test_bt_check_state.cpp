@@ -34,6 +34,7 @@ struct CheckFSMStateFixture
     ~CheckFSMStateFixture()
     {
         memdelete(actor);
+        memdelete(fsm);
     };
 };
 
