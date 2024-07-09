@@ -234,6 +234,7 @@ void BehaviourTree::_bind_methods()
     ClassDB::bind_method(D_METHOD("set_tasks_of_parent", "parent", "new_children"), &BehaviourTree::set_tasks_of_parent);
     ClassDB::bind_method(D_METHOD("set_custom_name_task_by_ref", "task", "task_name"), &BehaviourTree::set_custom_name_task_by_ref);
     ClassDB::bind_method(D_METHOD("swap_task_in", "old_task", "new_task"), &BehaviourTree::swap_task_in);
+    ClassDB::bind_method(D_METHOD("instantiate", "actor", "blackboard"), &BehaviourTree::instantiate);
 
     ClassDB::bind_method(D_METHOD("set_description", "description"), &BehaviourTree::set_description);
     ClassDB::bind_method(D_METHOD("get_description"), &BehaviourTree::get_description);

@@ -32,6 +32,10 @@ public:
 
     void add_transition(godot::String from, godot::String to);
     bool transition_to(godot::String state);
+    _FORCE_INLINE_ bool can_transition_to(const godot::String& state) const
+    {
+        return (this->transitions.has(this->current_state)) && this->transitions[this->current_state].has(state);
+    }
 
     void _ready() override;
 

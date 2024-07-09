@@ -11,7 +11,7 @@ void FSM::add_transition(godot::String from, godot::String to)
 
 bool FSM::transition_to(godot::String state)
 {
-    if ((this->transitions.has(this->current_state)) && this->transitions[this->current_state].has(state))
+    if (this->can_transition_to(state))
     {
         current_state = state;
         return true;
@@ -73,8 +73,9 @@ void FSM::_bind_methods()
     using namespace godot;
 
     ClassDB::bind_method(D_METHOD("get_state"), &FSM::get_state);
-    ClassDB::bind_method(D_METHOD("add_transition"), &FSM::add_transition);
-    ClassDB::bind_method(D_METHOD("transition_to"), &FSM::transition_to);
+    ClassDB::bind_method(D_METHOD("add_transition", "from", "to"), &FSM::add_transition);
+    ClassDB::bind_method(D_METHOD("transition_to", "state"), &FSM::transition_to);
+    ClassDB::bind_method(D_METHOD("can_transition_to", "state"), &FSM::transition_to);
 
     ClassDB::bind_method(D_METHOD("set_initial_state", "state"), &FSM::set_initial_state);
     ClassDB::bind_method(D_METHOD("get_initial_state"), &FSM::get_initial_state);
