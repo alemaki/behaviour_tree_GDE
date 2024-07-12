@@ -66,11 +66,11 @@ void initialize_behaviour_tree_module(ModuleInitializationLevel p_level)
 
 		ClassDB::register_class<BTSubtree>();
 
+		ClassDB::register_class<FSM>();
+
 		ClassDB::register_class<BTCheckInt>();
 		ClassDB::register_class<BTCheckBool>();
 		ClassDB::register_class<BTCheckFSMState>();
-
-		ClassDB::register_class<FSM>();
 	}
 	if (p_level == MODULE_INITIALIZATION_LEVEL_EDITOR)
 	{

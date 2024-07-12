@@ -303,8 +303,8 @@ void BTTask::_bind_methods()
     ClassDB::bind_method(D_METHOD("set_children", "children"), &BTTask::set_children);
     ClassDB::bind_method(D_METHOD("get_children"), &BTTask::get_children);
 
-    /* NOTE: Apparently the engine gives segmentation fault if property info about the objects isn't filled.
-    * Only happens when there are other registered objects that inherit from this class 
+    /* NOTE: Apparently the engine gives segmentation fault if property info about the objects isn't filled with PROPERTY_USAGE_NONE.
+    * Only happens to non-native objects.
     */
     ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "parent", PROPERTY_HINT_NONE, "Parent of the task.", PROPERTY_USAGE_NONE), "set_parent", "get_parent");
     ADD_PROPERTY(PropertyInfo(Variant::STRING, "custom_name", PROPERTY_HINT_RESOURCE_TYPE, "Name of the task.", PROPERTY_USAGE_NO_EDITOR | PROPERTY_USAGE_INTERNAL), "set_custom_name", "get_custom_name");
