@@ -18,13 +18,13 @@ void simulate_frame(godot::Node* node, float delta)
 
 }
 
-void simulate(godot::Node* node, float delta, int frames)
+void simulate(godot::Node* node, int frames)
 {
+	double delta = get_node_delta(node);
+	//ERR_FAIL_COND(delta == 0);
 	for (int i = 0; i < frames; ++i)
     {
 		simulate_frame(node, delta);
-
-		//simulate_frame(node, delta);
 	}
 }
 

@@ -13,7 +13,7 @@ BTTask::Status BTCheckBool::_tick(double delta)
 
     TASK_SUCCEED_COND(var == godot::Variant(this->get_check_true()));
 
-    return BTTask::Status::FAILURE;
+    TASK_FAIL();
 }
 
 void BTCheckBool::set_check_true(bool value)

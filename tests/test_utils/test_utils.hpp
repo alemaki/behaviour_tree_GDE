@@ -3,7 +3,7 @@
 
 #include<godot_cpp/classes/node.hpp>
 
-void simulate(godot::Node* node, float delta = 1.0f, int frames = 1);
+void simulate(godot::Node* node,int frames = 1);
 
 double get_node_delta(godot::Node* node);
 double get_current_engine_delta();
