@@ -37,3 +37,9 @@ double get_node_delta(godot::Node* node)
 {
 	return  godot::Engine::get_singleton()->is_in_physics_frame() ? node->get_physics_process_delta_time() : node->get_process_delta_time();
 }
+
+bool vectors_almost_equal(godot::Vector2 vec1, godot::Vector2 vec2)
+{
+    return doctest::Approx(vec1.x) == vec2.x &&
+           doctest::Approx(vec1.y) == vec2.y;
+}
