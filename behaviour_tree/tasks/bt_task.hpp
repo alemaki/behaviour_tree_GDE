@@ -24,11 +24,11 @@ public:
     };
 
 private:
-    Status status;
-    BTTask* parent;
+    Status status = BTTask::Status::FRESH;
+    BTTask* parent = nullptr;
     godot::String custom_name;
-    godot::Node* actor;
-    godot::Ref<Blackboard> blackboard;
+    godot::Node* actor = nullptr;
+    godot::Ref<Blackboard> blackboard = nullptr;
     godot::Vector<godot::Ref<BTTask>> children;
 
 protected:

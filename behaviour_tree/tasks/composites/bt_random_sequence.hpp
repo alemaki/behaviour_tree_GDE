@@ -3,7 +3,8 @@
 
 #include "behaviour_tree/tasks/bt_composite.hpp"
 
-class BTRandomSequence : public BTComposite {
+class BTRandomSequence : public BTComposite
+{
 	GDCLASS(BTRandomSequence, BTComposite);
 
 private:
@@ -12,7 +13,7 @@ private:
 
 protected:
 	virtual void _enter() override;
-	virtual Status _tick(double p_delta) override;
+	virtual Status _tick(double delta) override;
 
 protected:
 	static void _bind_methods(){};

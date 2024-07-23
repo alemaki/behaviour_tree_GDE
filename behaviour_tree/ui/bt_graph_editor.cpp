@@ -1080,7 +1080,10 @@ void BTGraphEditor::_delete_nodes_request(godot::TypedArray<godot::StringName> _
     int size = _nodes_to_delete.size();
     nodes_to_delete.resize(size);
 
-    ERR_FAIL_COND(size == 0);
+    if (size == 0)
+    {
+        return;
+    }
 
     /* Honestly, the best solution I can think of right now is to just disable it,
      * because undoing all the deleted connections will be a pain.

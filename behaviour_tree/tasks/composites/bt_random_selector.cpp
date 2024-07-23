@@ -13,9 +13,8 @@ void BTRandomSelector::_enter()
         }
     }
     indicies.shuffle();
-    
-
 }
+
 BTTask::Status BTRandomSelector::_tick(double delta)
 {
     BTTask::Status status;

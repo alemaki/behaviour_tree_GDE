@@ -12,9 +12,8 @@ void BTRandomSequence::_enter()
         }
     }
     indicies.shuffle();
-    
-
 }
+
 BTTask::Status BTRandomSequence::_tick(double delta)
 {
     BTTask::Status status;

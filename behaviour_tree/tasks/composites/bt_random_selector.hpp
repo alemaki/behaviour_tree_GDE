@@ -1,9 +1,10 @@
-#ifndef BT_RANDOM_SELECTOR_H
-#define BT_RANDOM_SELECTOR_H
+#ifndef BT_RANDOM_SELECTOR_HPP
+#define BT_RANDOM_SELECTOR_HPP
 
 #include "behaviour_tree/tasks/bt_composite.hpp"
 
-class BTRandomSelector: public BTComposite {
+class BTRandomSelector: public BTComposite
+{
 	GDCLASS(BTRandomSelector, BTComposite);
 
 private:
@@ -12,10 +13,10 @@ private:
 
 protected:
 	virtual void _enter() override;
-	virtual Status _tick(double p_delta) override;
+	virtual Status _tick(double delta) override;
 
 protected:
 	static void _bind_methods(){};
 };
 
-#endif // BT_RANDOM_SELECTOR_H
+#endif // BT_RANDOM_SELECTOR_HPP

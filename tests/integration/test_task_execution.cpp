@@ -4,6 +4,7 @@
 #include <godot_cpp/classes/scene_tree.hpp>
 
 #include "behaviour_tree/tasks/bt_task.hpp"
+#include "behaviour_tree/tasks/composites/bt_parallel.hpp"
 #include "behaviour_tree/tasks/composites/bt_sequence.hpp"
 #include "behaviour_tree/tasks/composites/bt_selector.hpp"
 #include "behaviour_tree/tasks/decorators/bt_always_fail.hpp"
