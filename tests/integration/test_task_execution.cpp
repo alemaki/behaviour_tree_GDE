@@ -271,6 +271,48 @@ TEST_SUITE("Test task execution")
         }
     }
 
+    TEST_CASE("BTParallel succeeds when enough children succeed")
+    {
+        godot::Ref<BTParallel> parallel = memnew(BTParallel);
+        godot::Ref<BTAlwaysSucceed> task_succeed1 = memnew(BTAlwaysSucceed);
+        godot::Ref<BTAlwaysSucceed> task_succeed2 = memnew(BTAlwaysSucceed);
+        godot::Ref<BTAlwaysFail> task_fail1 = memnew(BTAlwaysFail);
+        godot::Ref<BTAlwaysFail> task_fail2 = memnew(BTAlwaysFail);
+
+        parallel->set_successes_required(2);
+        parallel->set_failures_required(2);
+        parallel->set_repeat(false);
+        
+        SUBCASE("BTParallel succeeds when enough children succeed")
+        {
+            parallel->add_child(task_succeed1);
+            parallel->add_child(task_fail1);
+            parallel->add_child(task_succeed2);
+
+            BTTask::Status status = parallel->execute(0.1);
+            CHECK_EQ(status, BTTask::Status::SUCCESS);
+        }
+
+        SUBCASE("BTParallel fails when enough children fail")
+        {
+            parallel->add_child(task_fail1);
+            parallel->add_child(task_fail2);
+            parallel->add_child(task_succeed1);
+
+            BTTask::Status status = parallel->execute(0.1);
+            CHECK_EQ(status, BTTask::Status::FAILURE);
+        }
+
+        SUBCASE("BTParallel fails when not enough succeed or fail")
+        {
+            parallel->add_child(task_fail1);
+            parallel->add_child(task_succeed1);
+
+            BTTask::Status status = parallel->execute(0.1);
+            CHECK_EQ(status, BTTask::Status::FAILURE);
+        }
+    }
+
     TEST_CASE("Task abort")
     {
         godot::Ref<BTTask> task = memnew(BTTask);
