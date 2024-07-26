@@ -1,4 +1,6 @@
 #include "test_runner.hpp"
+#include <sstream>
+
 #include <doctest.h>
 
 #include <godot_cpp/variant/utility_functions.hpp>
@@ -17,11 +19,24 @@ godot::Node* get_scene_root()
 
 void TestRunner::run(const char* filter)
 {
-    const char* argv[] = {"", "--test-suite-exclude=*[deprecated]*" ,filter};
-    doctest::Context context(3, argv);
-    /* TODO: doctest allows to change the stdout. Try to redirect to godot.*/
+    const char* argv[] = {
+        "", 
+        "--test-suite-exclude=*[deprecated]*", 
+        filter, 
+        //"--success",
+        //"--duration",
+        //"--order-by=name"
+    };
+    int argc = sizeof(argv) / sizeof(argv[0]);
+    doctest::Context context(argc, argv);
+
+    std::stringstream output_stream;
+
+    context.setCout(&output_stream);
+
     int res = context.run();
-    godot::UtilityFunctions::print("Finished tests.");
+    godot::UtilityFunctions::print(output_stream.str().c_str());
+
     if (context.shouldExit())
     {
         /* Nothing to do. */
