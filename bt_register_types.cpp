@@ -10,6 +10,10 @@
 #include <godot_cpp/core/class_db.hpp>
 #include <godot_cpp/core/defs.hpp>
 #include <godot_cpp/godot.hpp>
+
+#include "behaviour/conditions/bt_check_int.hpp"
+#include "behaviour/conditions/bt_check_bool.hpp"
+#include "behaviour/conditions/bt_check_fsm_state.hpp"
 #include "behaviour_tree/behaviour_tree.hpp"
 #include "behaviour_tree/tasks/bt_action.hpp"
 #include "behaviour_tree/tasks/bt_composite.hpp"
@@ -31,9 +35,6 @@
 #include "behaviour_tree/ui/bt_graph_node.hpp"
 #include "behaviour_tree/ui/bt_graph_node_subtree.hpp"
 #include "blackboard/blackboard.hpp"
-#include "conditions/bt_check_int.hpp"
-#include "conditions/bt_check_bool.hpp"
-#include "conditions/bt_check_fsm_state.hpp"
 #include "finite_state_machine/fsm.hpp"
 
 #include "tests/test_utils/test_runner.hpp"

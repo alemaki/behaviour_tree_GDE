@@ -16,7 +16,7 @@ private:
 
 public:
 
-    void set_initial_state(godot::String state);
+    void set_initial_state(const godot::String& state);
     _FORCE_INLINE_ godot::String get_initial_state() const
     {
         return this->initial_state;
@@ -30,8 +30,8 @@ public:
     void set_transitions(const godot::Dictionary& transitions);
     godot::Dictionary get_transitions() const;
 
-    void add_transition(godot::String from, godot::String to);
-    bool transition_to(godot::String state);
+    void add_transition(const godot::String& from, const godot::String& to);
+    bool transition_to(const godot::String& state);
     _FORCE_INLINE_ bool can_transition_to(const godot::String& state) const
     {
         return (this->transitions.has(this->current_state)) && this->transitions[this->current_state].has(state);

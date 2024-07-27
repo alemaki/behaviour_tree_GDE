@@ -3,7 +3,7 @@
 #include <godot_cpp/classes/node.hpp>
 
 #include "tests/test_utils/test_runner.hpp"
-#include "conditions/bt_check_fsm_state.hpp"
+#include "behaviour/conditions/bt_check_fsm_state.hpp"
 #include "blackboard/blackboard.hpp"
 #include "finite_state_machine/fsm.hpp"
 

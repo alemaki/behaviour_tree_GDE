@@ -3,7 +3,7 @@
 #include <godot_cpp/classes/node.hpp>
 
 #include "tests/test_utils/test_runner.hpp"
-#include "conditions/bt_check_bool.hpp"
+#include "behaviour/conditions/bt_check_bool.hpp"
 #include "blackboard/blackboard.hpp"
 
 TEST_SUITE("BTCheckBool")

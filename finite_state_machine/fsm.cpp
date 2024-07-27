@@ -1,6 +1,6 @@
 #include "fsm.hpp"
 
-void FSM::add_transition(godot::String from, godot::String to)
+void FSM::add_transition(const godot::String& from, const godot::String& to)
 {
     if (!(this->transitions.has(from)))
     {
@@ -9,7 +9,7 @@ void FSM::add_transition(godot::String from, godot::String to)
     this->transitions[from].insert(to);
 }
 
-bool FSM::transition_to(godot::String state)
+bool FSM::transition_to(const godot::String& state)
 {
     if (this->can_transition_to(state))
     {
@@ -24,7 +24,7 @@ void FSM::_ready()
     this->current_state = this->initial_state;
 }
 
-void FSM::set_initial_state(godot::String state)
+void FSM::set_initial_state(const godot::String& state)
 {
     this->initial_state = state;
     if (this->current_state == "")
@@ -59,7 +59,7 @@ godot::Dictionary FSM::get_transitions() const
     for (godot::KeyValue<godot::String, godot::HashSet<godot::String>> key_value : this->transitions)
     {
         godot::Array values;
-        for (godot::String value : key_value.value)
+        for (const godot::String& value : key_value.value)
         {
             values.push_back(value);
         }
