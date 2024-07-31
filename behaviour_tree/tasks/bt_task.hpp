@@ -66,7 +66,6 @@ public:
         return godot::Ref<BTTask>(this->parent);
     }
     void set_children(const godot::Array& children);
-    // NOTE: can't return godot::Vector<godot::Ref<BTTask>>. Investigate.
     godot::Array get_children() const;
     _FORCE_INLINE_ int get_child_count() const
     {

@@ -15,6 +15,7 @@
 class BTEditorPlugin : public godot::EditorPlugin
 {
     GDCLASS(BTEditorPlugin, godot::EditorPlugin)
+
 public:
     static BTEditorPlugin* get_singleton();
 

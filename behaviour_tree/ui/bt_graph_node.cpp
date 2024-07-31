@@ -1,11 +1,13 @@
 #include "bt_graph_node.hpp"
+
 #include <godot_cpp/variant/utility_functions.hpp>
 #include <godot_cpp/classes/editor_interface.hpp>
+#include <godot_cpp/classes/resource_loader.hpp>
 
 BTGraphNode::BTGraphNode()
 {
     this->_setup_connections_ui();
-    this->_setup_labels();
+    this->_setup_icon_label();
     this->_set_default_properties();
 
     this->call_deferred("connect", "gui_input", callable_mp(this, &BTGraphNode::_on_gui_input));
@@ -30,10 +32,34 @@ void BTGraphNode::_setup_connections_ui()
 
 }
 
-void BTGraphNode::_setup_labels()
+void BTGraphNode::_setup_icon_label()
 {
+    this->icon_name_container = memnew(godot::HBoxContainer);
+    this->icon = memnew(godot::TextureRect);
+    this->icon->set_expand_mode(godot::TextureRect::ExpandMode::EXPAND_FIT_WIDTH);
+    this->icon_name_container->add_child(this->icon);
     this->task_type_label = memnew(godot::Label);
-    this->add_child(this->task_type_label);
+    this->icon_name_container->add_child(this->task_type_label);
+    this->add_child(icon_name_container);
+    this->evaluate_icon();
+}
+
+void BTGraphNode::evaluate_icon()
+{
+    godot::Ref<godot::Texture2D> icon_texture;
+    if (this->task != nullptr)
+    {
+        godot::String class_name = this->task->get_class();
+        if (godot::ResourceLoader::get_singleton()->exists("res://gdextension/behaviour_tree/icons/" + class_name + ".png"))
+        {
+            icon_texture = godot::ResourceLoader::get_singleton()->load("res://gdextension/behaviour_tree/icons/" + class_name + ".png");
+        }
+        else
+        {
+            icon_texture = godot::ResourceLoader::get_singleton()->load("res://gdextension/behaviour_tree/icons/BTDefault.png");
+        }
+    }
+    this->icon->set_texture(icon_texture);
 }
 
 void BTGraphNode::set_graph_edit(godot::GraphEdit* graph_edit)
@@ -53,6 +79,7 @@ void BTGraphNode::set_task(godot::Ref<BTTask> task)
 
     this->task_type_label->set_text(class_name);
     this->task = task;
+    this->evaluate_icon(); 
 }
 
 void BTGraphNode::_on_gui_input(const godot::Ref<godot::InputEvent>& event)
