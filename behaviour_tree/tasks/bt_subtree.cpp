@@ -8,11 +8,6 @@
 
 #include "behaviour_tree/utils/utils.hpp"
 
-void BTSubtree::set_file_path(const godot::String& file_path)
-{
-    this->file_path = file_path;
-}
-
 BehaviourTree* BTSubtree::load_behavior_tree() const
 {
     return utils::load_scene_node<BehaviourTree>(this->file_path);

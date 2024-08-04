@@ -13,11 +13,8 @@ private:
     godot::String file_path;
 
 public:
-    void set_file_path(const godot::String& p_file_path);
-    _FORCE_INLINE_ godot::String get_file_path() const
-    {
-        return file_path;
-    }
+    CREATE_GETTER_SETTER_DEFAULT(const godot::String&, file_path);
+
     BehaviourTree* load_behavior_tree() const;
 
     virtual godot::Ref<BTTask> clone() const override;

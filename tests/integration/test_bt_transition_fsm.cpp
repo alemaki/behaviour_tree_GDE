@@ -45,8 +45,6 @@ TEST_SUITE("BTTransitionFSM")
         BTTask::Status status = task->execute(0.1);
         CHECK_EQ(status, BTTask::Status::SUCCESS);
         CHECK_EQ(fsm->get_state(), "running");
-        godot::UtilityFunctions::print(fsm->get_state());
-        godot::UtilityFunctions::print(task->get_to_state());
     }
 
     TEST_CASE_FIXTURE(TransitionFSMFixture, "FSM cannot transition to target state")
