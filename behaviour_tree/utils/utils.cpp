@@ -21,4 +21,17 @@ godot::Vector<godot::StringName> get_subclasses(const godot::StringName& base_cl
     return subclasses;
 }
 
+
+bool is_subclass(const godot::StringName& class_name, const godot::StringName& base_class_name)
+{
+    godot::Vector<godot::StringName> subclasses = get_subclasses(base_class_name);
+
+    if (subclasses.has(class_name))
+    {
+        return true;
+    }
+
+    return false;
+}
+
 }

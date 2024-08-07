@@ -4,6 +4,10 @@
 #include <godot_cpp/classes/editor_interface.hpp>
 #include <godot_cpp/classes/resource_loader.hpp>
 
+#include "behaviour_tree/tasks/bt_action.hpp"
+#include "behaviour_tree/tasks/bt_condition.hpp"
+#include "behaviour_tree/utils/utils.hpp"
+
 BTGraphNode::BTGraphNode()
 {
     this->_setup_connections_ui();
@@ -46,19 +50,34 @@ void BTGraphNode::_setup_icon_label()
 
 void BTGraphNode::evaluate_icon()
 {
+    godot::String icon_path = "res://gdextension/behaviour_tree/icons/";
+    godot::String extension = ".png";
     godot::Ref<godot::Texture2D> icon_texture;
-    if (this->task != nullptr)
+    if (this->task == nullptr)
     {
-        godot::String class_name = this->task->get_class();
-        if (godot::ResourceLoader::get_singleton()->exists("res://gdextension/behaviour_tree/icons/" + class_name + ".png"))
-        {
-            icon_texture = godot::ResourceLoader::get_singleton()->load("res://gdextension/behaviour_tree/icons/" + class_name + ".png");
-        }
-        else
-        {
-            icon_texture = godot::ResourceLoader::get_singleton()->load("res://gdextension/behaviour_tree/icons/BTDefault.png");
-        }
+        return;
     }
+
+    godot::String class_name = this->task->get_class();
+    if (godot::ResourceLoader::get_singleton()->exists(icon_path + class_name + extension))
+    {
+        icon_texture = godot::ResourceLoader::get_singleton()->load(icon_path + class_name + extension);
+    }
+    else if ((godot::ResourceLoader::get_singleton()->exists(icon_path + BTAction::get_class_static() + extension))
+            && (utils::is_subclass(class_name, BTAction::get_class_static())))
+    {
+        icon_texture = godot::ResourceLoader::get_singleton()->load(icon_path + BTAction::get_class_static() + extension);
+    }
+    else if ((godot::ResourceLoader::get_singleton()->exists(icon_path + BTAction::get_class_static() + extension))
+            && (utils::is_subclass(class_name, BTCondition::get_class_static())))
+    {
+        icon_texture = godot::ResourceLoader::get_singleton()->load(icon_path + BTCondition::get_class_static() + extension);
+    }
+    else
+    {
+        icon_texture = godot::ResourceLoader::get_singleton()->load("res://gdextension/behaviour_tree/icons/BTDefault.png");
+    }
+    
     this->icon->set_texture(icon_texture);
 }
 

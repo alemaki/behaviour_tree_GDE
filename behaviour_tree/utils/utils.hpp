@@ -51,6 +51,7 @@ T* load_scene_node(const godot::String& scene_path)
 }
 
 godot::Vector<godot::StringName> get_subclasses(const godot::StringName& base_class_name);
+bool is_subclass(const godot::StringName& class_name, const godot::StringName& base_class_name);
 
 } /* namespace utils*/
 
