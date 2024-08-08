@@ -15,7 +15,6 @@ private:
     godot::HashMap<godot::String, godot::HashSet<godot::String>> transitions;
 
 public:
-
     void set_initial_state(const godot::String& state);
     _FORCE_INLINE_ godot::String get_initial_state() const
     {

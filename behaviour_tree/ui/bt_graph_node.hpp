@@ -35,11 +35,8 @@ private:
 
 public:
     BTGraphNode();
-    void set_graph_edit(godot::GraphEdit* graph_edit);
-    _FORCE_INLINE_ godot::GraphEdit* get_graph_editor() const
-    {
-        return this->graph_edit;
-    }
+    
+    CREATE_GETTER_SETTER_DEFAULT(godot::GraphEdit*, graph_edit);
 
     virtual void set_task(godot::Ref<BTTask> task);
 

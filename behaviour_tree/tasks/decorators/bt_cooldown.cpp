@@ -54,26 +54,12 @@ void BTCooldown::reset()
     this->_on_timeout();
 }
 
-void BTCooldown::set_duration(double duration)
-{
-    this->duration = duration;
-}
-
-void BTCooldown::set_trigger_on_failure(bool trigger_on_failure)
-{
-    this->trigger_on_failure = trigger_on_failure;
-}
-
-void BTCooldown::set_start_cooled(bool start_cooled)
-{
-    this->start_cooled = start_cooled;
-}
-
 void BTCooldown::_bind_methods()
 {
     using namespace godot;
 
     ClassDB::bind_method(D_METHOD("_on_timeout"), &BTCooldown::_on_timeout);
+    ClassDB::bind_method(D_METHOD("is_cooldown_active"), &BTCooldown::is_cooldown_active);
 
     ClassDB::bind_method(D_METHOD("set_duration", "duration"), &BTCooldown::set_duration);
     ClassDB::bind_method(D_METHOD("get_duration"), &BTCooldown::get_duration);

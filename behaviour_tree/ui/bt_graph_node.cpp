@@ -81,15 +81,6 @@ void BTGraphNode::evaluate_icon()
     this->icon->set_texture(icon_texture);
 }
 
-void BTGraphNode::set_graph_edit(godot::GraphEdit* graph_edit)
-{
-    if (this->graph_edit != nullptr)
-    {
-        return;
-    } 
-    this->graph_edit = graph_edit;
-}
-
 void BTGraphNode::set_task(godot::Ref<BTTask> task)
 {
     ERR_FAIL_COND(task.is_null());
@@ -128,7 +119,7 @@ void BTGraphNode::_bind_methods()
 
     
     ClassDB::bind_method(D_METHOD("set_graph_edit", "graph_edit"), &BTGraphNode::set_graph_edit);
-    ClassDB::bind_method(D_METHOD("get_graph_editor"), &BTGraphNode::get_graph_editor);
+    ClassDB::bind_method(D_METHOD("get_graph_edit"), &BTGraphNode::get_graph_edit);
     ClassDB::bind_method(D_METHOD("set_task", "task"), &BTGraphNode::set_task);
     ClassDB::bind_method(D_METHOD("get_task"), &BTGraphNode::get_task);
 

@@ -21,16 +21,14 @@ private:
     void set_task_map(godot::Dictionary dict);
 
 public:
-    void set_description(const godot::String &description);
-    _FORCE_INLINE_ godot::String get_description() const
-    {
-        return this->description;
-    }
+    CREATE_GETTER_SETTER_DEFAULT(const godot::String&, description);
+
     void set_root_task(godot::Ref<BTTask> task);
     _FORCE_INLINE_ godot::Ref<BTTask> get_root_task() const
     {
         return this->root_task;
     }
+    
     void set_custom_name_task_by_ref(godot::Ref<BTTask> task, const godot::String& new_name);
     int get_valid_id() const;
     int get_task_id(godot::Ref<BTTask> task) const;

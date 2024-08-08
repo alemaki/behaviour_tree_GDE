@@ -21,11 +21,6 @@ void BehaviourTree::set_task_map(godot::Dictionary dict)
     }
 }
 
-void BehaviourTree::set_description(const godot::String &description)
-{
-    this->description = description;
-}
-
 void BehaviourTree::set_root_task(godot::Ref<BTTask> task)
 {
     ERR_FAIL_COND_MSG(!(this->has_task(task)), "Task not found.");

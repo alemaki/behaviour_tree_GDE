@@ -39,26 +39,11 @@ protected:
     
 public:
     BTTask();
-    void set_custom_name(const godot::String& name);
-    _FORCE_INLINE_ godot::String get_custom_name() const
-    {
-        return this->custom_name;
-    }
-    void set_actor(godot::Node* actor);
-    _FORCE_INLINE_ godot::Node* get_actor() const
-    {
-        return this->actor;
-    }
-    void set_blackboard(godot::Ref<Blackboard> blackboard);
-    _FORCE_INLINE_ godot::Ref<Blackboard> get_blackboard() const
-    {
-        return this->blackboard;
-    }
-    void set_status(BTTask::Status status);
-    _FORCE_INLINE_ Status get_status() const
-    {
-        return this->status;
-    }
+
+    CREATE_GETTER_SETTER_DEFAULT(const godot::String&, custom_name);
+    CREATE_GETTER_SETTER_DEFAULT(godot::Node*, actor);
+    CREATE_GETTER_SETTER_DEFAULT(godot::Ref<Blackboard>, blackboard);
+    CREATE_GETTER_SETTER_DEFAULT(BTTask::Status, status);
 
     void set_parent(godot::Ref<BTTask> parent);
     _FORCE_INLINE_ godot::Ref<BTTask> get_parent() const
@@ -67,6 +52,7 @@ public:
     }
     void set_children(const godot::Array& children);
     godot::Array get_children() const;
+    
     _FORCE_INLINE_ int get_child_count() const
     {
         return this->children.size();

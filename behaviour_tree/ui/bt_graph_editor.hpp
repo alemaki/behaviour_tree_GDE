@@ -38,22 +38,22 @@ class BTGraphEditor : public godot::Object
     friend BTEditorPlugin;
 
 private:
-    godot::EditorPlugin* editor_plugin;
-    godot::GraphEdit* graph_edit;
-    BehaviourTree* behaviour_tree;
+    godot::EditorPlugin* editor_plugin = nullptr;
+    godot::GraphEdit* graph_edit = nullptr;
+    BehaviourTree* behaviour_tree = nullptr;
     
     godot::HashMap<godot::StringName, BTGraphNode*> name_to_node;
     godot::HashMap<godot::Ref<BTTask>, BTGraphNode*> task_to_node;
 
-    godot::LineEdit* rename_edit;
-    godot::LineEdit* path_edit;
-    godot::PopupMenu* main_popup_menu;
-    godot::PopupMenu* task_type_popup_menu;
+    godot::LineEdit* rename_edit = nullptr;
+    godot::LineEdit* path_edit = nullptr;
+    godot::PopupMenu* main_popup_menu = nullptr;
+    godot::PopupMenu* task_type_popup_menu = nullptr;
 
-    godot::PopupMenu* action_condition_type_popup_menu;
+    godot::PopupMenu* action_condition_type_popup_menu = nullptr;
 
-    BTGraphNode* last_double_clicked_node;
-    BTGraphNode* last_right_clicked_node;
+    BTGraphNode* last_double_clicked_node = nullptr;
+    BTGraphNode* last_right_clicked_node = nullptr;
 
     godot::Vector<godot::StringName> composite_names;
     godot::Vector<godot::StringName> decorator_names;

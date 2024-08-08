@@ -16,11 +16,7 @@ protected:
     virtual BTTask::Status _tick(double delta) override;
 
 public:
-    void set_check_true(bool value);
-    _FORCE_INLINE_ bool get_check_true() const
-    {
-        return this->is_true;
-    }
+    CREATE_GETTER_SETTER(bool, check_true, is_true);
     void set_var_name(const godot::StringName& var_name);
     _FORCE_INLINE_ godot::StringName get_var_name() const
     {

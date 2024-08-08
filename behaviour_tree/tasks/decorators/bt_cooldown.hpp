@@ -25,21 +25,10 @@ protected:
     void _setup();
 
 public:
-    void set_duration(double duration);
-    _FORCE_INLINE_ double get_duration() const
-    {
-        return this->duration;
-    }
-    void set_trigger_on_failure(bool trigger_on_failure);
-    _FORCE_INLINE_ bool is_trigger_on_failure() const
-    {
-        return this->trigger_on_failure;
-    }
-    void set_start_cooled(bool start_cooled);
-    _FORCE_INLINE_ bool is_start_cooled() const
-    {
-        return this->start_cooled;
-    }
+    CREATE_GETTER_SETTER_POSITIVE_DEFAULT(double, duration);
+    CREATE_GETTER_SETTER_BOOL_DEFAULT(trigger_on_failure);
+    CREATE_GETTER_SETTER_BOOL_DEFAULT(start_cooled);
+    
     _FORCE_INLINE_ bool is_cooldown_active() const
     {
         return this->cooldown_active;

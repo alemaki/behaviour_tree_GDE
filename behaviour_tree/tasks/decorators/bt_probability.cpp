@@ -1,12 +1,6 @@
 #include "bt_probability.hpp"
 #include <godot_cpp/variant/utility_functions.hpp>
 
-void BTProbability::set_run_chance(float chance)
-{
-    chance = godot::Math::clamp<float>(chance, 0, 1);
-    this->run_chance = chance;
-}
-
 BTTask::Status BTProbability::_tick(double delta)
 {
     if(godot::UtilityFunctions::randf() < this->run_chance)

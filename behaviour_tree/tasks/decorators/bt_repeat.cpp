@@ -1,25 +1,5 @@
 #include "bt_repeat.hpp"
 
-void BTRepeat::set_repeat_times(int repeat_times)
-{
-    this->repeat_times = repeat_times;
-}
-
-void BTRepeat::set_abort_on_failure(bool abort_on_failure)
-{
-    this->abort_on_failure = abort_on_failure;
-}
-
-void BTRepeat::set_abort_on_success(bool abort_on_success)
-{
-    this->abort_on_success = abort_on_success;
-}
-
-void  BTRepeat::set_run_forever(bool run_forever)
-{
-    this->run_forever = run_forever;
-}
-
 void BTRepeat::_enter() 
 {
     this->current_repeat_times = 0;

@@ -1,5 +1,6 @@
 #include "bt_task.hpp"
 #include <godot_cpp/variant/utility_functions.hpp>
+
 BTTask::BTTask()
 {
     this->actor = nullptr;
@@ -8,31 +9,9 @@ BTTask::BTTask()
     this->custom_name = "";
 }
 
-void BTTask::set_actor(godot::Node* actor)
-{
-    this->actor = actor;
-}
-
 void BTTask::set_parent(godot::Ref<BTTask> parent)
 {
     this->parent = parent.ptr();
-}
-
-godot::Array BTTask::get_children() const
-{
-    godot::Array array;
-    int size = this->get_child_count();
-    array.resize(size);
-    for (int i = 0; i < size; i++)
-    {
-        array[i] = this->children[i].ptr();
-    }
-    return array;
-}
-
-void BTTask::set_custom_name(const godot::String& name)
-{
-    this->custom_name = name;
 }
 
 void BTTask::set_children(const godot::Array& children)
@@ -71,14 +50,16 @@ void BTTask::set_children(const godot::Array& children)
     }
 }
 
-void BTTask::set_blackboard(godot::Ref<Blackboard> blackboard)
+godot::Array BTTask::get_children() const
 {
-    this->blackboard = blackboard;
-}
-
-void BTTask::set_status(BTTask::Status status) 
-{
-    this->status = status;
+    godot::Array array;
+    int size = this->get_child_count();
+    array.resize(size);
+    for (int i = 0; i < size; i++)
+    {
+        array[i] = this->children[i].ptr();
+    }
+    return array;
 }
 
 bool BTTask::is_root() const

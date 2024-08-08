@@ -49,23 +49,6 @@ BTTask::Status BTParallel::_tick(double delta)
     return result;
 }
 
-void BTParallel::set_successes_required(int successes_required)
-{
-    successes_required = godot::Math::clamp<int>(successes_required, 0, successes_required);
-    this->successes_required = successes_required;
-}
-
-void BTParallel::set_failures_required(int failures_required)
-{
-    failures_required = godot::Math::clamp<int>(failures_required, 0, failures_required);
-    this->failures_required = failures_required;
-}
-
-void BTParallel::set_repeat(bool repeat)
-{
-    this->repeat = repeat;
-}
-
 void BTParallel::_bind_methods()
 {
     using namespace godot;
