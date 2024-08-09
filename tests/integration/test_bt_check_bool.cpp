@@ -11,7 +11,7 @@ TEST_SUITE("BTCheckBool")
     TEST_CASE("Basics")
     {
         godot::Ref<BTCheckBool> task = memnew(BTCheckBool);
-        task->set_complain(false);
+        task->set_complain_enabled(false);
         task->set_check_true(true);
         task->set_var_name("TestVar");
 

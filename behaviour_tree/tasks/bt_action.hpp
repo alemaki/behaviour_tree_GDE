@@ -7,8 +7,14 @@ class BTAction : public BTTask
 {
 	GDCLASS(BTAction, BTTask);
 
+private:
+	bool complain_enabled = true;
+
+public:
+	CREATE_GETTER_SETTER_BOOL_DEFAULT(complain_enabled);
+
 protected:
-	static void _bind_methods(){};
+	static void _bind_methods();
 };
 
 #endif // BT_ACTION_HPP

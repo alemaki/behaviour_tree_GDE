@@ -19,7 +19,7 @@ struct CheckFSMStateFixture
                              blackboard(memnew(Blackboard)),
                              fsm(memnew(FSM))
     {
-        task->set_complain(false);
+        task->set_complain_enabled(false);
         task->set_state("running");
         task->set_fsm_name("TestFSM");
         

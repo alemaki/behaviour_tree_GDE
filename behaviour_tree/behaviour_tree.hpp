@@ -21,7 +21,7 @@ private:
     void set_task_map(godot::Dictionary dict);
 
 public:
-    CREATE_GETTER_SETTER_DEFAULT(const godot::String&, description);
+    CREATE_GETTER_SETTER_STRING_DEFAULT(description);
 
     void set_root_task(godot::Ref<BTTask> task);
     _FORCE_INLINE_ godot::Ref<BTTask> get_root_task() const

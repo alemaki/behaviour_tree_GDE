@@ -13,7 +13,7 @@ private:
     godot::String file_path;
 
 public:
-    CREATE_GETTER_SETTER_DEFAULT(const godot::String&, file_path);
+    CREATE_GETTER_SETTER_STRING_DEFAULT(file_path);
 
     BehaviourTree* load_behavior_tree() const;
 

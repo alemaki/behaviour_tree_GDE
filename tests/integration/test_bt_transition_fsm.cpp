@@ -19,7 +19,7 @@ struct TransitionFSMFixture
                              blackboard(memnew(Blackboard)),
                              fsm(memnew(FSM))
     {
-        task->set_complain(false);
+        task->set_complain_enabled(false);
         task->set_fsm_name("TestFSM");
         task->set_to_state("running");
 

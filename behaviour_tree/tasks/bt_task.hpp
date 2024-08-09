@@ -40,7 +40,7 @@ protected:
 public:
     BTTask();
 
-    CREATE_GETTER_SETTER_DEFAULT(const godot::String&, custom_name);
+    CREATE_GETTER_SETTER_STRING_DEFAULT(custom_name);
     CREATE_GETTER_SETTER_DEFAULT(godot::Node*, actor);
     CREATE_GETTER_SETTER_DEFAULT(godot::Ref<Blackboard>, blackboard);
     CREATE_GETTER_SETTER_DEFAULT(BTTask::Status, status);
