@@ -103,9 +103,7 @@ void BTEditorPlugin::_bind_methods()
 {
     using namespace godot;
 
-    ClassDB::bind_method(D_METHOD("set_graph_editor", "graph_editor"), &BTEditorPlugin::set_graph_editor);
-    ClassDB::bind_method(D_METHOD("get_graph_editor"), &BTEditorPlugin::get_graph_editor);
-
+    BIND_GETTER_SETTER_DEFAULT(BTEditorPlugin, graph_editor);
 
     /* ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "graph_editor"), "set_graph_editor", "get_graph_editor");*/
 }

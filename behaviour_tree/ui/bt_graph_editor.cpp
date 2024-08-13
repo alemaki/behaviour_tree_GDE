@@ -1278,7 +1278,6 @@ void BTGraphEditor::_bind_methods()
     // Getters and Setters
     ClassDB::bind_method(D_METHOD("set_editor_plugin", "editor_plugin"), &BTGraphEditor::set_editor_plugin);
     ClassDB::bind_method(D_METHOD("get_graph_edit"), &BTGraphEditor::get_graph_edit);
-    ClassDB::bind_method(D_METHOD("set_behaviour_tree", "behaviour_tree"), &BTGraphEditor::set_behaviour_tree);
-    ClassDB::bind_method(D_METHOD("get_behaviour_tree"), &BTGraphEditor::get_behaviour_tree);
+    BIND_GETTER_SETTER_DEFAULT(BTGraphEditor, behaviour_tree);
 
 }

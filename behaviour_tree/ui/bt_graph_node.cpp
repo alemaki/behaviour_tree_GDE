@@ -117,11 +117,8 @@ void BTGraphNode::_bind_methods()
 {
     using namespace godot;
 
-    
-    ClassDB::bind_method(D_METHOD("set_graph_edit", "graph_edit"), &BTGraphNode::set_graph_edit);
-    ClassDB::bind_method(D_METHOD("get_graph_edit"), &BTGraphNode::get_graph_edit);
-    ClassDB::bind_method(D_METHOD("set_task", "task"), &BTGraphNode::set_task);
-    ClassDB::bind_method(D_METHOD("get_task"), &BTGraphNode::get_task);
+    BIND_GETTER_SETTER_DEFAULT(BTGraphNode, graph_edit);
+    BIND_GETTER_SETTER_DEFAULT(BTGraphNode, task);
 
     ADD_SIGNAL(MethodInfo("double_clicked"));
     ADD_SIGNAL(MethodInfo("right_clicked"));

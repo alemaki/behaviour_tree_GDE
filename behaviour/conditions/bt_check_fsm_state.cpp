@@ -19,11 +19,6 @@ void BTCheckFSMState::_bind_methods()
 {
     using namespace godot;
 
-    ClassDB::bind_method(D_METHOD("set_state", "state"), &BTCheckFSMState::set_state);
-    ClassDB::bind_method(D_METHOD("get_state"), &BTCheckFSMState::get_state);
-    ClassDB::bind_method(D_METHOD("set_fsm_name", "fsm_name"), &BTCheckFSMState::set_fsm_name);
-    ClassDB::bind_method(D_METHOD("get_fsm_name"), &BTCheckFSMState::get_fsm_name);
-
-    ADD_PROPERTY(PropertyInfo(Variant::Type::STRING, "state"), "set_state", "get_state");
-    ADD_PROPERTY(PropertyInfo(Variant::Type::STRING_NAME, "fsm_name"), "set_fsm_name", "get_fsm_name");
+    BIND_GETTER_SETTER_PROPERTY_DEFAULT(BTCheckFSMState, STRING, state);
+    BIND_GETTER_SETTER_PROPERTY_DEFAULT(BTCheckFSMState, STRING_NAME, fsm_name);
 }

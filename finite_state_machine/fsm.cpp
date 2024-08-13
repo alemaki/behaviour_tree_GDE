@@ -1,4 +1,5 @@
 #include "fsm.hpp"
+#include "behaviour_tree/utils/macros.hpp"
 
 void FSM::add_transition(const godot::String& from, const godot::String& to)
 {
@@ -77,11 +78,7 @@ void FSM::_bind_methods()
     ClassDB::bind_method(D_METHOD("transition_to", "state"), &FSM::transition_to);
     ClassDB::bind_method(D_METHOD("can_transition_to", "state"), &FSM::transition_to);
 
-    ClassDB::bind_method(D_METHOD("set_initial_state", "state"), &FSM::set_initial_state);
-    ClassDB::bind_method(D_METHOD("get_initial_state"), &FSM::get_initial_state);
-    ClassDB::bind_method(D_METHOD("set_transitions", "transitions"), &FSM::set_transitions);
-    ClassDB::bind_method(D_METHOD("get_transitions"), &FSM::get_transitions);
-
-    ADD_PROPERTY(PropertyInfo(godot::Variant::STRING, "initial_state"), "set_initial_state", "get_initial_state");
-    ADD_PROPERTY(PropertyInfo(godot::Variant::DICTIONARY, "transitions"), "set_transitions", "get_transitions");
+    
+    BIND_GETTER_SETTER_PROPERTY_DEFAULT(FSM, STRING, initial_state);
+    BIND_GETTER_SETTER_PROPERTY_DEFAULT(FSM, DICTIONARY, transitions);
 }

@@ -270,18 +270,13 @@ void BTTask::_bind_methods()
     ClassDB::bind_method(D_METHOD("clone"), &BTTask::clone);
     ClassDB::bind_method(D_METHOD("initialize", "actor", "blackboard"), &BTTask::initialize);
 
-    ClassDB::bind_method(D_METHOD("set_parent", "parent"), &BTTask::set_parent);
-    ClassDB::bind_method(D_METHOD("get_parent"), &BTTask::get_parent);
-    ClassDB::bind_method(D_METHOD("set_blackboard", "blackboard"), &BTTask::set_blackboard);
-    ClassDB::bind_method(D_METHOD("get_blackboard"), &BTTask::get_blackboard);
-    ClassDB::bind_method(D_METHOD("set_custom_name", "name"), &BTTask::set_custom_name);
-    ClassDB::bind_method(D_METHOD("get_custom_name"), &BTTask::get_custom_name);
-    ClassDB::bind_method(D_METHOD("set_actor", "actor"), &BTTask::set_actor);
-    ClassDB::bind_method(D_METHOD("get_actor"), &BTTask::get_actor);
-    ClassDB::bind_method(D_METHOD("set_status", "status"), &BTTask::set_status);
-    ClassDB::bind_method(D_METHOD("get_status"), &BTTask::get_status);
-    ClassDB::bind_method(D_METHOD("set_children", "children"), &BTTask::set_children);
-    ClassDB::bind_method(D_METHOD("get_children"), &BTTask::get_children);
+
+    BIND_GETTER_SETTER_DEFAULT(BTTask, parent);
+    BIND_GETTER_SETTER_DEFAULT(BTTask, blackboard);
+    BIND_GETTER_SETTER_DEFAULT(BTTask, custom_name);
+    BIND_GETTER_SETTER_DEFAULT(BTTask, actor);
+    BIND_GETTER_SETTER_DEFAULT(BTTask, status);
+    BIND_GETTER_SETTER_DEFAULT(BTTask, children);
 
     ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "parent", PROPERTY_HINT_NONE, "Parent of the task.", PROPERTY_USAGE_NONE), "set_parent", "get_parent");
     ADD_PROPERTY(PropertyInfo(Variant::STRING, "custom_name", PROPERTY_HINT_RESOURCE_TYPE, "Name of the task.", PROPERTY_USAGE_NO_EDITOR | PROPERTY_USAGE_INTERNAL), "set_custom_name", "get_custom_name");

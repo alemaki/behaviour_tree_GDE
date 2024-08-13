@@ -50,22 +50,40 @@
     ClassDB::bind_method(D_METHOD("get_" #name), &class::get_##name);
 
 #define BIND_GETTER_SETTER_DEFAULT(class, name) /******************************************************************************************************************************/\
-    ClassDB::bind_method(D_METHOD("set_" #name, #name), &class::set_##name);                                                                                                    \
-    ClassDB::bind_method(D_METHOD("get_" #name), &class::get_##name);
+    BIND_GETTER_SETTER(class, name, name)
+
+#define BIND_GETTER_SETTER_BOOL(class, name, parameter) /**********************************************************************************************************************/\
+    ClassDB::bind_method(D_METHOD("set_" #name, #parameter), &class::set_##name);                                                                                               \
+    ClassDB::bind_method(D_METHOD("is_" #name), &class::is_##name);
+
+#define BIND_GETTER_SETTER_BOOL_DEFAULT(class, name) /*************************************************************************************************************************/\
+    BIND_GETTER_SETTER_BOOL(class, name, name)
 
 #define BIND_PROPERTY(name, variant_type, member) /****************************************************************************************************************************/\
     ADD_PROPERTY(PropertyInfo(Variant::variant_type, #member), "set_" #name, "get_" #name);
 
 #define BIND_PROPERTY_DEFAULT(variant_type, member) /**************************************************************************************************************************/\
-    ADD_PROPERTY(PropertyInfo(Variant::variant_type, #member), "set_" #member, "get_" #member);
+    BIND_PROPERTY(member, variant_type, member)
+
+#define BIND_PROPERTY_BOOL(name, member) /*************************************************************************************************************************************/\
+    ADD_PROPERTY(PropertyInfo(Variant::BOOL, #member), "set_" #name, "is_" #name);
+
+#define BIND_PROPERTY_BOOL_DEFAULT(member) /***********************************************************************************************************************************/\
+    ADD_PROPERTY(PropertyInfo(Variant::BOOL, #member), "set_" #member, "is_" #member);
 
 #define BIND_GETTER_SETTER_PROPERTY(class, name, parameter, variant_type, member) /********************************************************************************************/\
     BIND_GETTER_SETTER(class, name, parameter)                                                                                                                                  \
     BIND_PROPERTY(name, variant_type, member)
 
 #define BIND_GETTER_SETTER_PROPERTY_DEFAULT(class, variant_type, member) /*****************************************************************************************************/\
-    BIND_GETTER_SETTER_DEFAULT(class, member)                                                                                                                                   \
-    BIND_PROPERTY_DEFAULT(variant_type, member)
+    BIND_GETTER_SETTER_PROPERTY(class, member, member, variant_type, member)
+
+#define BIND_GETTER_SETTER_PROPERTY_BOOL(class, name, parameter, member) /*****************************************************************************************************/\
+    BIND_GETTER_SETTER_BOOL(class, name, parameter)                                                                                                                             \
+    BIND_PROPERTY_BOOL(name, member)
+
+#define BIND_GETTER_SETTER_PROPERTY_BOOL_DEFAULT(class, member) /**************************************************************************************************************/\
+    BIND_GETTER_SETTER_PROPERTY_BOOL(class, member, member, member)
 
 // include bt_task after so it can use definitions for getter_setter
 #include "behaviour_tree/tasks/bt_task.hpp"

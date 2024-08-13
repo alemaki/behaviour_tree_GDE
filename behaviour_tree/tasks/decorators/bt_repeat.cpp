@@ -44,17 +44,8 @@ void BTRepeat::_bind_methods()
 {
     using namespace godot;
 
-    ClassDB::bind_method(D_METHOD("set_repeat_times", "repeat_times"), &BTRepeat::set_repeat_times);
-    ClassDB::bind_method(D_METHOD("get_repeat_times"), &BTRepeat::get_repeat_times);
-    ClassDB::bind_method(D_METHOD("set_abort_on_failure", "abort_on_failure"), &BTRepeat::set_abort_on_failure);
-    ClassDB::bind_method(D_METHOD("get_abort_on_failure"), &BTRepeat::get_abort_on_failure);
-    ClassDB::bind_method(D_METHOD("set_abort_on_success", "abort_on_success"), &BTRepeat::set_abort_on_success);
-    ClassDB::bind_method(D_METHOD("get_abort_on_success"), &BTRepeat::get_abort_on_success);
-    ClassDB::bind_method(D_METHOD("set_run_forever", "run_forever"), &BTRepeat::set_run_forever);
-    ClassDB::bind_method(D_METHOD("get_run_forever"), &BTRepeat::get_run_forever);
-
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "repeat_times"), "set_repeat_times", "get_repeat_times");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "abort_on_failure"), "set_abort_on_failure", "get_abort_on_failure");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "abort_on_success"), "set_abort_on_success", "get_abort_on_success");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "run_forever"), "set_run_forever", "get_run_forever");
+    BIND_GETTER_SETTER_PROPERTY_DEFAULT(BTRepeat, INT, repeat_times);
+    BIND_GETTER_SETTER_PROPERTY_DEFAULT(BTRepeat, BOOL, abort_on_failure);
+    BIND_GETTER_SETTER_PROPERTY_DEFAULT(BTRepeat, BOOL, abort_on_success);
+    BIND_GETTER_SETTER_PROPERTY_DEFAULT(BTRepeat, BOOL, run_forever);
 }

@@ -14,8 +14,5 @@ void BTProbability::_bind_methods()
 {
     using namespace godot;
 
-    ClassDB::bind_method(D_METHOD("set_run_chance", "chance"), &BTProbability::set_run_chance);
-    ClassDB::bind_method(D_METHOD("get_run_chance"), &BTProbability::get_run_chance);
-    
-    ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "run_chance"), "set_run_chance", "get_run_chance");
+    BIND_GETTER_SETTER_PROPERTY_DEFAULT(BTProbability, FLOAT, run_chance);
 }

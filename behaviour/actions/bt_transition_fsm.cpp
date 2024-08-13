@@ -17,11 +17,6 @@ void BTTransitionFSM::_bind_methods()
 {
     using namespace godot;
 
-    ClassDB::bind_method(D_METHOD("set_to_state", "to_state"), &BTTransitionFSM::set_to_state);
-    ClassDB::bind_method(D_METHOD("get_to_state"), &BTTransitionFSM::get_to_state);
-    ClassDB::bind_method(D_METHOD("set_fsm_name", "fsm_name"), &BTTransitionFSM::set_fsm_name);
-    ClassDB::bind_method(D_METHOD("get_fsm_name"), &BTTransitionFSM::get_fsm_name);
-
-    ADD_PROPERTY(PropertyInfo(Variant::STRING, "to_state"), "set_to_state", "get_to_state");
-    ADD_PROPERTY(PropertyInfo(Variant::STRING_NAME, "fsm_name"), "set_fsm_name", "get_fsm_name");
+    BIND_GETTER_SETTER_PROPERTY_DEFAULT(BTTransitionFSM, STRING, to_state);
+    BIND_GETTER_SETTER_PROPERTY_DEFAULT(BTTransitionFSM, STRING_NAME, fsm_name);
 }

@@ -231,14 +231,10 @@ void BehaviourTree::_bind_methods()
     ClassDB::bind_method(D_METHOD("swap_task_in", "old_task", "new_task"), &BehaviourTree::swap_task_in);
     ClassDB::bind_method(D_METHOD("instantiate", "actor", "blackboard"), &BehaviourTree::instantiate);
 
-    ClassDB::bind_method(D_METHOD("set_description", "description"), &BehaviourTree::set_description);
-    ClassDB::bind_method(D_METHOD("get_description"), &BehaviourTree::get_description);
-    ClassDB::bind_method(D_METHOD("set_root_task", "task"), &BehaviourTree::set_root_task);
-    ClassDB::bind_method(D_METHOD("get_root_task"), &BehaviourTree::get_root_task);
-    ClassDB::bind_method(D_METHOD("set_task_map", "task_map"), &BehaviourTree::set_task_map);
-    ClassDB::bind_method(D_METHOD("get_task_map"), &BehaviourTree::get_task_map);
+    BIND_GETTER_SETTER_PROPERTY_DEFAULT(BehaviourTree, STRING, description);
+    BIND_GETTER_SETTER(BehaviourTree, root_task, task);
+    BIND_GETTER_SETTER_DEFAULT(BehaviourTree, task_map);
 
-    ADD_PROPERTY(PropertyInfo(Variant::STRING, "description"), "set_description", "get_description");
     ADD_PROPERTY(PropertyInfo(Variant::DICTIONARY, "task_map", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NO_EDITOR), "set_task_map", "get_task_map");
     ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "root_task", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NO_EDITOR), "set_root_task", "get_root_task");
 }

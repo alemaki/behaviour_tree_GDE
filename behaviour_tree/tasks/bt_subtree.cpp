@@ -38,9 +38,7 @@ void BTSubtree::_bind_methods()
 {
     using namespace godot;
 
-    ClassDB::bind_method(D_METHOD("set_file_path", "file_path"), &BTSubtree::set_file_path);
-    ClassDB::bind_method(D_METHOD("get_file_path"), &BTSubtree::get_file_path);
     ClassDB::bind_method(D_METHOD("load_behavior_tree"), &BTSubtree::load_behavior_tree);
 
-    ADD_PROPERTY(PropertyInfo(Variant::STRING, "file_path"), "set_file_path", "get_file_path");
+    BIND_GETTER_SETTER_PROPERTY_DEFAULT(BTSubtree, STRING, file_path);
 }

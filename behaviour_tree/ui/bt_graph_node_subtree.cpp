@@ -52,6 +52,5 @@ void BTGraphNodeSubtree::_bind_methods()
 {
     using namespace godot;
 
-    ClassDB::bind_method(D_METHOD("set_file_path", "path"), &BTGraphNodeSubtree::set_file_path);
-    ClassDB::bind_method(D_METHOD("get_file_path"), &BTGraphNodeSubtree::get_file_path);
+    BIND_GETTER_SETTER_DEFAULT(BTGraphNodeSubtree, file_path);
 }

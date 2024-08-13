@@ -20,13 +20,6 @@ void BTCheckBool::_bind_methods()
 {
     using namespace godot;
 
-    ClassDB::bind_method(D_METHOD("set_check_true", "value"), &BTCheckBool::set_check_true);
-    ClassDB::bind_method(D_METHOD("get_check_true"), &BTCheckBool::get_check_true);
-    ClassDB::bind_method(D_METHOD("set_var_name", "var_name"), &BTCheckBool::set_var_name);
-    ClassDB::bind_method(D_METHOD("get_var_name"), &BTCheckBool::get_var_name);
-
-    ADD_PROPERTY(PropertyInfo(Variant::Type::BOOL, "is_true"), "set_check_true", "get_check_true");
-    ADD_PROPERTY(PropertyInfo(Variant::Type::STRING_NAME, "var_name"), "set_var_name", "get_var_name");
-
-
+    BIND_GETTER_SETTER_PROPERTY_DEFAULT(BTCheckBool, BOOL, check_true);
+    BIND_GETTER_SETTER_PROPERTY_DEFAULT(BTCheckBool, STRING_NAME, var_name);
 }

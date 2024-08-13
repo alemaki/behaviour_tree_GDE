@@ -61,14 +61,7 @@ void BTCooldown::_bind_methods()
     ClassDB::bind_method(D_METHOD("_on_timeout"), &BTCooldown::_on_timeout);
     ClassDB::bind_method(D_METHOD("is_cooldown_active"), &BTCooldown::is_cooldown_active);
 
-    ClassDB::bind_method(D_METHOD("set_duration", "duration"), &BTCooldown::set_duration);
-    ClassDB::bind_method(D_METHOD("get_duration"), &BTCooldown::get_duration);
-    ClassDB::bind_method(D_METHOD("set_trigger_on_failure", "trigger_on_failure"), &BTCooldown::set_trigger_on_failure);
-    ClassDB::bind_method(D_METHOD("is_trigger_on_failure"), &BTCooldown::is_trigger_on_failure);
-    ClassDB::bind_method(D_METHOD("set_start_cooled", "start_cooled"), &BTCooldown::set_start_cooled);
-    ClassDB::bind_method(D_METHOD("is_start_cooled"), &BTCooldown::is_start_cooled);
-
-    ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "duration"), "set_duration", "get_duration");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "trigger_on_failure"), "set_trigger_on_failure", "is_trigger_on_failure");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "start_cooled"), "set_start_cooled", "is_start_cooled");
+    BIND_GETTER_SETTER_PROPERTY_DEFAULT(BTCooldown, FLOAT, duration);
+    BIND_GETTER_SETTER_PROPERTY_BOOL_DEFAULT(BTCooldown, trigger_on_failure);
+    BIND_GETTER_SETTER_PROPERTY_BOOL_DEFAULT(BTCooldown, start_cooled);
 }

@@ -53,14 +53,7 @@ void BTParallel::_bind_methods()
 {
     using namespace godot;
 
-	ClassDB::bind_method(D_METHOD("get_successes_required"), &BTParallel::get_successes_required);
-	ClassDB::bind_method(D_METHOD("set_successes_required", "value"), &BTParallel::set_successes_required);
-	ClassDB::bind_method(D_METHOD("get_failures_required"), &BTParallel::get_failures_required);
-	ClassDB::bind_method(D_METHOD("set_failures_required", "value"), &BTParallel::set_failures_required);
-	ClassDB::bind_method(D_METHOD("get_repeat"), &BTParallel::get_repeat);
-	ClassDB::bind_method(D_METHOD("set_repeat", "enable"), &BTParallel::set_repeat);
-
-	ADD_PROPERTY(PropertyInfo(Variant::INT, "num_successes_required"), "set_successes_required", "get_successes_required");
-	ADD_PROPERTY(PropertyInfo(Variant::INT, "num_failures_required"), "set_failures_required", "get_failures_required");
-	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "repeat"), "set_repeat", "get_repeat");
+    BIND_GETTER_SETTER_PROPERTY_DEFAULT(BTParallel, INT, successes_required);
+    BIND_GETTER_SETTER_PROPERTY_DEFAULT(BTParallel, INT, failures_required);
+    BIND_GETTER_SETTER_PROPERTY_DEFAULT(BTParallel, BOOL, repeat);
 }
