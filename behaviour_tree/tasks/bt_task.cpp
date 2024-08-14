@@ -271,16 +271,15 @@ void BTTask::_bind_methods()
     ClassDB::bind_method(D_METHOD("initialize", "actor", "blackboard"), &BTTask::initialize);
 
 
-    BIND_GETTER_SETTER_DEFAULT(BTTask, parent);
-    BIND_GETTER_SETTER_DEFAULT(BTTask, blackboard);
+    BIND_GETTER_SETTER_PROPERTY_OBJECT_DEFAULT(BTTask, parent);
+    BIND_GETTER_SETTER_PROPERTY_OBJECT_DEFAULT(BTTask, actor);
+    BIND_GETTER_SETTER_PROPERTY_OBJECT_DEFAULT(BTTask, blackboard);
+
     BIND_GETTER_SETTER_DEFAULT(BTTask, custom_name);
-    BIND_GETTER_SETTER_DEFAULT(BTTask, actor);
     BIND_GETTER_SETTER_DEFAULT(BTTask, status);
     BIND_GETTER_SETTER_DEFAULT(BTTask, children);
 
-    ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "parent", PROPERTY_HINT_NONE, "Parent of the task.", PROPERTY_USAGE_NONE), "set_parent", "get_parent");
-    ADD_PROPERTY(PropertyInfo(Variant::STRING, "custom_name", PROPERTY_HINT_RESOURCE_TYPE, "Name of the task.", PROPERTY_USAGE_NO_EDITOR | PROPERTY_USAGE_INTERNAL), "set_custom_name", "get_custom_name");
-    ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "actor", PROPERTY_HINT_RESOURCE_TYPE, "Actor to be controlled.", PROPERTY_USAGE_NONE), "set_actor", "get_actor");
+    ADD_PROPERTY(PropertyInfo(Variant::STRING, "custom_name", PROPERTY_HINT_RESOURCE_TYPE, "", PROPERTY_USAGE_NO_EDITOR | PROPERTY_USAGE_INTERNAL), "set_custom_name", "get_custom_name");
     ADD_PROPERTY(PropertyInfo(Variant::ARRAY, "children", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NO_EDITOR | PROPERTY_USAGE_INTERNAL), "set_children", "get_children");
     ADD_PROPERTY(PropertyInfo(Variant::INT, "status", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NONE), "", "get_status");
     
