@@ -118,13 +118,6 @@
 #define TASK_SUCCEED() /*******************************************************************************************************************************************************/\
     return BTTask::Status::SUCCESS
 
-#define TASK_COMPLAIN_COND(condition, message) /*******************************************************************************************************************************/\
-    if ((condition) && (this->is_complain_enabled()))                                                                                                                           \
-    {                                                                                                                                                                           \
-        godot::UtilityFunctions::printerr(message);                                                                                                                             \
-    }                                                                                                                                                                           \
-    else ((void)0)
-
 #define TASK_FAIL_COND(condition) /********************************************************************************************************************************************/\
     if (condition)                                                                                                                                                              \
     {                                                                                                                                                                           \
@@ -144,6 +137,13 @@
     {                                                                                                                                                                           \
         godot::UtilityFunctions::print(message);                                                                                                                                \
         return BTTask::Status::FAILURE;                                                                                                                                         \
+    }                                                                                                                                                                           \
+    else ((void)0)
+
+#define TASK_COMPLAIN_COND(condition, message) /*******************************************************************************************************************************/\
+    if ((condition) && (this->is_complain_enabled()))                                                                                                                           \
+    {                                                                                                                                                                           \
+        godot::UtilityFunctions::printerr(message);                                                                                                                             \
     }                                                                                                                                                                           \
     else ((void)0)
 
