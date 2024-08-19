@@ -1,7 +1,7 @@
 #ifndef TEST_RUNNER_HPP
 #define TEST_RUNNER_HPP
 
-#include <godot_cpp/classes/node2d.hpp>
+#include <godot_cpp/classes/node.hpp>
 #include <godot_cpp/classes/scene_tree.hpp>
 #include <godot_cpp/classes/scene_tree_timer.hpp>
 

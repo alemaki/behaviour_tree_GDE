@@ -1,7 +1,7 @@
 #define DOCTEST_CONFIG_NO_EXCEPTIONS_BUT_WITH_ALL_ASSERTS
 #include <doctest.h>
 
-#include <godot_cpp/classes/node2d.hpp>
+#include <godot_cpp/classes/node3d.hpp>
 
 #include "blackboard/blackboard.hpp"
 
@@ -29,16 +29,16 @@ TEST_SUITE("BlackboardBasic")
     TEST_CASE_FIXTURE(BlackboardFixture, "Set and get array variable")
     {
         godot::Array positions;
-        positions.push_back(Vector2(0, 0));
-        positions.push_back(Vector2(1, 1));
+        positions.push_back(Vector3(0, 0, 0));
+        positions.push_back(Vector3(1, 1, 0));
 
         blackboard->set_var("positions", positions);
         CHECK_EQ(blackboard->get_var("positions"), positions);
     }
 
-    TEST_CASE_FIXTURE(BlackboardFixture, "Set and get Node2D pointer")
+    TEST_CASE_FIXTURE(BlackboardFixture, "Set and get Node3D pointer")
     {
-        godot::Node2D *node = memnew(godot::Node2D);
+        godot::Node3D *node = memnew(godot::Node3D);
 
         blackboard->set_var("node", node);
         CHECK_EQ(blackboard->get_var("node").operator Object*(), node);

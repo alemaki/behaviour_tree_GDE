@@ -12,8 +12,8 @@ void simulate(godot::Node* node, int frames = 1);
 double get_node_delta(godot::Node* node);
 double get_current_engine_delta();
 
-bool vectors_almost_eq(godot::Vector2 vec1, godot::Vector2 vec2, bool complain = true);
-bool vectors_almost_ne(godot::Vector2 vec1, godot::Vector2 vec2, bool complain = true);
+bool vectors_almost_eq(godot::Vector3 vec1, godot::Vector3 vec2, bool complain = true);
+bool vectors_almost_ne(godot::Vector3 vec1, godot::Vector3 vec2, bool complain = true);
 
 #ifdef CHECK_VECTORS_EQ
 #undef CHECK_VECTORS_EQ
