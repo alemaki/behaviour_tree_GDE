@@ -14,7 +14,7 @@ class BehaviourTree : public godot::Node
 private:
     godot::String description;
     godot::RBMap<int, godot::Ref<BTTask>> task_map; // Using rb_map for back method
-    godot::Ref<BTTask> root_task;
+    godot::Ref<BTTask> root_task = nullptr;
 
 private:
     godot::Dictionary get_task_map();

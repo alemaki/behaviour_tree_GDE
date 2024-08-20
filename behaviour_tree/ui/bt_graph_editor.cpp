@@ -431,7 +431,6 @@ void BTGraphEditor::create_default_graph_nodes()
     }
     this->color_root_node();
     this->arrange_nodes();
-
 }
 
 void BTGraphEditor::set_root_node(BTGraphNode* new_root_node)
@@ -736,7 +735,7 @@ void BTGraphEditor::color_root_node()
 
     if (root.is_valid())
     {
-        BTGraphNode* root_node = task_to_node[this->behaviour_tree->get_root_task()];
+        BTGraphNode* root_node = task_to_node[root];
 
         ERR_FAIL_COND_MSG(root_node == nullptr, "Invalid root node for coloring.");
         root_node->set_self_modulate(godot::Color::named("BLUE"));
