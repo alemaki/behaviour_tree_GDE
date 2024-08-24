@@ -194,7 +194,7 @@ TEST_SUITE("Test task execution")
     TEST_CASE("Cooldown task behaviour")
     {
         godot::Ref<BTCooldown> cooldown_task = memnew(BTCooldown);
-        cooldown_task->set_duration(100.0);
+        cooldown_task->set_duration(1.0);
 
         godot::Ref<BTAlwaysSucceed> task_succeed = memnew(BTAlwaysSucceed);
 
