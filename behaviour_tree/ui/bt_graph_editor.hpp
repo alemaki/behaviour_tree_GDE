@@ -58,8 +58,6 @@ private:
     godot::Vector<godot::StringName> composite_names;
     godot::Vector<godot::StringName> decorator_names;
 
-    
-
     struct DragOperation
     {
         godot::Vector2 from_position;
@@ -68,6 +66,9 @@ private:
     };
     godot::Vector<DragOperation> drag_buffer;
     bool drag_called;
+
+    godot::Vector<BTGraphNode*> copied_nodes;
+    godot::Vector<godot::Pair<BTGraphNode*, BTGraphNode*>> copied_connections;
 
 /* TODO, make it not public? */
 public:
@@ -116,6 +117,11 @@ private:
     void set_root_node(BTGraphNode* new_root_node);
     void arrange_nodes(bool with_undo_redo = false);
     void color_root_node();
+
+    /* Copy-pasta Handling */
+    void copy_nodes_request();
+    void paste_nodes_request();
+    void clear_copied_nodes();
 
     /* Connection Handling */
     void connection_request(godot::StringName _from_node, int from_port, godot::StringName _to_node, int to_port);

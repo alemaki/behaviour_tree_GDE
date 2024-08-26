@@ -143,7 +143,7 @@
 #define TASK_COMPLAIN_COND(condition, message) /*******************************************************************************************************************************/\
     if ((condition) && (this->is_complain_enabled()))                                                                                                                           \
     {                                                                                                                                                                           \
-        godot::UtilityFunctions::printerr(this->get_name(), ": ", message);                                                                                                                             \
+        godot::UtilityFunctions::printerr(this->get_custom_name(), ": ", message);                                                                                                                             \
     }                                                                                                                                                                           \
     else ((void)0)
 

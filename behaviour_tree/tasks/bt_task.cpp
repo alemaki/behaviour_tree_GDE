@@ -288,5 +288,4 @@ void BTTask::_bind_methods()
     BIND_ENUM_CONSTANT(Status::RUNNING);
     BIND_ENUM_CONSTANT(Status::SUCCESS);
     BIND_ENUM_CONSTANT(Status::FAILURE);
-
 }
