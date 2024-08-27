@@ -14,9 +14,6 @@ class BTGraphNode : public godot::GraphNode
 {
     GDCLASS(BTGraphNode, godot::GraphNode)
 
-private:
-    godot::GraphEdit* graph_edit;
-
 protected:
     godot::HBoxContainer* icon_name_container = nullptr;
     godot::Label* task_type_label = nullptr;
@@ -35,8 +32,6 @@ private:
 
 public:
     BTGraphNode();
-    
-    CREATE_GETTER_SETTER_DEFAULT(godot::GraphEdit*, graph_edit);
 
     virtual void set_task(godot::Ref<BTTask> task);
 

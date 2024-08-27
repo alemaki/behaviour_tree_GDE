@@ -107,6 +107,7 @@ private:
     godot::Array get_sorted_by_y_children_of_parent(BTGraphNode* parent_graph_node);
     int get_node_insert_index_by_y_in_children(BTGraphNode* parent_graph_node, BTGraphNode* graph_node);
     void _extract_node_levels_into_stack(BTGraphNode* root_node, godot::Vector<godot::Pair<BTGraphNode*, int>>& stack, int current_level = 0);
+    void name_node(BTGraphNode* nodde);
 
     /* Node Management */
     void insert_node(BTGraphNode* bt_graph_node);

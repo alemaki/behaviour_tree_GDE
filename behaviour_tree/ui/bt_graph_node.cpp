@@ -117,7 +117,6 @@ void BTGraphNode::_bind_methods()
 {
     using namespace godot;
 
-    BIND_GETTER_SETTER_DEFAULT(BTGraphNode, graph_edit);
     BIND_GETTER_SETTER_DEFAULT(BTGraphNode, task);
 
     ADD_SIGNAL(MethodInfo("double_clicked"));

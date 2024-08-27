@@ -271,7 +271,7 @@ void BTTask::_bind_methods()
     ClassDB::bind_method(D_METHOD("initialize", "actor", "blackboard"), &BTTask::initialize);
 
     BIND_GETTER_SETTER_DEFAULT(BTTask, parent);
-    ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "parent", PROPERTY_HINT_NONE, "Parent of the task.", PROPERTY_USAGE_NONE), "set_parent", "get_parent");
+    ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "parent", PROPERTY_HINT_NONE, "Parent of the task.", PROPERTY_USAGE_NONE | PROPERTY_USAGE_NEVER_DUPLICATE ), "set_parent", "get_parent");
 
     BIND_GETTER_SETTER_PROPERTY_OBJECT_NO_HINT(BTTask, actor);
     BIND_GETTER_SETTER_PROPERTY_OBJECT_NO_HINT(BTTask, blackboard);
