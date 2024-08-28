@@ -1121,13 +1121,13 @@ BTGraphNode* duplicate_graph_node(const BTGraphNode* node)
     copy_task->set_children({});
     copy_task->set_children(godot::Array());
     copy_node->set_task(copy_task);
+    copy_node->set_position_offset(node->get_position_offset());
     return copy_node;
 }
 
 
 void BTGraphEditor::copy_nodes_request()
 {
-
     /* Copied/selected nodes might be deleted later by user. So create copies now while still valid. */
 
     godot::HashSet<BTGraphNode*> selected_nodes;
@@ -1143,7 +1143,6 @@ void BTGraphEditor::copy_nodes_request()
 
     godot::HashMap<BTGraphNode*, BTGraphNode*> old_to_new;
 
-    /* Copy nodes and keep relationship between new and old to make connections. */
     for (BTGraphNode* node : selected_nodes)
     {
         BTGraphNode* copy_node = duplicate_graph_node(node);
@@ -1153,7 +1152,6 @@ void BTGraphEditor::copy_nodes_request()
 
     this->clear_copied_nodes();
 
-    /* Check connections on old nodes and replicate them. */
     for (BTGraphNode* node : selected_nodes)
     {
         godot::Array children = node->get_task()->get_children();
@@ -1169,7 +1167,6 @@ void BTGraphEditor::copy_nodes_request()
         }
     }
 
-    /* Finaly add nodes to copied. */
     for (BTGraphNode* node : selected_nodes)
     {
         this->copied_nodes.push_back(old_to_new[node]);
@@ -1183,7 +1180,6 @@ void BTGraphEditor::paste_nodes_request()
         return;
     }
 
-    /* Make new copies of copied nodes. */
     godot::HashSet<BTGraphNode*> pasted_nodes;
     godot::HashMap<BTGraphNode*, BTGraphNode*> copied_to_pasted;
     for (BTGraphNode* copied_node : this->copied_nodes)
@@ -1199,11 +1195,22 @@ void BTGraphEditor::paste_nodes_request()
 
     EditorUndoRedoManager* undo_redo_manager = this->editor_plugin->get_undo_redo();
 
-    undo_redo_manager->create_action("Paste copied nodes");    
-    /* Add the do node to the graph. */
+    undo_redo_manager->create_action("Paste copied nodes");
+
+    /* Deselect old nodes. */
+    for (godot::KeyValue<godot::Ref<BTTask>, BTGraphNode*> element : task_to_node)
+    {
+        ERR_CONTINUE(element.value == nullptr);
+        ERR_CONTINUE(element.value->get_task().is_null());
+        if (element.value->is_selected())
+        {
+            element.value->set_selected(false);
+        }
+    }
+
     for (BTGraphNode* pasted_node : pasted_nodes)
     {
-        //TODO : change positions of nodes so they don't copy in the same space.
+        pasted_node->set_position_offset(pasted_node->get_position_offset() + Vector2(100, 100));
         // TODO: Extract logic for adding new node to the graph.
 
         undo_redo_manager->add_do_method(this->behaviour_tree, "add_task_by_ref", pasted_node->get_task());
@@ -1217,21 +1224,12 @@ void BTGraphEditor::paste_nodes_request()
         this->connect_graph_node_signals(pasted_node);
     }
 
-    /* Add do and undo connections. */
     for (godot::Pair<BTGraphNode*, BTGraphNode*> copied_connection : this->copied_connections)
     {
-        /* Copied connections keep order of hierarchy, so just add them one by one.*/
         BTGraphNode* pasted_parent_node = copied_to_pasted[copied_connection.first];
         BTGraphNode* pasted_child_node = copied_to_pasted[copied_connection.second];
 
-        int index = this->get_node_insert_index_by_y_in_children(pasted_parent_node, pasted_child_node);
-        undo_redo_manager->add_do_method(this->behaviour_tree, "connect_tasks", pasted_parent_node->get_task(), pasted_child_node->get_task(), index);
-        undo_redo_manager->add_undo_method(this->behaviour_tree, "disconnect_tasks", pasted_parent_node->get_task(), pasted_child_node->get_task());
-
-        // TODO: fix port numbers?
-        // TODO:: fix connecting visually, node_name not yet set so connection can't happen between empty named nodes.
-        undo_redo_manager->add_do_method(this->graph_edit, "connect_node", pasted_parent_node->get_name(), 0, pasted_child_node->get_name(), 0);
-        undo_redo_manager->add_undo_method(this->graph_edit, "disconnect_node", pasted_parent_node->get_name(), 0, pasted_child_node->get_name(), 0);
+        
     }
 
     /* Add undo node from graph */

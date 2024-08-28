@@ -125,6 +125,8 @@ private:
     void clear_copied_nodes();
 
     /* Connection Handling */
+    void _connect_nodes(BTGraphNode* parent, BTGraphNode* child);
+    void _disconnect_nodes(BTGraphNode* parent, BTGraphNode* child);
     void connection_request(godot::StringName _from_node, int from_port, godot::StringName _to_node, int to_port);
     void disconnection_request(godot::StringName _from_node, int from_port, godot::StringName _to_node, int to_port);
 
