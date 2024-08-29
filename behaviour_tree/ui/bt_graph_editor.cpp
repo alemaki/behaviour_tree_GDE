@@ -300,7 +300,7 @@ void BTGraphEditor::name_node(BTGraphNode* node)
     ERR_FAIL_NULL(node);
     ERR_FAIL_NULL(node->get_task());
     int id = this->behaviour_tree->get_task_id(node->get_task());
-    node->set_title(godot::itos(id));
+    node->set_title(node->get_task()->get_custom_name());
     node->set_name(godot::itos(id));
 }
 
@@ -752,6 +752,19 @@ void BTGraphEditor::color_root_node()
     }
 }
 
+void BTGraphEditor::deselect_all_nodes()
+{
+    for (godot::KeyValue<godot::Ref<BTTask>, BTGraphNode*> element : task_to_node)
+    {
+        ERR_CONTINUE(element.value == nullptr);
+        ERR_CONTINUE(element.value->get_task().is_null());
+        if (element.value->is_selected())
+        {
+            element.value->set_selected(false);
+        }
+    }
+}
+
 /* Drag and Drop */
 
 void BTGraphEditor::_node_dragged(const godot::Vector2 &_from, const godot::Vector2 &_to, BTGraphNode *node)
@@ -1190,38 +1203,32 @@ void BTGraphEditor::paste_nodes_request()
         BTGraphNode* pasted_node = duplicate_graph_node(copied_node);
         ERR_FAIL_NULL(pasted_node);
         pasted_nodes.insert(pasted_node);
-        copied_to_pasted.insert(copied_node, pasted_node);        
+        copied_to_pasted.insert(copied_node, pasted_node);
+        
+        // TODO: make signals disconnect on removal. 
+        this->connect_graph_node_signals(pasted_node);
     }
 
     EditorUndoRedoManager* undo_redo_manager = this->editor_plugin->get_undo_redo();
 
     undo_redo_manager->create_action("Paste copied nodes");
 
-    /* Deselect old nodes. */
-    for (godot::KeyValue<godot::Ref<BTTask>, BTGraphNode*> element : task_to_node)
-    {
-        ERR_CONTINUE(element.value == nullptr);
-        ERR_CONTINUE(element.value->get_task().is_null());
-        if (element.value->is_selected())
-        {
-            element.value->set_selected(false);
-        }
-    }
-
     for (BTGraphNode* pasted_node : pasted_nodes)
     {
-        pasted_node->set_position_offset(pasted_node->get_position_offset() + Vector2(100, 100));
         // TODO: Extract logic for adding new node to the graph.
-
         undo_redo_manager->add_do_method(this->behaviour_tree, "add_task_by_ref", pasted_node->get_task());
         undo_redo_manager->add_do_method(this->graph_edit, "add_child", pasted_node);
         undo_redo_manager->add_do_method(this, "name_node", pasted_node);
         undo_redo_manager->add_do_method(this, "insert_node", pasted_node);
+
+        pasted_node->set_position_offset(pasted_node->get_position_offset() + Vector2(100, 100));
+    }
+
+    undo_redo_manager->add_do_method(this, "deselect_all_nodes");
+    for (BTGraphNode* pasted_node : pasted_nodes)
+    {
         /* Select pasted nodes for easy interaction */
         undo_redo_manager->add_do_method(pasted_node, "set_selected", true);
-
-        // TODO: make signals disconnect on removal. 
-        this->connect_graph_node_signals(pasted_node);
     }
 
     for (godot::Pair<BTGraphNode*, BTGraphNode*> copied_connection : this->copied_connections)
@@ -1229,7 +1236,8 @@ void BTGraphEditor::paste_nodes_request()
         BTGraphNode* pasted_parent_node = copied_to_pasted[copied_connection.first];
         BTGraphNode* pasted_child_node = copied_to_pasted[copied_connection.second];
 
-        
+        undo_redo_manager->add_do_method(this, "_connect_nodes", pasted_parent_node, pasted_child_node);
+        undo_redo_manager->add_undo_method(this, "_disconnect_nodes", pasted_parent_node, pasted_child_node);
     }
 
     /* Add undo node from graph */
@@ -1239,6 +1247,8 @@ void BTGraphEditor::paste_nodes_request()
         undo_redo_manager->add_undo_method(this->graph_edit, "remove_child", pasted_node);
         undo_redo_manager->add_undo_method(this->behaviour_tree, "remove_task_by_ref", pasted_node->get_task());
     }
+
+    undo_redo_manager->add_do_method(this, "color_root_node");
     
     undo_redo_manager->commit_action();
 }
@@ -1257,6 +1267,33 @@ void BTGraphEditor::clear_copied_nodes()
 
 
 /* Connection Handling */
+
+void BTGraphEditor::_connect_nodes(BTGraphNode* parent, BTGraphNode* child)
+{
+    ERR_FAIL_NULL(this->behaviour_tree);
+    ERR_FAIL_NULL(child);
+    ERR_FAIL_NULL(parent);
+    ERR_FAIL_NULL(child->get_task());
+    ERR_FAIL_NULL(parent->get_task());
+
+    int index = this->get_node_insert_index_by_y_in_children(parent, child);
+    this->behaviour_tree->connect_tasks(parent->get_task(), child->get_task(), index);
+    // TODO: fix port numbers?
+    this->graph_edit->connect_node(parent->get_name(), 0, child->get_name(), 0);
+}
+
+void BTGraphEditor::_disconnect_nodes(BTGraphNode* parent, BTGraphNode* child)
+{
+    ERR_FAIL_NULL(this->behaviour_tree);
+    ERR_FAIL_NULL(child);
+    ERR_FAIL_NULL(parent);
+    ERR_FAIL_NULL(child->get_task());
+    ERR_FAIL_NULL(parent->get_task());
+
+    this->behaviour_tree->disconnect_tasks(parent->get_task(), child->get_task());
+    this->graph_edit->disconnect_node(parent->get_name(), 0, child->get_name(), 0);
+}
+
 
 
 void BTGraphEditor::connection_request(godot::StringName _from_node, int from_port, godot::StringName _to_node, int to_port)
@@ -1399,6 +1436,7 @@ void BTGraphEditor::_bind_methods()
     ClassDB::bind_method(D_METHOD("set_root_node", "new_root_node"), &BTGraphEditor::set_root_node);
     ClassDB::bind_method(D_METHOD("arrange_nodes", "with_undo_redo"), &BTGraphEditor::arrange_nodes);
     ClassDB::bind_method(D_METHOD("color_root_node"), &BTGraphEditor::color_root_node);
+    ClassDB::bind_method(D_METHOD("deselect_all_nodes"), &BTGraphEditor::deselect_all_nodes);
 
     // Drag and Drop
     ClassDB::bind_method(D_METHOD("_node_dragged", "from", "to", "node_name"), &BTGraphEditor::_node_dragged);
@@ -1430,6 +1468,8 @@ void BTGraphEditor::_bind_methods()
     ClassDB::bind_method(D_METHOD("clear_copied_nodes"), &BTGraphEditor::clear_copied_nodes);
 
     // Connection Handling
+    ClassDB::bind_method(D_METHOD("_connect_nodes", "parent_node" "child_node"), &BTGraphEditor::_connect_nodes);
+    ClassDB::bind_method(D_METHOD("_disconnect_nodes", "parent_node" "child_node"), &BTGraphEditor::_disconnect_nodes);
     ClassDB::bind_method(D_METHOD("connection_request", "from_node", "from_port", "to_node", "to_port"), &BTGraphEditor::connection_request);
     ClassDB::bind_method(D_METHOD("disconnection_request", "from_node", "from_port", "to_node", "to_port"), &BTGraphEditor::disconnection_request);
 

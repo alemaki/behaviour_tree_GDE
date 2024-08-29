@@ -118,6 +118,7 @@ private:
     void set_root_node(BTGraphNode* new_root_node);
     void arrange_nodes(bool with_undo_redo = false);
     void color_root_node();
+    void deselect_all_nodes();
 
     /* Copy-pasta Handling */
     void copy_nodes_request();
