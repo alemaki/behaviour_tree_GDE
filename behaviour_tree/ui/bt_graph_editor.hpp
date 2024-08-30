@@ -70,6 +70,9 @@ private:
     godot::Vector<BTGraphNode*> copied_nodes;
     godot::Vector<godot::Pair<BTGraphNode*, BTGraphNode*>> copied_connections;
 
+    godot::HashMap<BehaviourTree*, godot::Vector<BTGraphNode*>> saved_trees;
+    void delete_saved_trees();
+    
 /* TODO, make it not public? */
 public:
     struct TreeArrangeUtils
@@ -107,7 +110,6 @@ private:
     godot::Array get_sorted_by_y_children_of_parent(BTGraphNode* parent_graph_node);
     int get_node_insert_index_by_y_in_children(BTGraphNode* parent_graph_node, BTGraphNode* graph_node);
     void _extract_node_levels_into_stack(BTGraphNode* root_node, godot::Vector<godot::Pair<BTGraphNode*, int>>& stack, int current_level = 0);
-    void name_node(BTGraphNode* nodde);
 
     /* Node Management */
     void insert_node(BTGraphNode* bt_graph_node);
@@ -119,6 +121,9 @@ private:
     void arrange_nodes(bool with_undo_redo = false);
     void color_root_node();
     void deselect_all_nodes();
+    void name_node(BTGraphNode* node);
+    void save_tree();
+    void load_tree();
 
     /* Copy-pasta Handling */
     void copy_nodes_request();

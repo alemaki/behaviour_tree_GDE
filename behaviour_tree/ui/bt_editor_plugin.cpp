@@ -47,7 +47,9 @@ BTEditorPlugin::BTEditorPlugin()
 
 BTEditorPlugin::~BTEditorPlugin()
 {
+    memdelete(this->graph_editor);
     memdelete(this->main_container);
+    godot::UtilityFunctions::print("Sucessfully freed BTEditorPlugin!");
 }
 
 void BTEditorPlugin::set_graph_editor(BTGraphEditor* graph_editor)

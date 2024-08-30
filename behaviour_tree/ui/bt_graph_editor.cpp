@@ -19,10 +19,28 @@ BTGraphEditor::BTGraphEditor()
     task_to_node[nullptr] = nullptr;
 }
 
+void BTGraphEditor::delete_saved_trees()
+{
+    for (godot::KeyValue<BehaviourTree*, godot::Vector<BTGraphNode*>> key_value : this->saved_trees)
+    {
+        for (BTGraphNode* node : key_value.value)
+        {
+            ERR_CONTINUE(node == nullptr);
+            memdelete(node);
+        }
+    }
+}
+
 BTGraphEditor::~BTGraphEditor()
 {
-    this->clear_graph_nodes();
+    if (behaviour_tree != nullptr)
+    {
+        /* Save for later deletion*/
+        this->save_tree();
+        this->clear_graph_nodes();
+    }
     this->clear_copied_nodes();
+    this->delete_saved_trees();
 }
 
 /* Setup Methods */
@@ -304,6 +322,50 @@ void BTGraphEditor::name_node(BTGraphNode* node)
     node->set_name(godot::itos(id));
 }
 
+void BTGraphEditor::save_tree()
+{
+    ERR_FAIL_NULL(this->behaviour_tree);
+
+    godot::Vector<BTGraphNode*> graph_nodes;
+    for (godot::KeyValue<godot::Ref<BTTask>, BTGraphNode*> element : this->task_to_node)
+    {
+        ERR_CONTINUE(element.key == nullptr);
+        ERR_CONTINUE(element.value == nullptr);
+        graph_nodes.push_back(element.value);
+    }
+    this->saved_trees.insert(this->behaviour_tree, graph_nodes);
+}
+
+void BTGraphEditor::load_tree()
+{
+    ERR_FAIL_COND(!(this->task_to_node.is_empty()));
+    ERR_FAIL_COND(!(this->name_to_node.is_empty()));
+    ERR_FAIL_NULL(this->behaviour_tree);
+    godot::Vector<BTGraphNode*> saved_nodes = this->saved_trees[this->behaviour_tree];
+    for (BTGraphNode* saved_node : saved_nodes)
+    {
+        ERR_CONTINUE(saved_node == nullptr);
+        this->insert_node(saved_node);
+        this->graph_edit->add_child(saved_node);
+        /* Should be already connected */
+        // this->connect_graph_node_signals(bt_graph_node);
+    }
+    
+    for (BTGraphNode* saved_node : saved_nodes)
+    {
+        ERR_CONTINUE(saved_node == nullptr);
+        godot::Array children = saved_node->get_task()->get_children();
+        for (int i = 0, size = children.size(); i < size; i++)
+        {
+            ERR_CONTINUE(!(this->task_to_node.has(godot::Ref<BTTask>(children[i]))));
+            BTGraphNode* child_node = this->task_to_node[godot::Ref<BTTask>(children[i])];
+            this->graph_edit->connect_node(saved_node->get_name(), 0, child_node->get_name(), 0);
+        }
+    }
+
+    this->color_root_node();
+}
+
 
 /* Node Management */
 
@@ -379,7 +441,13 @@ void BTGraphEditor::delete_nodes(const godot::Vector<BTGraphNode*>& nodes_to_del
 
 void BTGraphEditor::clear_graph_nodes()
 {
+    if (this->behaviour_tree == nullptr)
+    {
+        return;
+    }
     this->graph_edit->clear_connections();
+    this->task_to_node.clear();
+    this->name_to_node.clear();
 
     godot::TypedArray<godot::Node> children = this->graph_edit->get_children();
     for (int i = 0, size = children.size(); i < size; i++)
@@ -388,14 +456,9 @@ void BTGraphEditor::clear_graph_nodes()
 
         if (bt_graph_node != nullptr)
         {
-            this->erase_node(bt_graph_node);
             this->graph_edit->remove_child(bt_graph_node);
-            memdelete(bt_graph_node);
         }
     }
-
-    this->task_to_node.clear();
-    this->name_to_node.clear();
 }
 
 void BTGraphEditor::create_default_graph_nodes()
@@ -1396,9 +1459,20 @@ void BTGraphEditor::set_editor_plugin(godot::EditorPlugin* editor_plugin)
 void BTGraphEditor::set_behaviour_tree(BehaviourTree* new_tree)
 {
     ERR_FAIL_COND(new_tree == nullptr);
+    if (this->behaviour_tree != nullptr)
+    {
+        this->save_tree();
+    }
     this->behaviour_tree = new_tree;
     this->clear_graph_nodes();
-    this->create_default_graph_nodes();
+    if (this->saved_trees.has(new_tree))
+    {
+        this->load_tree();
+    }
+    else
+    {
+        this->create_default_graph_nodes();
+    }
 }
 
 void BTGraphEditor::_bind_methods()
@@ -1422,7 +1496,6 @@ void BTGraphEditor::_bind_methods()
     ClassDB::bind_method(D_METHOD("get_graph_nodes"), &BTGraphEditor::get_graph_nodes);
     ClassDB::bind_method(D_METHOD("get_sorted_by_y_children_of_parent", "parent_graph_node"), &BTGraphEditor::get_sorted_by_y_children_of_parent);
     ClassDB::bind_method(D_METHOD("get_node_insert_index_by_y_in_children", "parent_graph_node", "graph_node"), &BTGraphEditor::get_node_insert_index_by_y_in_children);
-    ClassDB::bind_method(D_METHOD("name_node", "graph_node"), &BTGraphEditor::name_node);
 
     /* can't pass Vector<>& check.*/
     /*ClassDB::bind_method(D_METHOD("_extract_node_levels_into_stack", "root_node", "stack", "current_level"), &BTGraphEditor::_extract_node_levels_into_stack);*/
@@ -1437,6 +1510,9 @@ void BTGraphEditor::_bind_methods()
     ClassDB::bind_method(D_METHOD("arrange_nodes", "with_undo_redo"), &BTGraphEditor::arrange_nodes);
     ClassDB::bind_method(D_METHOD("color_root_node"), &BTGraphEditor::color_root_node);
     ClassDB::bind_method(D_METHOD("deselect_all_nodes"), &BTGraphEditor::deselect_all_nodes);
+    ClassDB::bind_method(D_METHOD("name_node"), &BTGraphEditor::name_node);
+    ClassDB::bind_method(D_METHOD("save_tree"), &BTGraphEditor::save_tree);
+    ClassDB::bind_method(D_METHOD("load_tree"), &BTGraphEditor::load_tree);
 
     // Drag and Drop
     ClassDB::bind_method(D_METHOD("_node_dragged", "from", "to", "node_name"), &BTGraphEditor::_node_dragged);
@@ -1480,5 +1556,4 @@ void BTGraphEditor::_bind_methods()
     ClassDB::bind_method(D_METHOD("set_editor_plugin", "editor_plugin"), &BTGraphEditor::set_editor_plugin);
     ClassDB::bind_method(D_METHOD("get_graph_edit"), &BTGraphEditor::get_graph_edit);
     BIND_GETTER_SETTER_DEFAULT(BTGraphEditor, behaviour_tree);
-
 }
