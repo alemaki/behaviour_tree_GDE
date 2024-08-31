@@ -61,6 +61,8 @@ void BTGraphEditor::_setup_graph_edit()
     this->graph_edit->add_valid_left_disconnect_type(0);
 
     this->graph_edit->set_right_disconnects(true);
+
+    this->graph_edit->set_show_arrange_button(false);
 }
 
 void BTGraphEditor::_setup_task_names()
@@ -1473,6 +1475,7 @@ void BTGraphEditor::set_behaviour_tree(BehaviourTree* new_tree)
     {
         this->create_default_graph_nodes();
     }
+    //TODO : make instance read_only if node is instanced scene.
 }
 
 void BTGraphEditor::_bind_methods()
