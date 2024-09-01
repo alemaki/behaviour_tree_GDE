@@ -22,9 +22,9 @@ struct CheckFSMStateFixture
         task->set_complain_enabled(false);
         task->set_state("running");
         task->set_fsm_name("TestFSM");
-        
+        fsm->add_state("idle");
+        fsm->add_state("running");
         fsm->set_initial_state("idle");
-        fsm->add_transition("idle", "running");
 
         blackboard->set_var("TestFSM", fsm);
 

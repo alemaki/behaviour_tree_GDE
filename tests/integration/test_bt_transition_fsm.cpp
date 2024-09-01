@@ -24,7 +24,7 @@ struct TransitionFSMFixture
         task->set_to_state("running");
 
         fsm->set_initial_state("idle");
-        fsm->add_transition("idle", "running");
+        fsm->add_state("running");
 
         blackboard->set_var("TestFSM", fsm);
 
@@ -49,8 +49,7 @@ TEST_SUITE("BTTransitionFSM")
 
     TEST_CASE_FIXTURE(TransitionFSMFixture, "FSM cannot transition to target state")
     {
-        fsm->add_transition("running", "stopped");
-        task->set_to_state("stopped");
+        task->set_to_state("none");
 
         BTTask::Status status = task->execute(0.1);
         CHECK_EQ(status, BTTask::Status::FAILURE);

@@ -8,6 +8,7 @@ struct FSMFixture
     FSM* fsm;
     FSMFixture() : fsm(memnew(FSM))
     {
+        fsm->add_state("idle");
         fsm->set_initial_state("idle");
     }
     ~FSMFixture()
@@ -23,74 +24,54 @@ TEST_SUITE("FSM")
         CHECK_EQ(fsm->get_state(), "idle");
     }
 
-    TEST_CASE_FIXTURE(FSMFixture, "Add transition and transition to valid state")
+    TEST_CASE_FIXTURE(FSMFixture, "Add state and transition to valid state")
     {
-        fsm->add_transition("idle", "running");
+        fsm->add_state("running");
 
         CHECK(fsm->transition_to("running"));
         CHECK_EQ(fsm->get_state(), "running");
     }
 
-    TEST_CASE_FIXTURE(FSMFixture, "Add transition and fail to transition to invalid state")
+    TEST_CASE_FIXTURE(FSMFixture, "Fail to transition to invalid state")
     {
-        fsm->add_transition("idle", "running");
+        fsm->add_state("running");
 
         CHECK_FALSE(fsm->transition_to("jumping"));
         CHECK_EQ(fsm->get_state(), "idle");
     }
 
-    TEST_CASE_FIXTURE(FSMFixture, "Set initial state only once")
+    TEST_CASE_FIXTURE(FSMFixture, "Set and get states")
     {
-        fsm->set_initial_state("running");
+        godot::Array states;
+        states.push_back("jumping");
+        states.push_back("running");
+        states.push_back("idle");
 
-        CHECK_EQ(fsm->get_state(), "idle");
+        fsm->set_states(states);
+
+        godot::Array stored_states = fsm->get_states();
+        CHECK_EQ(stored_states.size(), 3);
+        CHECK(stored_states.has("jumping"));
+        CHECK(stored_states.has("running"));
+        CHECK(stored_states.has("idle"));
     }
 
-    TEST_CASE("Transition without initial state")
+    TEST_CASE_FIXTURE(FSMFixture, "Transition after setting transitions via array")
     {
-        FSM* fsm = memnew(FSM);
+        godot::Array states;
+        states.push_back("jumping");
+        states.push_back("running");
+        states.push_back("idle");
 
-        fsm->add_transition("idle", "running");
-
-        CHECK_FALSE(fsm->transition_to("running"));
-        CHECK_EQ(fsm->get_state(), "");
-
-        memdelete(fsm);
-    }
-
-    TEST_CASE_FIXTURE(FSMFixture, "Set and get transitions")
-    {
-        godot::Dictionary transitions;
-        godot::Array running_transitions;
-        running_transitions.push_back("jumping");
-        transitions["running"] = running_transitions;
-
-        godot::Array idle_transitions;
-        idle_transitions.push_back("running");
-        transitions["idle"] = idle_transitions;
-
-        fsm->set_transitions(transitions);
-
-        godot::Dictionary stored_transitions = fsm->get_transitions();
-        CHECK_EQ(stored_transitions.size(), 2);
-        CHECK_EQ(stored_transitions["idle"], idle_transitions);
-        CHECK_EQ(stored_transitions["running"], running_transitions);
-    }
-
-    TEST_CASE_FIXTURE(FSMFixture, "Transition after setting transitions via dictionary")
-    {
-        godot::Dictionary transitions;
-        godot::Array idle_to_running;
-        idle_to_running.push_back("running");
-        transitions["idle"] = idle_to_running;
-
-        fsm->set_initial_state("idle");
-        fsm->set_transitions(transitions);
+        fsm->set_states(states);
 
         CHECK(fsm->transition_to("running"));
         CHECK_EQ(fsm->get_state(), "running");
 
-        CHECK_FALSE(fsm->transition_to("jumping"));
-        CHECK_EQ(fsm->get_state(), "running");
+        CHECK(fsm->transition_to("jumping"));
+        CHECK_EQ(fsm->get_state(), "jumping");
+
+        CHECK_FALSE(fsm->transition_to("nothing"));
+        CHECK_EQ(fsm->get_state(), "jumping");
     }
 }
