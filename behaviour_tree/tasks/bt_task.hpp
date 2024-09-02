@@ -26,10 +26,10 @@ public:
 private:
     Status status = BTTask::Status::FRESH;
     BTTask* parent = nullptr;
-    godot::String custom_name;
+    godot::String custom_name = "";
     godot::Node* actor = nullptr;
     godot::Ref<Blackboard> blackboard = nullptr;
-    godot::Vector<godot::Ref<BTTask>> children;
+    godot::Vector<godot::Ref<BTTask>> children = {};
 
 protected:
     virtual void _setup();

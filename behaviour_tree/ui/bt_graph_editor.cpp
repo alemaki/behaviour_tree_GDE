@@ -550,6 +550,7 @@ void init_tree_utils(BTGraphNode* root_node, BTGraphEditor::TreeArrangeUtils& ut
             godot::Array children = node_level_array[i][j]->get_task()->get_children();
             for (int k = 0, size = children.size(); k < size; k++)
             {
+                ERR_CONTINUE(!(task_to_node.has(children[k])));
                 next_level.push_back(task_to_node[children[k]]);
             }
         }
@@ -597,7 +598,6 @@ BTGraphNode* get_leftmost(BTGraphNode* node, int level, int depth, const BTGraph
     {
         return nullptr;
     }
-
     BTGraphNode* rightmost = task_to_node[node->get_task()->get_child(0)];
     BTGraphNode* leftmost = get_leftmost(rightmost, level + 1, depth, utils, task_to_node);
     while (leftmost == nullptr && has_right_sibling(rightmost, utils))
@@ -615,7 +615,7 @@ void apportion(BTGraphNode* node, BTGraphEditor::TreeArrangeUtils& utils, const 
     ERR_FAIL_COND(utils.left_neighbour[node] == nullptr);
 
     int portion = 0;
-
+    ERR_FAIL_COND(!(task_to_node.has(node->get_task()->get_child(0))));
     BTGraphNode* leftmost = task_to_node[node->get_task()->get_child(0)];
     BTGraphNode* neighbour = utils.left_neighbour[leftmost];
     int compare_depth = 1;
@@ -628,7 +628,8 @@ void apportion(BTGraphNode* node, BTGraphEditor::TreeArrangeUtils& utils, const 
         BTGraphNode* ancestor_neighbour = neighbour;
         for (int i = 0; i < compare_depth; i++)
         {
-            
+            ERR_FAIL_COND(!(task_to_node.has(ancestor_leftmost->get_task()->get_parent())));
+            ERR_FAIL_COND(!(task_to_node.has(ancestor_neighbour->get_task()->get_parent())));
             ancestor_leftmost = task_to_node[ancestor_leftmost->get_task()->get_parent()];
             ancestor_neighbour = task_to_node[ancestor_neighbour->get_task()->get_parent()];
 
@@ -681,6 +682,7 @@ void apportion(BTGraphNode* node, BTGraphEditor::TreeArrangeUtils& utils, const 
         }
         else
         {
+            ERR_FAIL_COND(!(task_to_node.has(leftmost->get_task()->get_child(0))));
             leftmost = task_to_node[leftmost->get_task()->get_child(0)];
         }
         neighbour = utils.left_neighbour[leftmost];
@@ -1196,8 +1198,15 @@ BTGraphNode* duplicate_graph_node(const BTGraphNode* node)
     /* Graph node is only a visual wrapper for task so no need to duplicate it. */
     BTGraphNode* copy_node = memnew(BTGraphNode);
     godot::Ref<BTTask> copy_task = node->get_task()->duplicate();
-    copy_task->set_children({});
+
+    /* NOTE: So the new copy_task shallow copies the array of children tasks of the original task. 
+     * This means that when set to empty array all the children will be orphaned. Leaving the arrangement of nodes later with orphaned children.
+     * This leads to segmentation fault. That's why we set the children of the original node the same, so the orphaned children can have their parrent back.*/
     copy_task->set_children(godot::Array());
+    node->get_task()->set_children(node->get_task()->get_children());
+    /* */
+
+    copy_task->set_parent(nullptr);
     copy_node->set_task(copy_task);
     copy_node->set_position_offset(node->get_position_offset());
     return copy_node;
