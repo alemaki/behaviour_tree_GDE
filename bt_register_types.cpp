@@ -12,8 +12,7 @@
 #include <godot_cpp/godot.hpp>
 
 #include "behaviour/actions/bt_transition_fsm.hpp"
-#include "behaviour/conditions/bt_check_int.hpp"
-#include "behaviour/conditions/bt_check_bool.hpp"
+#include "behaviour/conditions/bt_check_value.hpp"
 #include "behaviour/conditions/bt_check_fsm_state.hpp"
 #include "behaviour_tree/behaviour_tree.hpp"
 #include "behaviour_tree/tasks/bt_action.hpp"
@@ -74,8 +73,7 @@ void initialize_behaviour_tree_module(ModuleInitializationLevel p_level)
 
 		ClassDB::register_class<BTTransitionFSM>();
 
-		ClassDB::register_class<BTCheckInt>();
-		ClassDB::register_class<BTCheckBool>();
+		ClassDB::register_class<BTCheckValue>();
 		ClassDB::register_class<BTCheckFSMState>();
 		
 

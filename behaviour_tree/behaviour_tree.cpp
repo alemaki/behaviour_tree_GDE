@@ -204,7 +204,10 @@ godot::Ref<BTTask> BehaviourTree::instantiate(Node* actor, godot::Ref<Blackboard
         return nullptr;
     }
     godot::Ref<BTTask> task = this->root_task->clone();
-    task->initialize(actor, blackboard);
+    if (task != nullptr)
+    {
+        task->initialize(actor, blackboard);
+    }
     return task;
 }
 

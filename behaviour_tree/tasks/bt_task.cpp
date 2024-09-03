@@ -16,11 +16,6 @@ void BTTask::set_parent(godot::Ref<BTTask> parent)
 
 void BTTask::set_children(const godot::Array& children)
 {
-    for (godot::Ref<BTTask> child : this->children)
-    {
-        child->set_parent(nullptr);
-    }
-
     this->children.clear();
 
     int size = children.size();
@@ -38,7 +33,7 @@ void BTTask::set_children(const godot::Array& children)
         }
         if (child->parent != nullptr && child->parent != this)
         {
-            // TODO: clone child or just move it?
+            
         }
         child->parent = this;
         this->children.set(index - invalid_refs, child);
