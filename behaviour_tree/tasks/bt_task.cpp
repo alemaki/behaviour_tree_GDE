@@ -27,13 +27,18 @@ void BTTask::set_children(const godot::Array& children)
         godot::Ref<BTTask> child = children[index];
         if (child.is_null())
         {
-            // TODO: error
+            godot::UtilityFunctions::printerr("Invalid child in children.");
             invalid_refs++;
             continue;
         }
         if (child->parent != nullptr && child->parent != this)
         {
-            
+            child = child->clone();
+            if (child == nullptr)
+            {
+                invalid_refs++;
+                continue;
+            }
         }
         child->parent = this;
         this->children.set(index - invalid_refs, child);
@@ -80,7 +85,7 @@ void BTTask::add_child(godot::Ref<BTTask> child)
     }
     if (child->parent != nullptr)
     {
-        // TODO:: error
+        godot::UtilityFunctions::printerr("Child already has parent.");
         return;
     }
     child->parent = this;
@@ -95,7 +100,7 @@ void BTTask::add_child_at_index(godot::Ref<BTTask> child, int index)
     }
     if (child->parent != nullptr)
     {
-        // TODO:: error
+        godot::UtilityFunctions::printerr("Child already has parent.");
         return;
     }
     if (index < 0 || index > this->children.size())
@@ -111,7 +116,7 @@ void BTTask::remove_child(godot::Ref<BTTask> child)
     int index = this->children.find(child);
     if (index == -1)
     {
-        // TODO:: error
+        godot::UtilityFunctions::printerr("Child not found: ", child);
         return;
     }
     child->parent = nullptr;
@@ -122,7 +127,7 @@ void BTTask::remove_child_at_index(int index)
 {
     if (index < 0 || index > this->children.size())
     {
-        //TODO:: error
+        godot::UtilityFunctions::printerr("Index not found: ", index);
         return;
     }
     this->children[index]->parent = nullptr;
