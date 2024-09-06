@@ -14,7 +14,7 @@ void BTTask::set_parent(godot::Ref<BTTask> parent)
     this->parent = parent.ptr();
 }
 
-void BTTask::set_children(const godot::Array& children)
+void BTTask::_set_children(const godot::Array& children)
 {
     this->children.clear();
 
@@ -85,7 +85,6 @@ void BTTask::add_child(godot::Ref<BTTask> child)
     }
     if (child->parent != nullptr)
     {
-        godot::UtilityFunctions::printerr("Child already has parent.");
         return;
     }
     child->parent = this;
@@ -100,7 +99,6 @@ void BTTask::add_child_at_index(godot::Ref<BTTask> child, int index)
     }
     if (child->parent != nullptr)
     {
-        godot::UtilityFunctions::printerr("Child already has parent.");
         return;
     }
     if (index < 0 || index > this->children.size())
@@ -116,7 +114,6 @@ void BTTask::remove_child(godot::Ref<BTTask> child)
     int index = this->children.find(child);
     if (index == -1)
     {
-        godot::UtilityFunctions::printerr("Child not found: ", child);
         return;
     }
     child->parent = nullptr;
@@ -127,11 +124,20 @@ void BTTask::remove_child_at_index(int index)
 {
     if (index < 0 || index > this->children.size())
     {
-        godot::UtilityFunctions::printerr("Index not found: ", index);
         return;
     }
     this->children[index]->parent = nullptr;
     this->children.remove_at(index);
+}
+
+
+void BTTask::clear_children()
+{
+    for (godot::Ref<BTTask> child : this->children)
+    {
+        child->parent = nullptr;
+    }
+    this->children.clear();
 }
 
 void BTTask::swap_child(godot::Ref<BTTask> old_child, godot::Ref<BTTask> new_child)
@@ -142,11 +148,11 @@ void BTTask::swap_child(godot::Ref<BTTask> old_child, godot::Ref<BTTask> new_chi
     godot::Array children_of_child = this->children[index]->get_children();
 
     this->children[index]->parent = nullptr;
-    this->children[index]->set_children(godot::Array());
+    this->children[index]->clear_children();
 
     this->children.set(index, new_child);
     this->children[index]->parent = this;
-    this->children[index]->set_children(children_of_child);
+    this->children[index]->_set_children(children_of_child);
 }
 
 bool BTTask::has_running_child() const
@@ -235,7 +241,7 @@ godot::Ref<BTTask> BTTask::clone() const
         new_children[i] = new_child;
     }
 
-    new_task->set_children(new_children);
+    new_task->_set_children(new_children);
 
     return new_task;
 }
@@ -277,10 +283,11 @@ void BTTask::_bind_methods()
 
     BIND_GETTER_SETTER_DEFAULT(BTTask, custom_name);
     BIND_GETTER_SETTER_DEFAULT(BTTask, status);
-    BIND_GETTER_SETTER_DEFAULT(BTTask, children);
+	ClassDB::bind_method(D_METHOD("_set_children", "children"), &BTTask::_set_children);
+    ClassDB::bind_method(D_METHOD("get_children"), &BTTask::get_children);
 
     ADD_PROPERTY(PropertyInfo(Variant::STRING, "custom_name", PROPERTY_HINT_RESOURCE_TYPE, "", PROPERTY_USAGE_NO_EDITOR | PROPERTY_USAGE_INTERNAL), "set_custom_name", "get_custom_name");
-    ADD_PROPERTY(PropertyInfo(Variant::ARRAY, "children", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NO_EDITOR | PROPERTY_USAGE_INTERNAL), "set_children", "get_children");
+    ADD_PROPERTY(PropertyInfo(Variant::ARRAY, "children", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NO_EDITOR | PROPERTY_USAGE_INTERNAL), "_set_children", "get_children");
     ADD_PROPERTY(PropertyInfo(Variant::INT, "status", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NONE), "", "get_status");
     
     BIND_ENUM_CONSTANT(Status::FRESH);

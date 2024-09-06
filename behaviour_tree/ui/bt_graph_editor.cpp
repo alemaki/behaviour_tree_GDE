@@ -401,10 +401,10 @@ void BTGraphEditor::delete_nodes(const godot::Vector<BTGraphNode*>& nodes_to_del
         godot::Ref<BTTask> parent = task_to_remove->get_parent();
         int task_id = this->behaviour_tree->get_task_id(task_to_remove);
 
-        undo_redo_manager->add_do_method(this->behaviour_tree, "set_tasks_of_parent", task_to_remove, godot::Array());
+        undo_redo_manager->add_do_method(this->behaviour_tree, "set_children_of_task", task_to_remove, godot::Array());
         undo_redo_manager->add_do_method(this->behaviour_tree, "remove_task_by_ref", task_to_remove);
         undo_redo_manager->add_undo_method(this->behaviour_tree, "add_task", task_id, task_to_remove);
-        undo_redo_manager->add_undo_method(this->behaviour_tree, "set_tasks_of_parent", task_to_remove, task_children);
+        undo_redo_manager->add_undo_method(this->behaviour_tree, "set_children_of_task", task_to_remove, task_children);
 
         /* add node first when undoing so connections can form*/
         undo_redo_manager->add_undo_method(this->graph_edit, "add_child", nodes_to_delete[i]);
@@ -868,8 +868,8 @@ void BTGraphEditor::_move_nodes()
         {
             godot::Array old_children = parent->get_children();
             godot::Array new_children = this->get_sorted_by_y_children_of_parent(this->task_to_node[parent]);
-            undo_redo->add_do_method(this->behaviour_tree, "set_tasks_of_parent", parent, new_children);
-            undo_redo->add_undo_method(this->behaviour_tree, "set_tasks_of_parent", parent, old_children);
+            undo_redo->add_do_method(this->behaviour_tree, "set_children_of_task", parent, new_children);
+            undo_redo->add_undo_method(this->behaviour_tree, "set_children_of_task", parent, old_children);
             sorted_parents.insert(parent);
         }
     }
@@ -1199,12 +1199,7 @@ BTGraphNode* duplicate_graph_node(const BTGraphNode* node)
     BTGraphNode* copy_node = memnew(BTGraphNode);
     godot::Ref<BTTask> copy_task = node->get_task()->duplicate();
 
-    /* NOTE: So the new copy_task shallow copies the array of children tasks of the original task. 
-     * This means that when set to empty array all the children will be orphaned. Leaving the arrangement of nodes later with orphaned children.
-     * This leads to segmentation fault. That's why we set the children of the original node the same, so the orphaned children can have their parrent back.*/
-    copy_task->set_children(godot::Array());
-    node->get_task()->set_children(node->get_task()->get_children());
-    /* */
+    copy_task->clear_children();
 
     copy_task->set_parent(nullptr);
     copy_node->set_task(copy_task);

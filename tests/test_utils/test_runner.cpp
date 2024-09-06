@@ -24,7 +24,7 @@ void TestRunner::run(const char* filter)
         "--test-suite-exclude=*[deprecated]*", 
         filter, 
         //"--success",
-        //"--duration",
+        "--duration",
         //"--order-by=name"
     };
     int argc = sizeof(argv) / sizeof(argv[0]);

@@ -128,7 +128,7 @@ TEST_SUITE("BehaviourTreeTests")
         godot::Array children_array;
         children_array.push_back(child_task1);
         children_array.push_back(child_task2);
-        tree->set_tasks_of_parent(parent_task, children_array);
+        tree->set_children_of_task(parent_task, children_array);
         godot::Array children = parent_task->get_children();
         REQUIRE(children.size() == 2);
         CHECK_EQ(children[0], child_task1);

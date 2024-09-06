@@ -36,7 +36,7 @@ protected:
     virtual void _enter();
     virtual void _exit();
     virtual Status _tick(double delta);
-    
+
 public:
     BTTask();
 
@@ -50,8 +50,8 @@ public:
     {
         return godot::Ref<BTTask>(this->parent);
     }
-    void set_children(const godot::Array& children);
     godot::Array get_children() const;
+    void _set_children(const godot::Array& children);
     
     _FORCE_INLINE_ int get_child_count() const
     {
@@ -69,6 +69,7 @@ public:
 	void add_child_at_index(godot::Ref<BTTask> child, int index);
 	void remove_child(godot::Ref<BTTask> child);
 	void remove_child_at_index(int index);
+    void clear_children();
     void swap_child(godot::Ref<BTTask> old_child, godot::Ref<BTTask> new_child);
 
 	_FORCE_INLINE_ bool has_child(const godot::Ref<BTTask> child) const

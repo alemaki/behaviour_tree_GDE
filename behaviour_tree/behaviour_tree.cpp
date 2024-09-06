@@ -98,8 +98,8 @@ void BehaviourTree::detach_task(int id)
     {
         task->get_parent()->remove_child(task);
     }
-
-    task->set_children({});
+    
+    task->clear_children();
 }
 
 void BehaviourTree::remove_task_by_ref(godot::Ref<BTTask> task)
@@ -158,16 +158,16 @@ void BehaviourTree::disconnect_tasks(godot::Ref<BTTask> parent, godot::Ref<BTTas
     parent->remove_child(child);
 }
 
-void BehaviourTree::set_tasks_of_parent(godot::Ref<BTTask> parent, godot::Array new_children)
+void BehaviourTree::set_children_of_task(godot::Ref<BTTask> parent, godot::Array new_children)
 {
     ERR_FAIL_COND_MSG(!(this->has_task(parent)), "Parent not in tree.");
-
+    parent->clear_children();
     for (int i = 0 , size = new_children.size(); i < size; i++)
     {
         godot::Ref<BTTask> task = godot::Ref<BTTask>(new_children[i]);
         ERR_FAIL_COND_MSG(!(this->has_task(task)), "Child not in tree.");
     }
-    parent->set_children(new_children);
+    parent->_set_children(new_children);
 }
 
 void BehaviourTree::swap_task_in(godot::Ref<BTTask> old_task, godot::Ref<BTTask> new_task)
@@ -183,8 +183,8 @@ void BehaviourTree::swap_task_in(godot::Ref<BTTask> old_task, godot::Ref<BTTask>
     else
     {
         godot::Array children = old_task->get_children();
-        old_task->set_children(godot::Array());
-        new_task->set_children(children);
+        old_task->clear_children();
+        new_task->_set_children(children);
     }
 
     if (this->root_task == old_task)
@@ -229,7 +229,7 @@ void BehaviourTree::_bind_methods()
     ClassDB::bind_method(D_METHOD("get_tasks"), &BehaviourTree::get_tasks);
     ClassDB::bind_method(D_METHOD("connect_tasks", "parent", "child", "child_pos"), &BehaviourTree::connect_tasks);
     ClassDB::bind_method(D_METHOD("disconnect_tasks", "parent", "child"), &BehaviourTree::disconnect_tasks);
-    ClassDB::bind_method(D_METHOD("set_tasks_of_parent", "parent", "new_children"), &BehaviourTree::set_tasks_of_parent);
+    ClassDB::bind_method(D_METHOD("set_children_of_task", "parent", "new_children"), &BehaviourTree::set_children_of_task);
     ClassDB::bind_method(D_METHOD("set_custom_name_task_by_ref", "task", "task_name"), &BehaviourTree::set_custom_name_task_by_ref);
     ClassDB::bind_method(D_METHOD("swap_task_in", "old_task", "new_task"), &BehaviourTree::swap_task_in);
     ClassDB::bind_method(D_METHOD("instantiate", "actor", "blackboard"), &BehaviourTree::instantiate);
