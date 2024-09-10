@@ -4,7 +4,6 @@
 #include <godot_cpp/classes/packed_scene.hpp>
 #include <godot_cpp/classes/file_access.hpp>
 #include <godot_cpp/classes/resource_loader.hpp>
-#include <godot_cpp/classes/packed_scene.hpp>
 #include <godot_cpp/templates/vector.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
 
@@ -43,7 +42,7 @@ T* load_scene_node(const godot::String& scene_path)
     T* result_node = godot::Object::cast_to<T>(node);
     if (result_node == nullptr)
     {
-        godot::UtilityFunctions::printerr("Path to scene is not a", T::get_class_static() ," node: ", scene_path);
+        godot::UtilityFunctions::printerr("Root node of scene is not of type ", T::get_class_static() ,": ", scene_path);
         return nullptr;
     }
 

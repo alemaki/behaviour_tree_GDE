@@ -19,6 +19,7 @@ void BTCooldown::cool()
         this->timer->connect("timeout", callable_mp(this, &BTCooldown::_on_timeout), CONNECT_ONE_SHOT);
     }
 }
+
 void BTCooldown::_on_timeout()
 {
     this->cooldown_active = false;

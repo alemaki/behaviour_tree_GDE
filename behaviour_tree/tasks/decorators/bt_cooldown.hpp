@@ -14,7 +14,7 @@ class BTCooldown : public BTDecorator
     bool start_cooled = false;
     bool cooldown_active = false;
 
-    Ref<SceneTreeTimer> timer;
+    godot::Ref<godot::SceneTreeTimer> timer;
 
 private:
     void cool();

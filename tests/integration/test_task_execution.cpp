@@ -9,8 +9,10 @@
 #include "behaviour_tree/tasks/composites/bt_selector.hpp"
 #include "behaviour_tree/tasks/decorators/bt_always_fail.hpp"
 #include "behaviour_tree/tasks/decorators/bt_always_succeed.hpp"
-#include "behaviour_tree/tasks/decorators/bt_invert.hpp"
 #include "behaviour_tree/tasks/decorators/bt_cooldown.hpp"
+#include "behaviour_tree/tasks/decorators/bt_delay.hpp"
+#include "behaviour_tree/tasks/decorators/bt_cooldown.hpp"
+#include "behaviour_tree/tasks/decorators/bt_invert.hpp"
 
 TEST_SUITE("Test task execution")
 {
