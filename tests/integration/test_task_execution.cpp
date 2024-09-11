@@ -273,6 +273,82 @@ TEST_SUITE("Test task execution")
         }
     }
 
+    TEST_CASE("Delay task behaviour")
+    {
+        godot::Ref<BTDelay> delay_task = memnew(BTDelay);
+        delay_task->set_seconds(1.0);
+
+        godot::Ref<BTAlwaysSucceed> task_succeed = memnew(BTAlwaysSucceed);
+        godot::Ref<BTAlwaysFail> task_fail = memnew(BTAlwaysFail);
+
+        SUBCASE("Starts delay and executes child on timeout")
+        {
+            delay_task->add_child(task_succeed);
+            CHECK_EQ(delay_task->get_status(), BTTask::Status::FRESH);
+
+            BTTask::Status status = delay_task->execute(0.1);
+            CHECK_EQ(status, BTTask::Status::RUNNING);
+            CHECK_EQ(delay_task->is_delay_active(), true);
+
+            delay_task->call("_on_timeout");
+            status = delay_task->execute(0.1);
+            CHECK_EQ(status, BTTask::Status::SUCCESS);
+            CHECK_EQ(delay_task->is_delay_active(), false);
+        }
+
+        SUBCASE("Delay task remains running during delay")
+        {
+            delay_task->add_child(task_succeed);
+
+            BTTask::Status status = delay_task->execute(0.1);
+            CHECK_EQ(status, BTTask::Status::RUNNING);
+            CHECK_EQ(delay_task->is_delay_active(), true);
+
+            status = delay_task->execute(0.1);
+            CHECK_EQ(status, BTTask::Status::RUNNING);
+            CHECK_EQ(delay_task->is_delay_active(), true);
+        }
+
+        SUBCASE("Child task fails after delay")
+        {
+            delay_task->add_child(task_fail);
+
+            BTTask::Status status = delay_task->execute(0.1);
+            CHECK_EQ(status, BTTask::Status::RUNNING);
+            CHECK_EQ(delay_task->is_delay_active(), true);
+
+            delay_task->call("_on_timeout");
+
+            status = delay_task->execute(0.1);
+            CHECK_EQ(status, BTTask::Status::FAILURE);
+            CHECK_EQ(delay_task->is_delay_active(), false);
+        }
+
+        SUBCASE("Delay task resets on timeout")
+        {
+            delay_task->add_child(task_succeed);
+
+            delay_task->execute(0.1);
+            CHECK_EQ(delay_task->is_delay_active(), true);
+
+            delay_task->call("_on_timeout");
+
+            CHECK_EQ(delay_task->is_delay_active(), false);
+            BTTask::Status status = delay_task->execute(0.1);
+            CHECK_EQ(status, BTTask::Status::SUCCESS);
+        }
+
+        SUBCASE("Task does not proceed if delay is active")
+        {
+            delay_task->add_child(task_succeed);
+
+            delay_task->execute(0.1);
+            CHECK_EQ(delay_task->is_delay_active(), true);
+
+            CHECK_EQ(task_succeed->get_status(), BTTask::Status::FRESH);
+        }
+    }
+
     TEST_CASE("BTParallel succeeds when enough children succeed")
     {
         godot::Ref<BTParallel> parallel = memnew(BTParallel);
