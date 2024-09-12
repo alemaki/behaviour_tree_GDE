@@ -1,11 +1,11 @@
-#ifndef BT_DYNAMIC_SEQUENCE_HPP
-#define BT_DYNAMIC_SEQUENCE_HPP
+#ifndef BT_DYNAMIC_SELECTOR_HPP
+#define BT_DYNAMIC_SELECTOR_HPP
 
 #include "behaviour_tree/tasks/bt_composite.hpp"
 
-class BTDynamicSequence : public BTComposite
+class BTDynamicSelector : public BTComposite
 {
-	GDCLASS(BTDynamicSequence, BTComposite);
+	GDCLASS(BTDynamicSelector, BTComposite);
 
 private:
 	int last_running_index = 0;
@@ -18,4 +18,4 @@ protected:
 	static void _bind_methods(){};
 };
 
-#endif // BT_DYNAMIC_SEQUENCE_HPP
+#endif // BT_DYNAMIC_SELECTOR_HPP

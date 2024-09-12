@@ -1,18 +1,18 @@
-#include "bt_dynamic_sequence.hpp"
+#include "bt_dynamic_selector.hpp"
 
-void BTDynamicSequence::_enter()
+void BTDynamicSelector::_enter()
 {
     this->last_running_index = 0;
 }
 
-BTTask::Status BTDynamicSequence::_tick(double delta)
+BTTask::Status BTDynamicSelector::_tick(double delta)
 {
     BTTask::Status result = BTTask::Status::SUCCESS;
     int i = 0;
     for (; i < this->get_child_count(); i++)
     {
         result = this->get_child(i)->execute(delta);
-        if (result != BTTask::SUCCESS)
+        if (result != BTTask::FAILURE)
         {
             break;
         }
