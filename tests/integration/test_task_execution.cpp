@@ -9,6 +9,7 @@
 #include "behaviour_tree/tasks/composites/bt_parallel.hpp"
 #include "behaviour_tree/tasks/composites/bt_sequence.hpp"
 #include "behaviour_tree/tasks/composites/bt_selector.hpp"
+#include "behaviour_tree/tasks/decorators/bt_always_run.hpp"
 #include "behaviour_tree/tasks/decorators/bt_always_fail.hpp"
 #include "behaviour_tree/tasks/decorators/bt_always_succeed.hpp"
 #include "behaviour_tree/tasks/decorators/bt_cooldown.hpp"
@@ -252,7 +253,7 @@ TEST_SUITE("Test task execution")
         godot::Ref<BTAlwaysFail> task_fail1 = memnew(BTAlwaysFail);
         godot::Ref<BTAlwaysFail> task_fail2 = memnew(BTAlwaysFail);
         godot::Ref<BTAlwaysSucceed> task_succeed = memnew(BTAlwaysSucceed);
-        godot::Ref<BTDelay> task_running = memnew(BTDelay);
+        godot::Ref<BTAlwaysRun> task_running = memnew(BTAlwaysRun);
 
         SUBCASE("Dynamic selector succeeds when last child succeeds")
         {
@@ -318,7 +319,7 @@ TEST_SUITE("Test task execution")
         godot::Ref<BTAlwaysFail> task_fail = memnew(BTAlwaysFail);
         godot::Ref<BTAlwaysSucceed> task_succeed1 = memnew(BTAlwaysSucceed);
         godot::Ref<BTAlwaysSucceed> task_succeed2 = memnew(BTAlwaysSucceed);
-        godot::Ref<BTDelay> task_running = memnew(BTDelay);
+        godot::Ref<BTAlwaysRun> task_running = memnew(BTAlwaysRun);
 
         SUBCASE("Dynamic sequence fails when any child fails")
         {
@@ -348,6 +349,25 @@ TEST_SUITE("Test task execution")
         {
             dynamic_sequence->add_child(task_succeed1);
             dynamic_sequence->add_child(task_running);
+            dynamic_sequence->add_child(task_succeed2);
+
+            BTTask::Status status = dynamic_sequence->execute(0.1);
+            CHECK_EQ(status, BTTask::Status::RUNNING);
+            CHECK_EQ(task_succeed1->get_status(), BTTask::Status::SUCCESS);
+            CHECK_EQ(task_running->get_status(), BTTask::Status::RUNNING);
+            CHECK_EQ(task_succeed2->get_status(), BTTask::Status::FRESH);
+
+            status = dynamic_sequence->execute(0.1);
+            CHECK_EQ(status, BTTask::Status::RUNNING);
+            CHECK_EQ(task_succeed1->get_status(), BTTask::Status::SUCCESS);
+            CHECK_EQ(task_running->get_status(), BTTask::Status::RUNNING);
+            CHECK_EQ(task_succeed2->get_status(), BTTask::Status::FRESH);
+        }
+
+        SUBCASE("Dynamic sequence aborts previously running task")
+        {
+            dynamic_sequence->add_child(task_succeed1);
+            dynamic_sequence->add_child(task_running);
 
             BTTask::Status status = dynamic_sequence->execute(0.1);
             CHECK_EQ(status, BTTask::Status::RUNNING);
@@ -360,20 +380,6 @@ TEST_SUITE("Test task execution")
             CHECK_EQ(status, BTTask::Status::FAILURE);
             CHECK_EQ(task_fail->get_status(), BTTask::Status::FAILURE);
             CHECK_EQ(task_running->get_status(), BTTask::Status::FRESH);
-        }
-
-        SUBCASE("Dynamic sequence aborts previously running task")
-        {
-            dynamic_sequence->add_child(task_succeed1);
-            dynamic_sequence->add_child(task_running);
-
-            dynamic_sequence->execute(0.1);
-            CHECK_EQ(task_running->get_status(), BTTask::Status::RUNNING);
-
-            BTTask::Status status = dynamic_sequence->execute(0.1);
-            CHECK_EQ(status, BTTask::Status::SUCCESS);
-            CHECK_EQ(task_running->get_status(), BTTask::Status::FRESH);
-            CHECK_EQ(task_succeed2->get_status(), BTTask::Status::SUCCESS);
         }
     }
 

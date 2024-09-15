@@ -32,7 +32,7 @@ void BTDelay::_enter()
 
 BTTask::Status BTDelay::_tick(double delta)
 {
-	TASK_FAIL_COND_MSG(get_child_count() == 0, "BT decorator has no child.");
+	TASK_FAIL_COND_MSG(get_child_count() == 0, "BTDelay has no child.");
     if (!(this->execute_child) && !(this->delay_active))
     {
         start_delay();

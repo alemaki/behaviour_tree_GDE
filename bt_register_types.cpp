@@ -21,11 +21,14 @@
 #include "behaviour_tree/tasks/bt_decorator.hpp"
 #include "behaviour_tree/tasks/bt_subtree.hpp"
 #include "behaviour_tree/tasks/bt_task.hpp"
+#include "behaviour_tree/tasks/composites/bt_dynamic_selector.hpp"
+#include "behaviour_tree/tasks/composites/bt_dynamic_sequence.hpp"
 #include "behaviour_tree/tasks/composites/bt_parallel.hpp"
 #include "behaviour_tree/tasks/composites/bt_selector.hpp"
 #include "behaviour_tree/tasks/composites/bt_sequence.hpp"
 #include "behaviour_tree/tasks/composites/bt_random_sequence.hpp"
 #include "behaviour_tree/tasks/composites/bt_random_selector.hpp"
+#include "behaviour_tree/tasks/decorators/bt_always_run.hpp"
 #include "behaviour_tree/tasks/decorators/bt_always_fail.hpp"
 #include "behaviour_tree/tasks/decorators/bt_always_succeed.hpp"
 #include "behaviour_tree/tasks/decorators/bt_cooldown.hpp"
@@ -53,6 +56,8 @@ void initialize_behaviour_tree_module(ModuleInitializationLevel p_level)
 		ClassDB::register_class<BTDecorator>();
 		ClassDB::register_class<BTComposite>();
 		ClassDB::register_class<BTParallel>();
+		ClassDB::register_class<BTDynamicSelector>();
+		ClassDB::register_class<BTDynamicSequence>();
 		ClassDB::register_class<BTSelector>();
 		ClassDB::register_class<BTSequence>();
 		ClassDB::register_class<BTRandomSequence>();
@@ -78,7 +83,8 @@ void initialize_behaviour_tree_module(ModuleInitializationLevel p_level)
 		ClassDB::register_class<BTCheckValue>();
 		ClassDB::register_class<BTCheckFSMState>();
 		
-
+		ClassDB::register_internal_class<BTAlwaysRun>();
+		
 	}
 	if (p_level == MODULE_INITIALIZATION_LEVEL_EDITOR)
 	{

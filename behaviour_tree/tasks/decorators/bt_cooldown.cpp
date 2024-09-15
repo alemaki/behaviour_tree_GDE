@@ -28,7 +28,7 @@ void BTCooldown::_on_timeout()
 
 BTTask::Status BTCooldown::_tick(double delta)
 {
-    TASK_FAIL_COND_MSG(this->get_child_count() == 0, "BT decorator has no child.");
+    TASK_FAIL_COND_MSG(this->get_child_count() == 0, "BTCooldown has no child.");
     TASK_FAIL_COND(this->cooldown_active);
 
     BTTask::Status status = this->get_child(0)->execute(delta);

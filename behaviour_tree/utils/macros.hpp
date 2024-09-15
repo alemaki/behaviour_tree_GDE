@@ -135,7 +135,7 @@
 #define TASK_FAIL_COND_MSG(condition, message) /*******************************************************************************************************************************/\
     if (condition)                                                                                                                                                              \
     {                                                                                                                                                                           \
-        godot::UtilityFunctions::print(message);                                                                                                                                \
+        godot::UtilityFunctions::printerr(this->get_custom_name(), ": ", message);                                                                                                                                \
         return BTTask::Status::FAILURE;                                                                                                                                         \
     }                                                                                                                                                                           \
     else ((void)0)

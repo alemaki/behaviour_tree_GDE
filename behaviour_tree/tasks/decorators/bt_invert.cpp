@@ -2,7 +2,7 @@
 
 BTTask::Status BTInvert::_tick(double delta)
 {
-     if (this->get_child_count() < 0)
+    if (this->get_child_count() < 0)
     {
         return BTTask::Status::FAILURE;
     }
