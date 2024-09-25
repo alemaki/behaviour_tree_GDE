@@ -135,7 +135,7 @@
 #define TASK_FAIL_COND_MSG(condition, message) /*******************************************************************************************************************************/\
     if (condition)                                                                                                                                                              \
     {                                                                                                                                                                           \
-        godot::UtilityFunctions::printerr(this->get_custom_name(), ": ", message);                                                                                                                                \
+        godot::UtilityFunctions::printerr(this->get_custom_name(), ": ", message);                                                                                              \
         return BTTask::Status::FAILURE;                                                                                                                                         \
     }                                                                                                                                                                           \
     else ((void)0)
@@ -143,13 +143,16 @@
 #define TASK_COMPLAIN_COND(condition, message) /*******************************************************************************************************************************/\
     if ((condition) && (this->is_complain_enabled()))                                                                                                                           \
     {                                                                                                                                                                           \
-        godot::UtilityFunctions::printerr(this->get_custom_name(), ": ", message);                                                                                                                             \
+        godot::UtilityFunctions::printerr(this->get_custom_name(), ": ", message);                                                                                              \
     }                                                                                                                                                                           \
     else ((void)0)
+
+#define TASK_FAIL_COND_COMP(condition) /***************************************************************************************************************************************/\
+    TASK_COMPLAIN_COND(condition, #condition);                                                                                                                                  \
+    TASK_FAIL_COND(condition)
 
 #define TASK_FAIL_COND_COMP_MSG(condition, message) /**************************************************************************************************************************/\
     TASK_COMPLAIN_COND(condition, message);                                                                                                                                     \
     TASK_FAIL_COND(condition)
-
 
 #endif /* BT_MACROS */

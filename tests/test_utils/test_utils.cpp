@@ -58,7 +58,6 @@ bool vectors_almost_eq(godot::Vector3 vec1, godot::Vector3 vec2, bool complain)
 
 	if ((!result) && (complain))
 	{
-		godot::UtilityFunctions::printerr("Test error.");
 		godot::UtilityFunctions::printerr(vec1, " != ", vec2);
 	}
     return result;
@@ -71,7 +70,6 @@ bool vectors_almost_ne(godot::Vector3 vec1, godot::Vector3 vec2, bool complain)
 
 	if ((!result) && (complain))
 	{
-		godot::UtilityFunctions::printerr("Test error.");
 		godot::UtilityFunctions::printerr(vec1, " == ", vec2);
 	}
     return result;
