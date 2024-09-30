@@ -4,9 +4,7 @@
 #include <godot_cpp/classes/node.hpp>
 #include <godot_cpp/classes/scene_tree.hpp>
 #include <godot_cpp/classes/scene_tree_timer.hpp>
-
-godot::SceneTree* get_scene_tree();
-godot::Node* get_scene_root();
+#include "behaviour_tree/utils/utils.hpp"
 
 class TestRunner : public godot::Node
 {

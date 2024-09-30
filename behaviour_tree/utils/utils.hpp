@@ -6,9 +6,14 @@
 #include <godot_cpp/classes/resource_loader.hpp>
 #include <godot_cpp/templates/vector.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
+#include <godot_cpp/classes/engine.hpp>
+#include <godot_cpp/classes/scene_tree.hpp>
+
+godot::SceneTree* get_scene_tree();
+godot::Node* get_scene_root();
 
 namespace utils
-{
+{   
 
 template<typename T>
 T* load_scene_node(const godot::String& scene_path)

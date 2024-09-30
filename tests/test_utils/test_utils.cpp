@@ -66,7 +66,6 @@ bool vectors_almost_eq(godot::Vector3 vec1, godot::Vector3 vec2, bool complain)
 bool vectors_almost_ne(godot::Vector3 vec1, godot::Vector3 vec2, bool complain)
 {
 	bool result = (doctest::Approx(vec1.x) != vec2.x) || (doctest::Approx(vec1.y) != vec2.y) || (doctest::Approx(vec1.z) != vec2.z);
-;
 
 	if ((!result) && (complain))
 	{

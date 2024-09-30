@@ -88,39 +88,45 @@ void SignalWatcher::connect_target_signal(godot::Object* target, const godot::Di
 
     int arg_size = (godot::Array(signal_info["args"])).size();
 
+    godot::Error result = godot::Error::OK;
     if (arg_size == 0)
     {
-        target->connect(signal_name, callable_mp_static(&SignalWatcher::on_signal_emitted_0_params).bind(signal_key));
+        result = target->connect(signal_name, callable_mp_static(&SignalWatcher::on_signal_emitted_0_params).bind(signal_key));
     }
     if (arg_size == 1)
     {
-        target->connect(signal_name, callable_mp_static(&SignalWatcher::on_signal_emitted_1_params).bind(signal_key));
+        result = target->connect(signal_name, callable_mp_static(&SignalWatcher::on_signal_emitted_1_params).bind(signal_key));
     }
     if (arg_size == 2)
     {
-        target->connect(signal_name, callable_mp_static(&SignalWatcher::on_signal_emitted_2_params).bind(signal_key));
+        result = target->connect(signal_name, callable_mp_static(&SignalWatcher::on_signal_emitted_2_params).bind(signal_key));
     }
     if (arg_size == 3)
     {
-        target->connect(signal_name, callable_mp_static(&SignalWatcher::on_signal_emitted_3_params).bind(signal_key));
+        result = target->connect(signal_name, callable_mp_static(&SignalWatcher::on_signal_emitted_3_params).bind(signal_key));
     }
     if (arg_size == 4)
     {
-        target->connect(signal_name, callable_mp_static(&SignalWatcher::on_signal_emitted_4_params).bind(signal_key));
+        result = target->connect(signal_name, callable_mp_static(&SignalWatcher::on_signal_emitted_4_params).bind(signal_key));
     }
     if (arg_size == 5)
     {
-        target->connect(signal_name, callable_mp_static(&SignalWatcher::on_signal_emitted_5_params).bind(signal_key));
+        result = target->connect(signal_name, callable_mp_static(&SignalWatcher::on_signal_emitted_5_params).bind(signal_key));
+    }
+
+    if (result != godot::OK) 
+    {
+        godot::UtilityFunctions::print("Failed to connect signal: ", signal_name, " on object: ", target);
+    }
+    else
+    {
+        //godot::UtilityFunctions::print("Successfully connected signal: ", signal_name, " on object: ", target);
     }
 }
 
 void SignalWatcher::watch_signals(godot::Object* target)
 {
-    if (watched_objects.find(target) != watched_objects.end())
-    {
-        SignalWatcher::reset_object(target);
-        return;
-    }
+    SignalWatcher::reset_object(target);
 
     godot::Array signal_list = target->get_signal_list();
     for (int i = 0; i < signal_list.size(); i++) 
