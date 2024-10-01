@@ -1,5 +1,6 @@
 #include "behaviour_tree.hpp"
 #include <godot_cpp/variant/utility_functions.hpp>
+#include "behaviour_tree/ui/bt_editor_debugger_messages.hpp"
 
 godot::Dictionary BehaviourTree::get_task_map()
 { 
@@ -207,6 +208,7 @@ godot::Ref<BTTask> BehaviourTree::instantiate(Node* actor, godot::Ref<Blackboard
     if (task != nullptr)
     {
         task->initialize(actor, blackboard);
+        BTEdtiorDebuggerMessages::register_tree(task.ptr());
     }
     return task;
 }

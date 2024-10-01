@@ -9,8 +9,14 @@
 *.o
 *.a
 *.so
+*.obj
+
+# Scons ignores.
+*.sconsign.dblite
+*.TMP
 
 # Godot-specific ignores
+*.import
 .import/
 export.cfg
 export_presets.cfg
@@ -23,6 +29,8 @@ export_presets.cfg
 data_*/
 mono_crash.*.json
 
-#Editor 
+# Editor ignores
 .vscode
 
+# Git ignores
+.gitconfig

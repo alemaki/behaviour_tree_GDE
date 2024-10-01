@@ -11,6 +11,7 @@
 #include "behaviour_tree/behaviour_tree.hpp"
 #include "behaviour_tree/ui/bt_graph_node.hpp"
 #include "behaviour_tree/ui/bt_graph_editor.hpp"
+#include "behaviour_tree/ui/bt_editor_debugger_plugin.hpp"
 
 class BTEditorPlugin : public godot::EditorPlugin
 {
@@ -30,7 +31,10 @@ private:
 
     godot::Button* bottom_panel_button;
     godot::HSplitContainer* main_container;
-    BTGraphEditor* graph_editor;
+    BTGraphEditor* graph_editor = nullptr;
+
+
+    godot::Ref<BTEditorDebuggerPlugin> debugger_plugin = nullptr;
 
 private:
     void set_graph_editor(BTGraphEditor* graph_editor);

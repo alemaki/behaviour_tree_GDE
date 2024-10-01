@@ -35,6 +35,7 @@
 #include "behaviour_tree/tasks/decorators/bt_delay.hpp"
 #include "behaviour_tree/tasks/decorators/bt_invert.hpp"
 #include "behaviour_tree/tasks/decorators/bt_probability.hpp"
+#include "behaviour_tree/ui/bt_editor_debugger_plugin.hpp"
 #include "behaviour_tree/ui/bt_editor_plugin.hpp"
 #include "behaviour_tree/ui/bt_graph_node.hpp"
 #include "behaviour_tree/ui/bt_graph_node_subtree.hpp"
@@ -93,7 +94,8 @@ void initialize_behaviour_tree_module(ModuleInitializationLevel p_level)
 		ClassDB::register_internal_class<BTGraphNodeSubtree>();
 		ClassDB::register_internal_class<BTGraphEditor>();
 		ClassDB::register_internal_class<BTEditorPlugin>();
-		
+		ClassDB::register_internal_class<BTEditorDebuggerPlugin>();
+
 		EditorPlugins::add_by_type<BTEditorPlugin>();
 	}
 }
