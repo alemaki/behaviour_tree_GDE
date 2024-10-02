@@ -17,6 +17,7 @@ private:
 public:
    void run(const char* filter);
    void run_runtime();
+   void run_editor();
    virtual void _ready() override;
 
 protected:

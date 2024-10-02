@@ -41,6 +41,7 @@ BTGraphEditor::~BTGraphEditor()
     }
     this->clear_copied_nodes();
     this->delete_saved_trees();
+    memdelete(this->graph_edit);
 }
 
 /* Setup Methods */
@@ -1561,6 +1562,6 @@ void BTGraphEditor::_bind_methods()
 
     // Getters and Setters
     ClassDB::bind_method(D_METHOD("set_editor_plugin", "editor_plugin"), &BTGraphEditor::set_editor_plugin);
-    ClassDB::bind_method(D_METHOD("get_graph_edit"), &BTGraphEditor::get_graph_edit);
+    // ClassDB::bind_method(D_METHOD("get_graph_edit"), &BTGraphEditor::get_graph_edit);
     BIND_GETTER_SETTER_DEFAULT(BTGraphEditor, behaviour_tree);
 }

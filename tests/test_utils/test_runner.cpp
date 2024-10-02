@@ -9,7 +9,7 @@ void TestRunner::run(const char* filter)
 {
     const char* argv[] = {
         "", 
-        "--test-suite-exclude=*[deprecated]*", 
+        //"--test-suite-exclude=*[deprecated]*", 
         filter, 
         //"--success",
         //"--duration",
@@ -36,6 +36,11 @@ void TestRunner::run_runtime()
     this->run("--test-suite-exclude=*[editor]*");
 }
 
+void TestRunner::run_editor()
+{
+    this->run("--test-suite=*[editor]*");
+}
+
 void TestRunner::_ready()
 {
     godot::Node* current_scene_root = ::get_scene_root();
@@ -50,9 +55,8 @@ void TestRunner::_ready()
     }
     else 
     {
-        //deprecated
-        //godot::UtilityFunctions::print("\n\nEditor tests running.\n\n");
-        //this->run_editor("--test-suite=*[editor]*");
+        godot::UtilityFunctions::print("\n\nEditor tests running.\n\n");
+        this->run_editor();
     }
 }
 

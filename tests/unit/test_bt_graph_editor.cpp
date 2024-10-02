@@ -7,12 +7,6 @@
 #include "behaviour_tree/ui/bt_graph_node_subtree.hpp"
 #include "tests/test_utils/signal_watcher.hpp"
 
-
-/* Currently not running editor tests, since the engine doesn't support it very well. 
-    TODO: Figure out a way to test the editor plugin. */
-
-
-
 TEST_SUITE("[editor]" "[deprecated]" "BTGraphEditor")
 {
     TEST_CASE("Graph editor tests")
@@ -58,11 +52,18 @@ TEST_SUITE("[editor]" "[deprecated]" "BTGraphEditor")
                 CHECK_EQ(graph_edit->get_child_count(), 4);
                 REQUIRE_NE(node, nullptr);
                 CHECK_EQ(node->get_parent(), nullptr);
+                REQUIRE(undo_redo->has_redo());
             }
         }
 
-        godot::UndoRedo* undo_redo = undo_redo_manager->get_history_undo_redo(undo_redo_manager->get_object_history_id(tree));
-        memdelete(editor);
+        godot::UndoRedo* undo_redo = undo_redo_manager->get_history_undo_redo(godot::EditorUndoRedoManager::SpecialHistory::GLOBAL_HISTORY);
+        
+        REQUIRE(undo_redo->has_redo());
+        undo_redo->clear_history(false);
+        REQUIRE_FALSE(undo_redo->has_redo());
+        REQUIRE_FALSE(undo_redo->has_undo());
+        
         memdelete(tree);
+        editor->queue_free();
     }
 }

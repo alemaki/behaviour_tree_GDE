@@ -31,9 +31,12 @@
 class BTEditorPlugin;
 #endif /* BT_EDITOR_PLUGIN_FORWARD */
 
-class BTGraphEditor : public godot::Object
+/*  For testing purposes, BTGraphEditor will be a node for now. 
+    For some reason the memdelete(BTGraphEditor) when BTGraphEditor is an object causes segfault in the engine.
+    ->queue_free() on the nodes manages to escape that.  TODO: investigate later. */
+class BTGraphEditor : public godot::Node
 {
-    GDCLASS(BTGraphEditor, godot::Object)
+    GDCLASS(BTGraphEditor, godot::Node)
 
     friend BTEditorPlugin;
 
