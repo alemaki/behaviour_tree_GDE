@@ -36,7 +36,7 @@
     CREATE_GETTER_SETTER_STRINGTYPE(godot::StringName, name, member)
 
 #define CREATE_GETTER_SETTER_STRINGNAME_DEFAULT(member) /**********************************************************************************************************************/\
-    CREATE_GETTER_SETTER_STRING(member, member)
+    CREATE_GETTER_SETTER_STRINGNAME(member, member)
 
 #define CREATE_GETTER_SETTER_POSITIVE(type, name, member) /********************************************************************************************************************/\
     void set_##name(type value) {                                                                                                                                               \

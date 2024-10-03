@@ -81,14 +81,13 @@ void BTGraphNode::evaluate_icon()
     this->icon->set_texture(icon_texture);
 }
 
-void BTGraphNode::set_task(godot::Ref<BTTask> task)
+void BTGraphNode::set_task_class_name(godot::Ref<BTTask> task)
 {
     ERR_FAIL_COND(task.is_null());
 
     godot::StringName class_name = task->get_class();
 
     this->task_type_label->set_text(class_name);
-    this->task = task;
     this->evaluate_icon(); 
 }
 
@@ -107,10 +106,11 @@ void BTGraphNode::_on_gui_input(const godot::Ref<godot::InputEvent>& event)
 
 void BTGraphNode::focus_task_in_inspector()
 {
-    ERR_FAIL_COND(this->task.is_null());
+    ERR_FAIL(); // currently disabled.
+    // ERR_FAIL_COND(this->task.is_null());
 
-    godot::EditorInterface* editor_interface = godot::EditorInterface::get_singleton();
-    editor_interface->inspect_object(task.ptr());
+    // godot::EditorInterface* editor_interface = godot::EditorInterface::get_singleton();
+    // editor_interface->inspect_object(task.ptr());
 }
 
 void BTGraphNode::_bind_methods()

@@ -7,7 +7,7 @@
 #include "behaviour_tree/ui/bt_graph_node_subtree.hpp"
 #include "tests/test_utils/signal_watcher.hpp"
 
-TEST_SUITE("[editor]" "[deprecated]" "BTGraphEditor")
+TEST_SUITE("[editor]" "BTGraphEditor")
 {
     TEST_CASE("Graph editor tests")
     {

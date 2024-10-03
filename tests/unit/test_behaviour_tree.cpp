@@ -7,7 +7,10 @@ struct BehaviourTreeFixture
 {
     BehaviourTree* tree;
     BehaviourTreeFixture() : tree(memnew(BehaviourTree)) {}
-    ~BehaviourTreeFixture(){}
+    ~BehaviourTreeFixture()
+    {
+        memdelete(tree);
+    }
 };
 
 TEST_SUITE("BehaviourTreeTests")

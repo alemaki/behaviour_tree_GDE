@@ -10,6 +10,7 @@ class BTDebuggerPanel : public godot::Control
 
 private:
     godot::Label* label = nullptr;
+
 public:
     BTDebuggerPanel() {}
 

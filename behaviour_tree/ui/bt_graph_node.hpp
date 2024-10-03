@@ -8,7 +8,7 @@
 #include <godot_cpp/classes/texture_rect.hpp>
 #include <godot_cpp/classes/h_box_container.hpp>
 
-#include "behaviour_tree/tasks/bt_task.hpp"
+#include "behaviour_tree/utils/macros.hpp"
 
 class BTGraphNode : public godot::GraphNode
 {
@@ -18,7 +18,7 @@ protected:
     godot::HBoxContainer* icon_name_container = nullptr;
     godot::Label* task_type_label = nullptr;
     godot::TextureRect* icon = nullptr;
-    godot::Ref<BTTask> task = nullptr;
+    godot::StringName task_class_name = "";
 
 private:
     void _on_gui_input(const godot::Ref<godot::InputEvent>& event);
@@ -33,12 +33,7 @@ private:
 public:
     BTGraphNode();
 
-    virtual void set_task(godot::Ref<BTTask> task);
-
-    _FORCE_INLINE_ godot::Ref<BTTask> get_task() const
-    {
-        return this->task;
-    }
+    CREATE_GETTER_SETTER_STRINGNAME_DEFAULT(task_class_name);
 
     void focus_task_in_inspector();
 protected:
