@@ -53,23 +53,18 @@ void BTGraphNode::evaluate_icon()
     godot::String icon_path = "res://gdextension/behaviour_tree/icons/";
     godot::String extension = ".png";
     godot::Ref<godot::Texture2D> icon_texture;
-    if (this->task == nullptr)
+    
+    if (godot::ResourceLoader::get_singleton()->exists(icon_path + this->task_class_name + extension))
     {
-        return;
-    }
-
-    godot::String class_name = this->task->get_class();
-    if (godot::ResourceLoader::get_singleton()->exists(icon_path + class_name + extension))
-    {
-        icon_texture = godot::ResourceLoader::get_singleton()->load(icon_path + class_name + extension);
+        icon_texture = godot::ResourceLoader::get_singleton()->load(icon_path + this->task_class_name + extension);
     }
     else if ((godot::ResourceLoader::get_singleton()->exists(icon_path + BTAction::get_class_static() + extension))
-            && (utils::is_subclass(class_name, BTAction::get_class_static())))
+            && (utils::is_subclass(this->task_class_name, BTAction::get_class_static())))
     {
         icon_texture = godot::ResourceLoader::get_singleton()->load(icon_path + BTAction::get_class_static() + extension);
     }
     else if ((godot::ResourceLoader::get_singleton()->exists(icon_path + BTAction::get_class_static() + extension))
-            && (utils::is_subclass(class_name, BTCondition::get_class_static())))
+            && (utils::is_subclass(this->task_class_name, BTCondition::get_class_static())))
     {
         icon_texture = godot::ResourceLoader::get_singleton()->load(icon_path + BTCondition::get_class_static() + extension);
     }
@@ -81,13 +76,10 @@ void BTGraphNode::evaluate_icon()
     this->icon->set_texture(icon_texture);
 }
 
-void BTGraphNode::set_task_class_name(godot::Ref<BTTask> task)
+void BTGraphNode::set_task_class_name(const godot::StringName& task_class_name)
 {
-    ERR_FAIL_COND(task.is_null());
-
-    godot::StringName class_name = task->get_class();
-
-    this->task_type_label->set_text(class_name);
+    this->task_class_name = task_class_name;
+    this->task_type_label->set_text(task_class_name);
     this->evaluate_icon(); 
 }
 
@@ -117,7 +109,7 @@ void BTGraphNode::_bind_methods()
 {
     using namespace godot;
 
-    BIND_GETTER_SETTER_DEFAULT(BTGraphNode, task);
+    BIND_GETTER_SETTER_PROPERTY_DEFAULT(BTGraphNode, STRING_NAME, task_class_name);
 
     ADD_SIGNAL(MethodInfo("double_clicked"));
     ADD_SIGNAL(MethodInfo("right_clicked"));

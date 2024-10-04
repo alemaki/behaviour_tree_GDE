@@ -9,7 +9,7 @@ void TestRunner::run(const char* filter)
 {
     const char* argv[] = {
         "", 
-        //"--test-suite-exclude=*[deprecated]*", 
+        "--test-suite-exclude=*[deprecated]*", 
         filter, 
         //"--success",
         //"--duration",

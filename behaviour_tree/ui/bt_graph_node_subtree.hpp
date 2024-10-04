@@ -15,17 +15,15 @@ class BTGraphNodeSubtree : public BTGraphNode
 
 private:
     godot::Label* path_label;
-
+    godot::String path;
 private:
     void _setup_subtree_labels();
 public:
     BTGraphNodeSubtree();
-    void set_task(godot::Ref<BTTask> task) override;
     void set_file_path(const godot::String& path);
     _FORCE_INLINE_ godot::String get_file_path()
     {
-        godot::Ref<BTSubtree> subtree_task = godot::Ref<BTSubtree>(this->task);
-        return subtree_task == nullptr ? "" : subtree_task->get_file_path();
+        return this->path;
     }
 
 protected:

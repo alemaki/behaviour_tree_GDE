@@ -18,7 +18,7 @@ protected:
     godot::HBoxContainer* icon_name_container = nullptr;
     godot::Label* task_type_label = nullptr;
     godot::TextureRect* icon = nullptr;
-    godot::StringName task_class_name = "";
+    godot::StringName task_class_name;
 
 private:
     void _on_gui_input(const godot::Ref<godot::InputEvent>& event);
@@ -32,8 +32,14 @@ private:
 
 public:
     BTGraphNode();
+    void set_task(godot::Ref<BTTask> task) {ERR_FAIL();}; // currently disabled
+    godot::Ref<BTTask> get_task() const {ERR_FAIL_COND_V(true, godot::Ref<BTTask>(nullptr));}; // currently disabled
 
-    CREATE_GETTER_SETTER_STRINGNAME_DEFAULT(task_class_name);
+    virtual void set_task_class_name(const godot::StringName& task_class_name);
+    _FORCE_INLINE_ godot::StringName get_task_class_name()
+    {
+        return this->task_class_name;
+    }
 
     void focus_task_in_inspector();
 protected:

@@ -1,4 +1,5 @@
 #include "bt_graph_node_subtree.hpp"
+#include "behaviour_tree/utils/utils.hpp"
 
 BTGraphNodeSubtree::BTGraphNodeSubtree() : BTGraphNode()
 {
@@ -9,6 +10,7 @@ BTGraphNodeSubtree::BTGraphNodeSubtree() : BTGraphNode()
     this->_setup_subtree_labels();
 
     this->set_self_modulate(godot::Color::named("YELLOW"));
+    this->set_task_class_name(BTSubtree::get_class_static());
 }
 
 void BTGraphNodeSubtree::_setup_subtree_labels()
@@ -18,25 +20,12 @@ void BTGraphNodeSubtree::_setup_subtree_labels()
     this->add_child(this->path_label);
 }
 
-void BTGraphNodeSubtree::set_task(godot::Ref<BTTask> task)
-{
-    godot::Ref<BTSubtree> subtree = godot::Ref<BTSubtree>(task);
-
-    ERR_FAIL_COND_MSG(subtree == nullptr, "Not a subtree.");
-
-    this->task_type_label->set_text(BTSubtree::get_class_static());
-    this->task = task;
-}
-
-
 void BTGraphNodeSubtree::set_file_path(const godot::String& path)
 {
-    godot::Ref<BTSubtree> subtree_task = godot::Ref<BTSubtree>(this->task);
-    ERR_FAIL_COND(subtree_task == nullptr);
-
+    this->path = path;
     this->path_label->set_text(path);
 
-    BehaviourTree* behaviour_tree = subtree_task->load_behavior_tree();
+    BehaviourTree* behaviour_tree = utils::load_scene_node<BehaviourTree>(this->path);
     if (behaviour_tree == nullptr)
     {
         this->set_title("");

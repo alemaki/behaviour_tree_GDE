@@ -46,6 +46,13 @@ public:
     CREATE_GETTER_SETTER_BOOL_DEFAULT(undo_redo_enabled);
     CREATE_GETTER_SETTER_DEFAULT(godot::EditorUndoRedoManager*, undo_redo_manager);
 
+    bool has_task_name(const godot::StringName& task_name) const;
+
+    void create_task_node(const godot::StringName& task_name, const godot::StringName& task_class_name);
+    void set_task_title(const godot::StringName& task_name, const godot::String& task_title);
+    void delete_task_node(const godot::StringName& task_name);
+    void change_task_class_name(const godot::StringName& task_name, const godot::StringName& task_class_name);
+
 
 protected:
     static void _bind_methods();

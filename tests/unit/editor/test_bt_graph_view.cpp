@@ -24,4 +24,10 @@ TEST_SUITE("[editor]" "BTGraphView")
         REQUIRE_EQ(graph_view->get_undo_redo_manager(), nullptr);
         REQUIRE_FALSE(graph_view->is_undo_redo_enabled());
     }
+
+    TEST_CASE_FIXTURE(BTGraphViewFixture, "Setters and getters")
+    {
+        REQUIRE_EQ(graph_view->get_undo_redo_manager(), nullptr);
+        REQUIRE_FALSE(graph_view->is_undo_redo_enabled());
+    }
 }
