@@ -43,6 +43,29 @@ void BTGraphView::change_task_class_name(const godot::StringName& task_name, con
     graph_node->set_task_class_name(task_class_name);
 }
 
+void BTGraphView::connect_task_nodes(const godot::StringName& parent_task_name, const godot::StringName& child_task_name)
+{
+    ERR_FAIL_COND_MSG(!(this->has_task_name(parent_task_name)), "BTGraphView has no parent node named: " + parent_task_name + ".");
+    ERR_FAIL_COND_MSG(!(this->has_task_name(child_task_name)), "BTGraphView has no child node named: " + child_task_name + ".");
+    
+    godot::StringName parent_node_name = this->task_name_to_node[parent_task_name]->get_name();
+    godot::StringName child_node_name = this->task_name_to_node[child_task_name]->get_name();
+
+    // TODO: fix port numbers?
+    this->connect_node(parent_node_name, 0, child_node_name, 0);
+}
+
+void BTGraphView::disconnect_task_nodes(const godot::StringName& parent_task_name, const godot::StringName& child_task_name)
+{
+    ERR_FAIL_COND_MSG(!(this->has_task_name(parent_task_name)), "BTGraphView has no parent node named: " + parent_task_name + ".");
+    ERR_FAIL_COND_MSG(!(this->has_task_name(child_task_name)), "BTGraphView has no child node named: " + child_task_name + ".");
+    
+    godot::StringName parent_node_name = this->task_name_to_node[parent_task_name]->get_name();
+    godot::StringName child_node_name = this->task_name_to_node[child_task_name]->get_name();
+
+    // TODO: fix port numbers?
+    this->disconnect_node(parent_node_name, 0, child_node_name, 0);
+}
 
 void BTGraphView::_bind_methods()
 {

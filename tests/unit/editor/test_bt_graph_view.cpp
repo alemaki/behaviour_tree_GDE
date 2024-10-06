@@ -69,6 +69,36 @@ TEST_SUITE("[editor]" "BTGraphView")
         REQUIRE_EQ(graph_node->get_task_class_name(), godot::StringName("NewClass"));
     }
 
+    TEST_CASE_FIXTURE(BTGraphViewFixture, "Connect task nodes")
+    {
+        graph_view->create_task_node("parent_task", "ParentClass");
+        graph_view->create_task_node("child_task", "ChildClass");
+
+        graph_view->connect_task_nodes("parent_task", "child_task");
+
+        BTGraphNode* parent_node = this->get_graph_node(0);
+        BTGraphNode* child_node = this->get_graph_node(1);
+
+        REQUIRE(graph_view->is_node_connected(parent_node->get_name(), 0, child_node->get_name(), 0));
+    }
+
+    TEST_CASE_FIXTURE(BTGraphViewFixture, "Disconnect task nodes")
+    {
+        graph_view->create_task_node("parent_task", "ParentClass");
+        graph_view->create_task_node("child_task", "ChildClass");
+
+        graph_view->connect_task_nodes("parent_task", "child_task");
+        graph_view->disconnect_task_nodes("parent_task", "child_task");
+
+        BTGraphNode* parent_node = this->get_graph_node(0);
+        BTGraphNode* child_node = this->get_graph_node(1);
+
+        REQUIRE_FALSE(graph_view->is_node_connected(parent_node->get_name(), 0, child_node->get_name(), 0));
+    }
+}
+
+TEST_SUITE("[editor]" "[errors]" "BTGraphView")
+{
     TEST_CASE_FIXTURE(BTGraphViewFixture, "Fail to create task with empty names")
     {
         CHECK_THROWS(graph_view->create_task_node("", "TaskClass"));
@@ -88,5 +118,21 @@ TEST_SUITE("[editor]" "BTGraphView")
     TEST_CASE_FIXTURE(BTGraphViewFixture, "Fail to change class name of non-existent task")
     {
         CHECK_THROWS(graph_view->change_task_class_name("non_existent", "NewClass"));
+    }
+
+    TEST_CASE_FIXTURE(BTGraphViewFixture, "Fail to connect non-existent task nodes")
+    {
+        graph_view->create_task_node("task_1", "TaskClass");
+
+        CHECK_THROWS(graph_view->connect_task_nodes("non_existent", "task_1"));
+        CHECK_THROWS(graph_view->connect_task_nodes("task_1", "non_existent"));
+    }
+
+    TEST_CASE_FIXTURE(BTGraphViewFixture, "Fail to disconnect non-existent task nodes")
+    {
+        graph_view->create_task_node("task_1", "TaskClass");
+
+        CHECK_THROWS(graph_view->disconnect_task_nodes("non_existent", "task_1"));
+        CHECK_THROWS(graph_view->disconnect_task_nodes("task_1", "non_existent"));
     }
 }

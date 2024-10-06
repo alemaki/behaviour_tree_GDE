@@ -53,6 +53,8 @@ public:
     void delete_task_node(const godot::StringName& task_name);
     void change_task_class_name(const godot::StringName& task_name, const godot::StringName& task_class_name);
 
+    void connect_task_nodes(const godot::StringName& parent_name, const godot::StringName& child_name);
+    void disconnect_task_nodes(const godot::StringName& parent_name, const godot::StringName& child_name);
 
 protected:
     static void _bind_methods();
