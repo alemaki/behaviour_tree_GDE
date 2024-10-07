@@ -1,6 +1,8 @@
 #define DOCTEST_CONFIG_NO_EXCEPTIONS_BUT_WITH_ALL_ASSERTS
 #include <doctest.h>
 
+#include "tests/test_utils/test_utils.hpp"
+
 #include "behaviour_tree/ui/bt_graph_view.hpp"
 #include "behaviour_tree/ui/bt_graph_node.hpp"
 #include "behaviour_tree/ui/bt_graph_node_subtree.hpp"
@@ -37,14 +39,14 @@ TEST_SUITE("[editor]" "BTGraphView")
 
     TEST_CASE_FIXTURE(BTGraphViewFixture, "Create task node")
     {
-        graph_view->create_task_node("task_1", "TaskClass");
+        graph_view->create_task_node("task_1");
 
         REQUIRE(graph_view->has_task_name("task_1"));
     }
 
     TEST_CASE_FIXTURE(BTGraphViewFixture, "Set task title")
     {
-        graph_view->create_task_node("task_1", "TaskClass");
+        graph_view->create_task_node("task_1");
 
         graph_view->set_task_title("task_1", "Task Title");
         BTGraphNode* graph_node = this->get_graph_node(0);
@@ -53,7 +55,7 @@ TEST_SUITE("[editor]" "BTGraphView")
 
     TEST_CASE_FIXTURE(BTGraphViewFixture, "Delete task node")
     {
-        graph_view->create_task_node("task_1", "TaskClass");
+        graph_view->create_task_node("task_1");
 
         graph_view->delete_task_node("task_1");
 
@@ -62,7 +64,7 @@ TEST_SUITE("[editor]" "BTGraphView")
 
     TEST_CASE_FIXTURE(BTGraphViewFixture, "Change task class name")
     {
-        graph_view->create_task_node("task_1", "InitialClass");
+        graph_view->create_task_node("task_1");
 
         graph_view->change_task_class_name("task_1", "NewClass");
         BTGraphNode* graph_node = this->get_graph_node(0);
@@ -71,8 +73,8 @@ TEST_SUITE("[editor]" "BTGraphView")
 
     TEST_CASE_FIXTURE(BTGraphViewFixture, "Connect task nodes")
     {
-        graph_view->create_task_node("parent_task", "ParentClass");
-        graph_view->create_task_node("child_task", "ChildClass");
+        graph_view->create_task_node("parent_task");
+        graph_view->create_task_node("child_task");
 
         graph_view->connect_task_nodes("parent_task", "child_task");
 
@@ -84,8 +86,8 @@ TEST_SUITE("[editor]" "BTGraphView")
 
     TEST_CASE_FIXTURE(BTGraphViewFixture, "Disconnect task nodes")
     {
-        graph_view->create_task_node("parent_task", "ParentClass");
-        graph_view->create_task_node("child_task", "ChildClass");
+        graph_view->create_task_node("parent_task");
+        graph_view->create_task_node("child_task");
 
         graph_view->connect_task_nodes("parent_task", "child_task");
         graph_view->disconnect_task_nodes("parent_task", "child_task");
@@ -94,6 +96,18 @@ TEST_SUITE("[editor]" "BTGraphView")
         BTGraphNode* child_node = this->get_graph_node(1);
 
         REQUIRE_FALSE(graph_view->is_node_connected(parent_node->get_name(), 0, child_node->get_name(), 0));
+    }
+
+    TEST_CASE_FIXTURE(BTGraphViewFixture, "Moving task nodes")
+    {
+        graph_view->create_task_node("task");
+        BTGraphNode* graph_node = this->get_graph_node(0);
+
+        graph_view->set_node_position("task", godot::Vector2(0, 0));
+        CHECK_VECTORS_EQ(graph_node->get_position_offset(), godot::Vector2(0, 0));
+
+        graph_view->set_node_position("task", godot::Vector2(0, 1));
+        CHECK_VECTORS_EQ(graph_node->get_position_offset(), godot::Vector2(0, 1));
     }
 }
 
@@ -122,7 +136,7 @@ TEST_SUITE("[editor]" "[errors]" "BTGraphView")
 
     TEST_CASE_FIXTURE(BTGraphViewFixture, "Fail to connect non-existent task nodes")
     {
-        graph_view->create_task_node("task_1", "TaskClass");
+        graph_view->create_task_node("task_1");
 
         CHECK_THROWS(graph_view->connect_task_nodes("non_existent", "task_1"));
         CHECK_THROWS(graph_view->connect_task_nodes("task_1", "non_existent"));
@@ -130,9 +144,14 @@ TEST_SUITE("[editor]" "[errors]" "BTGraphView")
 
     TEST_CASE_FIXTURE(BTGraphViewFixture, "Fail to disconnect non-existent task nodes")
     {
-        graph_view->create_task_node("task_1", "TaskClass");
+        graph_view->create_task_node("task_1");
 
         CHECK_THROWS(graph_view->disconnect_task_nodes("non_existent", "task_1"));
         CHECK_THROWS(graph_view->disconnect_task_nodes("task_1", "non_existent"));
+    }
+
+    TEST_CASE_FIXTURE(BTGraphViewFixture, "Fail to set position to non-existent task nodes")
+    {
+        CHECK_THROWS(graph_view->set_node_position("non_existent", godot::Vector2(0, 0)));
     }
 }

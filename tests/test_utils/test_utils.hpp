@@ -12,28 +12,25 @@ void simulate(godot::Node* node, int frames = 1);
 double get_node_delta(godot::Node* node);
 double get_current_engine_delta();
 
-bool vectors_almost_eq(godot::Vector3 vec1, godot::Vector3 vec2, bool complain = true);
-bool vectors_almost_ne(godot::Vector3 vec1, godot::Vector3 vec2, bool complain = true);
-
 #ifdef CHECK_VECTORS_EQ
 #undef CHECK_VECTORS_EQ
 #endif
-#define CHECK_VECTORS_EQ(vec1, vec2) CHECK(::vectors_almost_eq(vec1, vec2, true));
+#define CHECK_VECTORS_EQ(vec1, vec2) CHECK_MESSAGE((vec1).is_equal_approx(vec2), (std::string(godot::String(vec1).utf8().get_data()) + " != " + godot::String(vec2).utf8().get_data()))
 
 #ifdef CHECK_VECTORS_NE
 #undef CHECK_VECTORS_NE
 #endif
-#define CHECK_VECTORS_NE(vec1, vec2) CHECK(::vectors_almost_ne(vec1, vec2, true));
+#define CHECK_VECTORS_NE(vec1, vec2) CHECK_MESSAGE(!((vec1).is_equal_approx(vec2)), (std::string(godot::String(vec1).utf8().get_data()) + " != " + godot::String(vec2).utf8().get_data()))
 
 
 #ifdef REQUIRE_VECTORS_EQ
 #undef REQUIRE_VECTORS_EQ
 #endif
-#define REQUIRE_VECTORS_EQ(vec1, vec2) REQUIRE(::vectors_almost_eq(vec1, vec2, true));
+#define REQUIRE_VECTORS_EQ(vec1, vec2) REQUIRE_MESSAGE((vec1).is_equal_approx(vec2), (std::string(godot::String(vec1).utf8().get_data()) + " != " + godot::String(vec2).utf8().get_data()))
 
 #ifdef REQUIRE_VECTORS_NE
 #undef REQUIRE_VECTORS_NE
 #endif
-#define REQUIRE_VECTORS_NE(vec1, vec2) REQUIRE(::vectors_almost_ne(vec1, vec2, true));
+#define REQUIRE_VECTORS_NE(vec1, vec2) REQUIRE_MESSAGE(!((vec1).is_equal_approx(vec2)), (std::string(godot::String(vec1).utf8().get_data()) + " != " + godot::String(vec2).utf8().get_data()))
 
 #endif /* BT_TEST_UTILS_HPP */

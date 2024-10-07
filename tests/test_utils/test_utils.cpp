@@ -51,25 +51,3 @@ double get_node_delta(godot::Node* node)
 {
 	return  godot::Engine::get_singleton()->is_in_physics_frame() ? node->get_physics_process_delta_time() : node->get_process_delta_time();
 }
-
-bool vectors_almost_eq(godot::Vector3 vec1, godot::Vector3 vec2, bool complain)
-{
-	bool result = (doctest::Approx(vec1.x) == vec2.x) && (doctest::Approx(vec1.y) == vec2.y) && (doctest::Approx(vec1.z) == vec2.z);
-
-	if ((!result) && (complain))
-	{
-		godot::UtilityFunctions::printerr(vec1, " != ", vec2);
-	}
-    return result;
-}
-
-bool vectors_almost_ne(godot::Vector3 vec1, godot::Vector3 vec2, bool complain)
-{
-	bool result = (doctest::Approx(vec1.x) != vec2.x) || (doctest::Approx(vec1.y) != vec2.y) || (doctest::Approx(vec1.z) != vec2.z);
-
-	if ((!result) && (complain))
-	{
-		godot::UtilityFunctions::printerr(vec1, " == ", vec2);
-	}
-    return result;
-}
