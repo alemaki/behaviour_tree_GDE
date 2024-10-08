@@ -67,6 +67,14 @@ void BTGraphView::disconnect_task_nodes(const godot::StringName& parent_task_nam
     this->disconnect_node(parent_node_name, 0, child_node_name, 0);
 }
 
+void BTGraphView::set_node_position(const godot::StringName& task_name, godot::Vector2 position)
+{
+    ERR_FAIL_COND_MSG(!(this->has_task_name(task_name)), "BTGraphView has no node named: " + task_name + ".");
+
+    BTGraphNode* node = this->task_name_to_node[task_name];
+    node->set_position_offset(position);
+}
+
 void BTGraphView::_bind_methods()
 {
     

@@ -48,13 +48,15 @@ public:
 
     bool has_task_name(const godot::StringName& task_name) const;
 
-    void create_task_node(const godot::StringName& task_name, const godot::StringName& task_class_name);
+    void create_task_node(const godot::StringName& task_name, const godot::StringName& task_class_name = BTTask::get_class_static());
     void set_task_title(const godot::StringName& task_name, const godot::String& task_title);
     void delete_task_node(const godot::StringName& task_name);
     void change_task_class_name(const godot::StringName& task_name, const godot::StringName& task_class_name);
 
-    void connect_task_nodes(const godot::StringName& parent_name, const godot::StringName& child_name);
-    void disconnect_task_nodes(const godot::StringName& parent_name, const godot::StringName& child_name);
+    void connect_task_nodes(const godot::StringName& parent_task_name, const godot::StringName& child_task_name);
+    void disconnect_task_nodes(const godot::StringName& parent_task_name, const godot::StringName& child_task_name);
+
+    void set_node_position(const godot::StringName& task_name, godot::Vector2 position);
 
 protected:
     static void _bind_methods();
