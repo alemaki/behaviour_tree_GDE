@@ -15,7 +15,7 @@ class BTGraphNodeSubtree : public BTGraphNode
 
 private:
     godot::Label* path_label;
-    godot::String path;
+    godot::String path; 
 private:
     void _setup_subtree_labels();
 public:

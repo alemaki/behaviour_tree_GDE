@@ -40,6 +40,19 @@ private:
     godot::EditorUndoRedoManager* undo_redo_manager = nullptr;
 
 public:
+    struct TreeArrangeUtils
+    {
+        godot::HashMap<BTGraphNode*, BTGraphNode*> left_neighbour;
+        godot::HashMap<BTGraphNode*, BTGraphNode*> right_neighbour;
+        godot::HashMap<BTGraphNode*, BTGraphNode*> parent;
+        godot::HashMap<BTGraphNode*, int> prelim;
+        godot::HashMap<BTGraphNode*, int> modifier;
+        int sibling_separation = 20;
+        int subtree_separation = 50;
+        int level_separation = 220;
+        //TODO: fix magic numbers.
+    };
+
     BTGraphView(){};
     ~BTGraphView(){};
     
@@ -57,6 +70,9 @@ public:
     void disconnect_task_nodes(const godot::StringName& parent_task_name, const godot::StringName& child_task_name);
 
     void set_node_position(const godot::StringName& task_name, godot::Vector2 position);
+
+    bool init_tree_utils( TreeArrangeUtils& utils, const godot::StringName& root_task_name, const godot::HashMap<StringName, godot::Vector<StringName>>& parent_to_children_names) const;
+    godot::HashMap<BTGraphNode*, godot::Vector2> get_arranged_nodes_positions(const godot::StringName& root_task_name, const godot::HashMap<StringName, godot::Vector<StringName>>& parent_to_children_names) const;
 
 protected:
     static void _bind_methods();
