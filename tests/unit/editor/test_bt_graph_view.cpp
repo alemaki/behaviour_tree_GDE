@@ -109,6 +109,46 @@ TEST_SUITE("[editor]" "BTGraphView")
         graph_view->set_node_position("task", godot::Vector2(0, 1));
         CHECK_VECTORS_EQ(graph_node->get_position_offset(), godot::Vector2(0, 1));
     }
+
+    TEST_CASE_FIXTURE(BTGraphViewFixture, "Tree with only root")
+    {
+        BTGraphView::TreeArrangeUtils utils;
+        graph_view->create_task_node("root");
+        godot::HashMap<godot::StringName, godot::Vector<godot::StringName>> parent_to_children_names;
+        CHECK(graph_view->init_tree_utils(utils, "root", parent_to_children_names));
+    }
+
+    TEST_CASE_FIXTURE(BTGraphViewFixture, "Tree with root and two children")
+    {
+        BTGraphView::TreeArrangeUtils utils;
+        graph_view->create_task_node("root");
+        graph_view->create_task_node("task1");
+        graph_view->create_task_node("task2");
+        godot::HashMap<godot::StringName, godot::Vector<godot::StringName>> parent_to_children_names;
+        parent_to_children_names["root"] = {"task1", "task2"};
+        CHECK(graph_view->init_tree_utils(utils, "root", parent_to_children_names));
+    }
+
+    TEST_CASE_FIXTURE(BTGraphViewFixture, "Complex tree with multiple levels")
+    {
+        BTGraphView::TreeArrangeUtils utils;
+        graph_view->create_task_node("root");
+        graph_view->create_task_node("task1");
+        graph_view->create_task_node("task2");
+        graph_view->create_task_node("task3");
+        graph_view->create_task_node("task11");
+        graph_view->create_task_node("task12");
+        graph_view->create_task_node("task31");
+        graph_view->create_task_node("task32");
+        graph_view->create_task_node("task33");
+
+        godot::HashMap<godot::StringName, godot::Vector<godot::StringName>> parent_to_children_names;
+        parent_to_children_names["root"] = {"task1", "task2", "task3"};
+        parent_to_children_names["task1"] = {"task11", "task12"};
+        parent_to_children_names["task3"] = {"task31", "task32", "task33"};
+
+        CHECK(graph_view->init_tree_utils(utils, "root", parent_to_children_names));
+    }
 }
 
 TEST_SUITE("[editor]" "[errors]" "BTGraphView")
@@ -153,5 +193,21 @@ TEST_SUITE("[editor]" "[errors]" "BTGraphView")
     TEST_CASE_FIXTURE(BTGraphViewFixture, "Fail to set position to non-existent task nodes")
     {
         CHECK_THROWS(graph_view->set_node_position("non_existent", godot::Vector2(0, 0)));
+    }
+
+    TEST_CASE_FIXTURE(BTGraphViewFixture, "Fail to initialize tree utils with non-existent root")
+    {
+        BTGraphView::TreeArrangeUtils utils;
+        godot::HashMap<godot::StringName, godot::Vector<godot::StringName>> parent_to_children_names;
+        CHECK_THROWS(graph_view->init_tree_utils(utils, "non_existent", parent_to_children_names));
+    }
+
+    TEST_CASE_FIXTURE(BTGraphViewFixture, "Fail to initialize tree utils with non-existent parent or child")
+    {
+        BTGraphView::TreeArrangeUtils utils;
+        graph_view->create_task_node("root");
+        godot::HashMap<godot::StringName, godot::Vector<godot::StringName>> parent_to_children_names;
+        parent_to_children_names["root"] = godot::Vector<godot::StringName>({"non_existent"});
+        CHECK_THROWS(graph_view->init_tree_utils(utils, "root", parent_to_children_names));
     }
 }
