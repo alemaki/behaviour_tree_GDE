@@ -96,6 +96,7 @@ bool BTGraphView::init_tree_utils(
 
     utils.left_neighbour.clear();
     utils.right_neighbour.clear();
+    utils.parent.clear();
 
     godot::Vector<godot::Vector<StringName>> node_level_array;
 
@@ -107,7 +108,7 @@ bool BTGraphView::init_tree_utils(
         godot::Vector<StringName> current_level_array;
         for (int j = 0; j < node_level_array[i].size(); j++)
         {
-            ERR_FAIL_COND_V_MSG(occured.has(node_level_array[i][j]), false, "There is a cycle in the parent_to_children_names graph: " + node_level_array[i][j] + " is in cycle.");
+            ERR_FAIL_COND_V_MSG(occured.has(node_level_array[i][j]), false, "There is a cycle in the parent_to_children_names graph: " + node_level_array[i][j] + " is in the cycle.");
             occured.insert(node_level_array[i][j]);
             if (!(parent_to_children_names.has(node_level_array[i][j])))
             {
@@ -129,7 +130,7 @@ bool BTGraphView::init_tree_utils(
             BTGraphNode* left_node = this->task_name_to_node[node_level_array[i][j]];
             BTGraphNode* right_node = this->task_name_to_node[node_level_array[i][j + 1]];
             utils.left_neighbour[right_node] = left_node;
-            utils.left_neighbour[left_node] = right_node;
+            utils.right_neighbour[left_node] = right_node;
             utils.prelim[left_node] = 0;
             utils.prelim[left_node] = 0;
         }
