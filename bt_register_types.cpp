@@ -39,6 +39,7 @@
 #include "behaviour_tree/ui/bt_editor_plugin.hpp"
 #include "behaviour_tree/ui/bt_graph_node.hpp"
 #include "behaviour_tree/ui/bt_graph_node_subtree.hpp"
+#include "behaviour_tree/ui/bt_graph_sort_algorithm.hpp"
 #include "behaviour_tree/ui/bt_graph_view.hpp"
 #include "blackboard/blackboard.hpp"
 #include "finite_state_machine/fsm.hpp"
@@ -92,6 +93,7 @@ void initialize_behaviour_tree_module(ModuleInitializationLevel p_level)
 	{
 		ClassDB::register_internal_class<BTGraphNode>();
 		ClassDB::register_internal_class<BTGraphNodeSubtree>();
+		ClassDB::register_internal_class<BTGraphSortAlgorithm>();
 		ClassDB::register_internal_class<BTGraphView>();
 		ClassDB::register_internal_class<BTGraphEditor>();
 		ClassDB::register_internal_class<BTEditorPlugin>();

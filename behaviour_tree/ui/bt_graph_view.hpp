@@ -25,11 +25,6 @@
 #include "behaviour_tree/tasks/decorators/bt_probability.hpp"
 #include "behaviour_tree/tasks/decorators/bt_repeat.hpp"
 
-#ifndef BT_EDITOR_PLUGIN_FORWARD
-#define BT_EDITOR_PLUGIN_FORWARD
-class BTEditorPlugin;
-#endif /* BT_EDITOR_PLUGIN_FORWARD */
-
 class BTGraphView : public godot::GraphEdit
 {
     GDCLASS(BTGraphView, godot::GraphEdit)
@@ -40,18 +35,6 @@ private:
     godot::EditorUndoRedoManager* undo_redo_manager = nullptr;
 
 public:
-    struct TreeArrangeUtils
-    {
-        godot::HashMap<BTGraphNode*, BTGraphNode*> left_neighbour;
-        godot::HashMap<BTGraphNode*, BTGraphNode*> right_neighbour;
-        godot::HashMap<BTGraphNode*, BTGraphNode*> parent;
-        godot::HashMap<BTGraphNode*, int> prelim;
-        godot::HashMap<BTGraphNode*, int> modifier;
-        int sibling_separation = 20;
-        int subtree_separation = 50;
-        int level_separation = 220;
-        //TODO: fix magic numbers.
-    };
 
     BTGraphView(){};
     ~BTGraphView(){};
@@ -71,7 +54,6 @@ public:
 
     void set_node_position(const godot::StringName& task_name, godot::Vector2 position);
 
-    bool init_tree_utils( TreeArrangeUtils& utils, const godot::StringName& root_task_name, const godot::HashMap<StringName, godot::Vector<StringName>>& parent_to_children_names) const;
     godot::HashMap<BTGraphNode*, godot::Vector2> get_arranged_nodes_positions(const godot::StringName& root_task_name, const godot::HashMap<StringName, godot::Vector<StringName>>& parent_to_children_names) const;
 
 protected:
