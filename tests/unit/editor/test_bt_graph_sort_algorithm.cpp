@@ -54,8 +54,10 @@ TEST_SUITE("[editor]" "BTGraphSortAlgorithm")
     {
         BTGraphNode* root = create_graph_node();
         godot::HashMap<BTGraphNode*, godot::Vector<BTGraphNode*>> parent_to_children;
+        bt_sort_algorithm->set_parent_to_children(parent_to_children);
+        bt_sort_algorithm->set_root_node(root);
 
-        CHECK(bt_sort_algorithm->init_tree_utils(root, parent_to_children));
+        CHECK(bt_sort_algorithm->init_tree_utils());
         CHECK(bt_sort_algorithm->left_neighbour.is_empty());
         CHECK(bt_sort_algorithm->right_neighbour.is_empty());
         CHECK(bt_sort_algorithm->parent.is_empty());
@@ -69,8 +71,10 @@ TEST_SUITE("[editor]" "BTGraphSortAlgorithm")
 
         godot::HashMap<BTGraphNode*, godot::Vector<BTGraphNode*>> parent_to_children;
         parent_to_children[root] = {task1, task2};
+        bt_sort_algorithm->set_parent_to_children(parent_to_children);
+        bt_sort_algorithm->set_root_node(root);
 
-        CHECK(bt_sort_algorithm->init_tree_utils(root, parent_to_children));
+        CHECK(bt_sort_algorithm->init_tree_utils());
         REQUIRE_EQ(bt_sort_algorithm->left_neighbour.size(), 1);
         REQUIRE_EQ(bt_sort_algorithm->right_neighbour.size(), bt_sort_algorithm->left_neighbour.size());
         REQUIRE_EQ(bt_sort_algorithm->parent.size(), 2);
@@ -96,8 +100,10 @@ TEST_SUITE("[editor]" "BTGraphSortAlgorithm")
         parent_to_children[root] = {task1, task2, task3};
         parent_to_children[task1] = {task11, task12};
         parent_to_children[task3] = {task31, task32, task33};
+        bt_sort_algorithm->set_parent_to_children(parent_to_children);
+        bt_sort_algorithm->set_root_node(root);
 
-        CHECK(bt_sort_algorithm->init_tree_utils(root, parent_to_children));
+        CHECK(bt_sort_algorithm->init_tree_utils());
         REQUIRE_EQ(bt_sort_algorithm->left_neighbour.size(), 6);
         REQUIRE_EQ(bt_sort_algorithm->right_neighbour.size(), bt_sort_algorithm->left_neighbour.size());
         REQUIRE_EQ(bt_sort_algorithm->parent.size(), 8);

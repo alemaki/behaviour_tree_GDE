@@ -10,8 +10,13 @@ class BTGraphSortAlgorithm : public godot::Resource
 {
     GDCLASS(BTGraphSortAlgorithm, godot::Resource)
 
+    using ParentToChildrenMap = godot::HashMap<BTGraphNode*, godot::Vector<BTGraphNode*>>;
+
 private:
-    godot::HashMap<BTGraphNode*, godot::Vector<BTGraphNode*>> parent_to_children;
+    BTGraphNode* root_node = nullptr;
+    ParentToChildrenMap parent_to_children = {};
+
+    godot::HashMap<BTGraphNode*, godot::Vector2> result = {};
 
 public:
     godot::HashMap<BTGraphNode*, BTGraphNode*> left_neighbour;
@@ -24,8 +29,17 @@ public:
     int level_separation = 220;
     //TODO: fix magic numbers.
 
-    bool init_tree_utils(BTGraphNode* root_node, const godot::HashMap<BTGraphNode*, godot::Vector<BTGraphNode*>>& parent_to_children);
-    godot::HashMap<BTGraphNode*, godot::Vector2> get_arranged_nodes_positions(BTGraphNode* root_node, const godot::HashMap<BTGraphNode*, godot::Vector<BTGraphNode*>>& parent_to_children);
+    CREATE_GETTER_SETTER_DEFAULT(BTGraphNode*, root_node);
+    CREATE_GETTER_SETTER_DEFAULT(ParentToChildrenMap, parent_to_children);
+
+    bool init_tree_utils();
+    bool has_left_sibling(BTGraphNode* node);
+    bool has_right_sibling(BTGraphNode* node);
+    BTGraphNode* get_leftmost(BTGraphNode* node, int level, int depth);
+    bool apportion(BTGraphNode* node, int level);
+    bool first_walk(BTGraphNode* node, int level = 0);
+    
+    godot::HashMap<BTGraphNode*, godot::Vector2> get_arranged_nodes_positions();
 
 protected:
     static void _bind_methods();
