@@ -84,7 +84,7 @@ bool BTGraphSortAlgorithm::has_right_sibling(BTGraphNode* node)
     return ((this->right_neighbour.has(node)) && (this->parent[this->right_neighbour[node]] == this->parent[node]));
 }
 
-
+//preorder walk
 BTGraphNode* BTGraphSortAlgorithm::get_leftmost(BTGraphNode* node, int level, int depth)
 {
     if (level >= depth)
@@ -172,7 +172,7 @@ bool BTGraphSortAlgorithm::apportion(BTGraphNode* node, int level)
             }
         }
         compare_depth++;
-        if (leftmost->get_task()->get_child_count() == 0)
+        if (!(parent_to_children.has(leftmost)))
         {
             leftmost = this->get_leftmost(node, 0, compare_depth);
         }
