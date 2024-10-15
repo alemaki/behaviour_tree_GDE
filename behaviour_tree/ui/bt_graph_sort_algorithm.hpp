@@ -38,6 +38,7 @@ public:
     BTGraphNode* get_leftmost(BTGraphNode* node, int level, int depth);
     bool apportion(BTGraphNode* node, int level);
     bool first_walk(BTGraphNode* node, int level = 0);
+    bool second_walk(BTGraphNode* node, godot::HashMap<BTGraphNode*, godot::Vector2>& result, int level = 0, int modsum = 0);
     
     godot::HashMap<BTGraphNode*, godot::Vector2> get_arranged_nodes_positions();
 

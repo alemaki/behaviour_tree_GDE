@@ -11,7 +11,18 @@ struct BTGraphSortAlgorithmFixture
 {
     godot::Ref<BTGraphSortAlgorithm> bt_sort_algorithm = memnew(BTGraphSortAlgorithm);
     godot::Vector<BTGraphNode*> graph_nodes = {};
-    int initial_child_count = 0;
+    godot::HashMap<BTGraphNode*, godot::Vector<BTGraphNode*>> parent_to_children = {};
+
+    /* for default graph */
+    BTGraphNode* root = nullptr;
+    BTGraphNode* child1 = nullptr;
+    BTGraphNode* child2 = nullptr;
+    BTGraphNode* child3 = nullptr;
+    BTGraphNode* child11 = nullptr;
+    BTGraphNode* child12 = nullptr;
+    BTGraphNode* child31 = nullptr;
+    BTGraphNode* child32 = nullptr;
+    BTGraphNode* child33 = nullptr;
 
     BTGraphSortAlgorithmFixture()
     {}
@@ -46,6 +57,26 @@ struct BTGraphSortAlgorithmFixture
         CHECK_EQ(bt_sort_algorithm->parent[child], parent);
     }
 
+
+    void create_default_graph()
+    {
+        this->root = create_graph_node();
+        this->child1 = create_graph_node();
+        this->child2 = create_graph_node();
+        this->child3 = create_graph_node();
+        this->child11 = create_graph_node();
+        this->child12 = create_graph_node();
+        this->child31 = create_graph_node();
+        this->child32 = create_graph_node();
+        this->child33 = create_graph_node();
+
+        parent_to_children[root] = {child1, child2, child3};
+        parent_to_children[child1] = {child11, child12};
+        parent_to_children[child3] = {child31, child32, child33};
+        bt_sort_algorithm->set_parent_to_children(parent_to_children);
+        bt_sort_algorithm->set_root_node(root);
+    }
+
 };
 
 TEST_SUITE("[editor]" "BTGraphSortAlgorithm")
@@ -53,7 +84,6 @@ TEST_SUITE("[editor]" "BTGraphSortAlgorithm")
     TEST_CASE_FIXTURE(BTGraphSortAlgorithmFixture, "Tree with only root")
     {
         BTGraphNode* root = create_graph_node();
-        godot::HashMap<BTGraphNode*, godot::Vector<BTGraphNode*>> parent_to_children;
         bt_sort_algorithm->set_parent_to_children(parent_to_children);
         bt_sort_algorithm->set_root_node(root);
 
@@ -66,11 +96,10 @@ TEST_SUITE("[editor]" "BTGraphSortAlgorithm")
     TEST_CASE_FIXTURE(BTGraphSortAlgorithmFixture, "Tree with root and two children")
     {
         BTGraphNode* root = create_graph_node();
-        BTGraphNode* task1 = create_graph_node();
-        BTGraphNode* task2 = create_graph_node();
+        BTGraphNode* child1 = create_graph_node();
+        BTGraphNode* child2 = create_graph_node();
 
-        godot::HashMap<BTGraphNode*, godot::Vector<BTGraphNode*>> parent_to_children;
-        parent_to_children[root] = {task1, task2};
+        parent_to_children[root] = {child1, child2};
         bt_sort_algorithm->set_parent_to_children(parent_to_children);
         bt_sort_algorithm->set_root_node(root);
 
@@ -79,50 +108,35 @@ TEST_SUITE("[editor]" "BTGraphSortAlgorithm")
         REQUIRE_EQ(bt_sort_algorithm->right_neighbour.size(), bt_sort_algorithm->left_neighbour.size());
         REQUIRE_EQ(bt_sort_algorithm->parent.size(), 2);
 
-        check_neighbours(task1, task2);
-        check_parent(task1, root);
-        check_parent(task2, root);
+        check_neighbours(child1, child2);
+        check_parent(child1, root);
+        check_parent(child2, root);
     }
 
     TEST_CASE_FIXTURE(BTGraphSortAlgorithmFixture, "Tree with multiple levels")
     {
-        BTGraphNode* root = create_graph_node();
-        BTGraphNode* task1 = create_graph_node();
-        BTGraphNode* task2 = create_graph_node();
-        BTGraphNode* task3 = create_graph_node();
-        BTGraphNode* task11 = create_graph_node();
-        BTGraphNode* task12 = create_graph_node();
-        BTGraphNode* task31 = create_graph_node();
-        BTGraphNode* task32 = create_graph_node();
-        BTGraphNode* task33 = create_graph_node();
-
-        godot::HashMap<BTGraphNode*, godot::Vector<BTGraphNode*>> parent_to_children;
-        parent_to_children[root] = {task1, task2, task3};
-        parent_to_children[task1] = {task11, task12};
-        parent_to_children[task3] = {task31, task32, task33};
-        bt_sort_algorithm->set_parent_to_children(parent_to_children);
-        bt_sort_algorithm->set_root_node(root);
+        create_default_graph();
 
         REQUIRE(bt_sort_algorithm->init_tree_utils());
         REQUIRE_EQ(bt_sort_algorithm->left_neighbour.size(), 6);
         REQUIRE_EQ(bt_sort_algorithm->right_neighbour.size(), bt_sort_algorithm->left_neighbour.size());
         REQUIRE_EQ(bt_sort_algorithm->parent.size(), 8);
 
-        check_neighbours(task1, task2);
-        check_neighbours(task2, task3);
-        check_neighbours(task11, task12);
-        check_neighbours(task12, task31);
-        check_neighbours(task31, task32);
-        check_neighbours(task32, task33);
+        check_neighbours(child1, child2);
+        check_neighbours(child2, child3);
+        check_neighbours(child11, child12);
+        check_neighbours(child12, child31);
+        check_neighbours(child31, child32);
+        check_neighbours(child32, child33);
 
-        check_parent(task1, root);
-        check_parent(task2, root);
-        check_parent(task3, root);
-        check_parent(task11, task1);
-        check_parent(task12, task1);
-        check_parent(task31, task3);
-        check_parent(task32, task3);
-        check_parent(task33, task3);
+        check_parent(child1, root);
+        check_parent(child2, root);
+        check_parent(child3, root);
+        check_parent(child11, child1);
+        check_parent(child12, child1);
+        check_parent(child31, child3);
+        check_parent(child32, child3);
+        check_parent(child33, child3);
     }
 
     TEST_CASE_FIXTURE(BTGraphSortAlgorithmFixture, "has_left_sibling and has_right_sibling")
@@ -131,7 +145,6 @@ TEST_SUITE("[editor]" "BTGraphSortAlgorithm")
         BTGraphNode* child1 = create_graph_node();
         BTGraphNode* child2 = create_graph_node();
 
-        godot::HashMap<BTGraphNode*, godot::Vector<BTGraphNode*>> parent_to_children;
         parent_to_children[root] = { child1, child2 };
         bt_sort_algorithm->set_parent_to_children(parent_to_children);
         bt_sort_algorithm->set_root_node(root);
@@ -154,7 +167,6 @@ TEST_SUITE("[editor]" "BTGraphSortAlgorithm")
         BTGraphNode* child2 = create_graph_node();
         BTGraphNode* child11 = create_graph_node();
 
-        godot::HashMap<BTGraphNode*, godot::Vector<BTGraphNode*>> parent_to_children;
         parent_to_children[root] = { child1, child2 };
         parent_to_children[child1] = { child11 };
         bt_sort_algorithm->set_parent_to_children(parent_to_children);
@@ -163,7 +175,7 @@ TEST_SUITE("[editor]" "BTGraphSortAlgorithm")
 
         CHECK_EQ(bt_sort_algorithm->get_leftmost(root, 0, 1), child1);
         CHECK_EQ(bt_sort_algorithm->get_leftmost(child1, 0, 0), child1);
-        CHECK_EQ( bt_sort_algorithm->get_leftmost(child2, 0, -1), child2);
+        CHECK_EQ(bt_sort_algorithm->get_leftmost(child2, 0, -1), child2);
         CHECK_EQ(bt_sort_algorithm->get_leftmost(root, 0, 2), child11);
         CHECK_EQ(bt_sort_algorithm->get_leftmost(child1, 0, 1), child11);
         CHECK_EQ( bt_sort_algorithm->get_leftmost(child2, 0, 0), child2);
@@ -194,8 +206,8 @@ TEST_SUITE("[editor]" "BTGraphSortAlgorithm")
 
         REQUIRE(bt_sort_algorithm->apportion(child2, 1));
 
-        // Expect that child2's prelim is at least the left sibling's prelim
-        // plus the sibling_separation.
+        /* Expect that child2's prelim is at least the left sibling's prelim
+           plus the sibling_separation. */
         int expectedMin = bt_sort_algorithm->prelim[child1] + bt_sort_algorithm->sibling_separation;
         CHECK_GE(bt_sort_algorithm->prelim[child2], expectedMin);
         CHECK_GE(bt_sort_algorithm->modifier[child2], 0);
@@ -208,7 +220,6 @@ TEST_SUITE("[editor]" "BTGraphSortAlgorithm")
         BTGraphNode* child2 = create_graph_node();
         BTGraphNode* grandchild1 = create_graph_node();
 
-        godot::HashMap<BTGraphNode*, godot::Vector<BTGraphNode*>> parent_to_children;
         parent_to_children[root] = { child1, child2 };
         parent_to_children[child1] = { grandchild1 };
         bt_sort_algorithm->set_parent_to_children(parent_to_children);
@@ -217,11 +228,10 @@ TEST_SUITE("[editor]" "BTGraphSortAlgorithm")
 
         REQUIRE(bt_sort_algorithm->first_walk(root, 0));
 
-        // For a leaf without a left sibling, prelim should be zero.
         CHECK_EQ(bt_sort_algorithm->prelim[grandchild1], 0);
 
-        // For child2, which is a right sibling, its prelim should equal that of child1 plus
-        // the sibling_separation and half the sum of their sizes.
+        /* For child2, which is a right sibling, its prelim should equal that of child1 plus
+           the sibling_separation and half the sum of their sizes. */
         int expected = bt_sort_algorithm->prelim[child1] + bt_sort_algorithm->sibling_separation +
                        (child2->get_size().y + child1->get_size().y) / 2;
 
@@ -234,7 +244,6 @@ TEST_SUITE("[editor]" "[errors]" "BTGraphSortAlgorithm")
 {
     TEST_CASE_FIXTURE(BTGraphSortAlgorithmFixture, "Fail to initialize tree utils with null root")
     {
-        godot::HashMap<BTGraphNode*, godot::Vector<BTGraphNode*>> parent_to_children;
         CHECK_THROWS(bt_sort_algorithm.init_tree_utils(nullptr, parent_to_children));
     }
 
@@ -243,7 +252,6 @@ TEST_SUITE("[editor]" "[errors]" "BTGraphSortAlgorithm")
         BTGraphNode* root = create_graph_node();
         BTGraphNode* valid_child = create_graph_node();
 
-        godot::HashMap<BTGraphNode*, godot::Vector<BTGraphNode*>> parent_to_children;
         parent_to_children[root] = {valid_child, nullptr};
 
         CHECK_THROWS(bt_sort_algorithm.init_tree_utils(root, parent_to_children));
@@ -255,7 +263,6 @@ TEST_SUITE("[editor]" "[errors]" "BTGraphSortAlgorithm")
         BTGraphNode* child1 = create_graph_node();
         BTGraphNode* child2 = create_graph_node();
 
-        godot::HashMap<BTGraphNode*, godot::Vector<BTGraphNode*>> parent_to_children;
         parent_to_children[root] = {child1, child2};
         parent_to_children[child1] = {root}; // Creates a cycle
 

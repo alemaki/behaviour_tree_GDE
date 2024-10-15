@@ -91,7 +91,7 @@ BTGraphNode* BTGraphSortAlgorithm::get_leftmost(BTGraphNode* node, int level, in
     {
         return node;
     }
-    else if (!(parent_to_children.has(node)))
+    else if (!(parent_to_children.has(node)) || parent_to_children[node].size() == 0)
     {
         return nullptr;
     }
@@ -144,7 +144,7 @@ bool BTGraphSortAlgorithm::apportion(BTGraphNode* node, int level)
             while (temp_node != nullptr && temp_node != ancestor_neighbour)
             {
                 left_siblings++;
-                if (has_left_sibling(temp_node))
+                if (this->has_left_sibling(temp_node))
                 {
                     temp_node = this->left_neighbour[temp_node];
                 }
@@ -191,7 +191,7 @@ bool BTGraphSortAlgorithm::first_walk(BTGraphNode* node, int level)
     ERR_FAIL_COND_V(node == nullptr, false);
     if (!(this->parent_to_children.has(node)))
     {
-        if (has_left_sibling(node))
+        if (this->has_left_sibling(node))
         {
             this->prelim[node] = this->prelim[this->left_neighbour[node]] +
                                  this->sibling_separation +
@@ -210,7 +210,7 @@ bool BTGraphSortAlgorithm::first_walk(BTGraphNode* node, int level)
             first_walk(child, level + 1);
         }
         int midpoint = (this->prelim[this->parent_to_children[node][0]] + this->prelim[this->parent_to_children[node][size - 1]])/2;
-        if (has_left_sibling(node))
+        if (this->has_left_sibling(node))
         {
             this->prelim[node] = this->prelim[this->left_neighbour[node]] +
                                  this->sibling_separation +
@@ -226,14 +226,50 @@ bool BTGraphSortAlgorithm::first_walk(BTGraphNode* node, int level)
     return true;
 }
 
+bool BTGraphSortAlgorithm::second_walk(BTGraphNode* node,
+                 godot::HashMap<BTGraphNode*, godot::Vector2>& result,
+                 int level,
+                 int modsum )
+{
+    ERR_FAIL_COND_V(node == nullptr, false);
+
+    int x_temp = level*(this->level_separation);
+    int y_temp = this->prelim[node] + modsum;
+
+    result. insert(node, godot::Vector2(x_temp, y_temp));
+    
+    /* preorder walk*/
+    if (this->parent_to_children.has(node))
+    {
+        BTGraphNode* first_child = this->parent_to_children[node][0];
+        if (!(this->second_walk(first_child, result, level + 1, this->modifier[node] + modsum)))
+        {
+            return false;
+        }
+    }
+    if (this->has_right_sibling(node))
+    {
+        if(!(this->second_walk(this->right_neighbour[node], result, level, modsum)))
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
+
 godot::HashMap<BTGraphNode*, godot::Vector2> BTGraphSortAlgorithm::get_arranged_nodes_positions()
 {
     ERR_FAIL_NULL_V(this->root_node, {});
     this->result = {};
 
-    this->init_tree_utils();
+    ERR_FAIL_COND_V(this->init_tree_utils(), {});
+    ERR_FAIL_COND_V(this->first_walk(this->root_node), {});
+    
+    godot::HashMap<BTGraphNode*, godot::Vector2> result;
+    ERR_FAIL_COND_V(this->second_walk(this->root_node, result), {});
 
-    return {};
+    return result;
 }
 
 
