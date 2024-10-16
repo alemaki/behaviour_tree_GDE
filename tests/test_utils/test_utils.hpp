@@ -33,4 +33,19 @@ double get_current_engine_delta();
 #endif
 #define REQUIRE_VECTORS_NE(vec1, vec2) REQUIRE_MESSAGE(!((vec1).is_equal_approx(vec2)), (std::string(godot::String(vec1).utf8().get_data()) + " != " + godot::String(vec2).utf8().get_data()))
 
+#define CHECK_GODOT_ERROR(expression) /************************************************************************************************************************************/\
+TestRunner::g_error_called = false;                                                                                                                                         \
+TestRunner::currently_testing_error = true;                                                                                                                                 \
+expression;                                                                                                                                                                 \
+CHECK(TestRunner::g_error_called);                                                                                                                                          \
+TestRunner::currently_testing_error = false;                                                                                                                        
+
+
+#define REQUIRE_GODOT_ERROR(expression) /**********************************************************************************************************************************/\
+TestRunner::g_error_called = false;                                                                                                                                         \
+TestRunner::currently_testing_error = true;                                                                                                                                 \
+expression;                                                                                                                                                                 \
+REQUIRE(TestRunner::g_error_called);                                                                                                                                        \
+TestRunner::currently_testing_error = false;
+
 #endif /* BT_TEST_UTILS_HPP */

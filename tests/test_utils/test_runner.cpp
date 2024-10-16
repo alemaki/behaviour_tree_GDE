@@ -1,9 +1,36 @@
 #include "test_runner.hpp"
 #include <sstream>
+#include <stdexcept>
 
 #include <doctest.h>
 
 #include <godot_cpp/variant/utility_functions.hpp>
+#include <godot_cpp/godot.hpp>
+
+GDExtensionInterfacePrintError original_gdextension_interface_print_error = nullptr;
+GDExtensionInterfacePrintErrorWithMessage original_gdextension_interface_print_error_with_message = nullptr;
+
+bool TestRunner::g_error_called = false;
+bool TestRunner::currently_testing_error = false;
+
+void custom_gdextension_interface_print_error(const char *p_description, const char *p_function, const char *p_file, int32_t p_line, GDExtensionBool p_editor_notify)
+{
+    TestRunner::g_error_called = true;
+    if (!(TestRunner::currently_testing_error))
+    {
+        godot::UtilityFunctions::printerr(godot::String("[Godot Error: ") + p_description + "] at " + p_file + ": " + p_function + " line(" + godot::itos(p_line) + ")");
+    }
+}
+
+void custom_gdextension_interface_print_error_with_message(const char *p_description, const char *p_message, const char *p_function, const char *p_file, int32_t p_line, GDExtensionBool p_editor_notify)
+{
+    TestRunner::g_error_called = true;
+    if (!(TestRunner::currently_testing_error))
+    {
+        godot::UtilityFunctions::printerr(godot::String("[Godot Error: ") + p_description + "] at " + p_file + ": " + p_function + " line(" + godot::itos(p_line) + ")");
+        godot::UtilityFunctions::printerr(godot::String("[Message: ") + p_message + "]");
+    }
+}
 
 void TestRunner::run(const char* filter)
 {
@@ -22,8 +49,19 @@ void TestRunner::run(const char* filter)
 
     context.setCout(&output_stream);
 
+    /* save for later */
+    original_gdextension_interface_print_error = godot::internal::gdextension_interface_print_error;
+    original_gdextension_interface_print_error_with_message = godot::internal::gdextension_interface_print_error_with_message;
+    godot::internal::gdextension_interface_print_error = custom_gdextension_interface_print_error;
+    godot::internal::gdextension_interface_print_error_with_message = custom_gdextension_interface_print_error_with_message;
+
+
     int res = context.run();
     godot::UtilityFunctions::print(output_stream.str().c_str());
+
+    /* Restore the original functions */
+    godot::internal::gdextension_interface_print_error = original_gdextension_interface_print_error;
+    godot::internal::gdextension_interface_print_error_with_message = original_gdextension_interface_print_error_with_message;
 
     if (context.shouldExit())
     {

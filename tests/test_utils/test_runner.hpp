@@ -10,6 +10,11 @@ class TestRunner : public godot::Node
 {
    GDCLASS(TestRunner, godot::Node);
 
+public:
+   static bool g_error_called;
+   static bool currently_testing_error;
+
+
 private:
    bool tests_ran = false;
    godot::Ref<godot::SceneTreeTimer> test_timer;
