@@ -236,7 +236,7 @@ bool BTGraphSortAlgorithm::second_walk(BTGraphNode* node,
     int x_temp = level*(this->level_separation);
     int y_temp = this->prelim[node] + modsum;
 
-    result. insert(node, godot::Vector2(x_temp, y_temp));
+    result.insert(node, godot::Vector2(x_temp, y_temp));
     
     /* preorder walk*/
     if (this->parent_to_children.has(node))
@@ -263,11 +263,11 @@ godot::HashMap<BTGraphNode*, godot::Vector2> BTGraphSortAlgorithm::get_arranged_
     ERR_FAIL_NULL_V(this->root_node, {});
     this->result = {};
 
-    ERR_FAIL_COND_V(this->init_tree_utils(), {});
-    ERR_FAIL_COND_V(this->first_walk(this->root_node), {});
+    ERR_FAIL_COND_V(!(this->init_tree_utils()), {});
+    ERR_FAIL_COND_V(!(this->first_walk(this->root_node)), {});
     
     godot::HashMap<BTGraphNode*, godot::Vector2> result;
-    ERR_FAIL_COND_V(this->second_walk(this->root_node, result), {});
+    ERR_FAIL_COND_V(!(this->second_walk(this->root_node, result)), {});
 
     return result;
 }

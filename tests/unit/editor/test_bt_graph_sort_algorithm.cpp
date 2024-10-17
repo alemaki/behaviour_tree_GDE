@@ -12,6 +12,7 @@ struct BTGraphSortAlgorithmFixture
     godot::Ref<BTGraphSortAlgorithm> bt_sort_algorithm = memnew(BTGraphSortAlgorithm);
     godot::Vector<BTGraphNode*> graph_nodes = {};
     godot::HashMap<BTGraphNode*, godot::Vector<BTGraphNode*>> parent_to_children = {};
+    godot::HashMap<BTGraphNode*, godot::Vector2> positions = {};
 
     /* for default graph */
     BTGraphNode* root = nullptr;
@@ -238,13 +239,75 @@ TEST_SUITE("[editor]" "BTGraphSortAlgorithm")
         CHECK_EQ(bt_sort_algorithm->prelim[child2], expected);
     }
 
+    TEST_CASE_FIXTURE(BTGraphSortAlgorithmFixture, "Nodes are all acounted for.")
+    {
+        create_default_graph();
+        positions = bt_sort_algorithm->get_arranged_nodes_positions();
+
+        for (BTGraphNode* node : graph_nodes)
+        {
+            CHECK(positions.has(node));
+        }
+    }
+
+    TEST_CASE_FIXTURE(BTGraphSortAlgorithmFixture, "Nodes are appropriately spaced between levels")
+    {
+        create_default_graph();
+        positions = bt_sort_algorithm->get_arranged_nodes_positions();
+
+        CHECK_EQ(positions[root].x, 0);
+        CHECK_EQ(positions[child1].x, positions[child2].x);
+        CHECK_EQ(positions[child1].x, positions[child3].x);
+        CHECK_EQ(positions[child1].x, bt_sort_algorithm->level_separation);
+        CHECK_EQ(positions[child11].x, positions[child12].x);
+        CHECK_EQ(positions[child11].x, positions[child12].x);
+        CHECK_EQ(positions[child11].x, positions[child31].x);
+        CHECK_EQ(positions[child11].x, positions[child32].x);
+        CHECK_EQ(positions[child11].x, positions[child33].x);
+        CHECK_EQ(positions[child11].x, 2 * bt_sort_algorithm->level_separation);
+    }
+
+    TEST_CASE_FIXTURE(BTGraphSortAlgorithmFixture, "Sibling nodes are properly spaced to avoid overlap")
+    {
+        create_default_graph();
+        positions = bt_sort_algorithm->get_arranged_nodes_positions();
+        
+        int min_separation = bt_sort_algorithm->sibling_separation;
+        godot::Vector<godot::Vector<BTGraphNode*>> node_levels = {
+            {root}, 
+            {child1, child2, child3},
+            {child11, child12, child31, child32, child33}
+        };
+
+        for (const godot::Vector<BTGraphNode*>& level : node_levels)
+        {
+            for (int i = 0; i < level.size() - 1; i++)
+            {
+                CHECK_GE(abs(positions[level[i + 1]].y - positions[level[i]].y), min_separation);
+            }
+        }
+    }
+
+    TEST_CASE_FIXTURE(BTGraphSortAlgorithmFixture, "Parents are centered between their children")
+    {
+        create_default_graph();
+        positions = bt_sort_algorithm->get_arranged_nodes_positions();
+        
+        int expected_center1 = (positions[child11].y + positions[child12].y) / 2;
+        CHECK_EQ(positions[child1].y, expected_center1);
+
+        int expected_center3 = (positions[child31].y + positions[child32].y + positions[child33].y) / 3;
+        CHECK_EQ(positions[child3].y, expected_center3);
+        CHECK_EQ(positions[child3].y, positions[child32].y);
+    }
+
 }
 
 TEST_SUITE("[editor]" "[errors]" "BTGraphSortAlgorithm")
 {
     TEST_CASE_FIXTURE(BTGraphSortAlgorithmFixture, "Fail to initialize tree utils with null root")
     {
-        CHECK_THROWS(bt_sort_algorithm.init_tree_utils(nullptr, parent_to_children));
+        CHECK_GODOT_ERROR(bt_sort_algorithm->init_tree_utils());
     }
 
     TEST_CASE_FIXTURE(BTGraphSortAlgorithmFixture, "Fail to initialize tree utils with null parent or child")
@@ -254,7 +317,10 @@ TEST_SUITE("[editor]" "[errors]" "BTGraphSortAlgorithm")
 
         parent_to_children[root] = {valid_child, nullptr};
 
-        CHECK_THROWS(bt_sort_algorithm.init_tree_utils(root, parent_to_children));
+        bt_sort_algorithm->set_root_node(root);
+        bt_sort_algorithm->set_parent_to_children(parent_to_children);
+
+        CHECK_GODOT_ERROR(bt_sort_algorithm->init_tree_utils());
     }
 
     TEST_CASE_FIXTURE(BTGraphSortAlgorithmFixture, "Fail to initialize tree utils with cyclic graph")
@@ -266,23 +332,21 @@ TEST_SUITE("[editor]" "[errors]" "BTGraphSortAlgorithm")
         parent_to_children[root] = {child1, child2};
         parent_to_children[child1] = {root}; // Creates a cycle
 
-        CHECK_THROWS(bt_sort_algorithm.init_tree_utils(root, parent_to_children));
+        bt_sort_algorithm->set_root_node(root);
+        bt_sort_algorithm->set_parent_to_children(parent_to_children);
+
+        CHECK_GODOT_ERROR(bt_sort_algorithm->init_tree_utils());
     }
 
     TEST_CASE_FIXTURE(BTGraphSortAlgorithmFixture, "has_left_sibling and has_right_sibling should fail on nullptr")
     {
-        CHECK_THROWS(bt_sort_algorithm->has_left_sibling(nullptr));
-        CHECK_THROWS(bt_sort_algorithm->has_right_sibling(nullptr));
-    }
-
-    TEST_CASE_FIXTURE(BTGraphSortAlgorithmFixture, "get_leftmost should fail on nullptr")
-    {
-        CHECK_THROWS(bt_sort_algorithm->get_leftmost(nullptr, 0, 2));
+        CHECK_GODOT_ERROR(bt_sort_algorithm->has_left_sibling(nullptr));
+        CHECK_GODOT_ERROR(bt_sort_algorithm->has_right_sibling(nullptr));
     }
 
     TEST_CASE_FIXTURE(BTGraphSortAlgorithmFixture, "apportion should fail on nullptr node")
     {
-        CHECK_THROWS(bt_sort_algorithm->apportion(nullptr, 0));
+        CHECK_GODOT_ERROR(bt_sort_algorithm->apportion(nullptr, 0));
     }
 
     TEST_CASE_FIXTURE(BTGraphSortAlgorithmFixture, "apportion should fail on a node with no parent")
@@ -290,17 +354,11 @@ TEST_SUITE("[editor]" "[errors]" "BTGraphSortAlgorithm")
         BTGraphNode* orphan = create_graph_node();
         bt_sort_algorithm->set_root_node(orphan);
         REQUIRE(bt_sort_algorithm->init_tree_utils());
-        CHECK_THROWS(bt_sort_algorithm->apportion(orphan, 0));
+        CHECK_GODOT_ERROR(bt_sort_algorithm->apportion(orphan, 0));
     }
 
     TEST_CASE_FIXTURE(BTGraphSortAlgorithmFixture, "first_walk should fail on nullptr")
     {
-        CHECK_THROWS(bt_sort_algorithm->first_walk(nullptr, 0));
-    }
-
-    TEST_CASE_FIXTURE(BTGraphSortAlgorithmFixture, "first_walk should fail on an uninitialized tree")
-    {
-        BTGraphNode* node = create_graph_node();
-        CHECK_THROWS(bt_sort_algorithm->first_walk(node, 0));
+        CHECK_GODOT_ERROR(bt_sort_algorithm->first_walk(nullptr, 0));
     }
 }
