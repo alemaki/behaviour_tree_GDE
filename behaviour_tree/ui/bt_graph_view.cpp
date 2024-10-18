@@ -1,4 +1,5 @@
 #include "bt_graph_view.hpp"
+#include "behaviour_tree/ui/bt_graph_sort_algorithm.hpp"
 
 bool BTGraphView::has_task_name(const godot::StringName& task_name) const
 {
@@ -75,23 +76,53 @@ void BTGraphView::set_node_position(const godot::StringName& task_name, godot::V
     node->set_position_offset(position);
 }
 
+godot::HashMap<BTGraphNode*, godot::Vector<BTGraphNode*>> BTGraphView::get_node_tree_map(const godot::HashMap<StringName, godot::Vector<StringName>>& parent_to_children_names) const
+{
+    godot::HashMap<BTGraphNode*, godot::Vector<BTGraphNode*>> parent_to_children;
+
+    for (const godot::KeyValue<StringName, godot::Vector<StringName>>& key_value : parent_to_children_names)
+    {
+        ERR_FAIL_COND_V_MSG(!(this->has_task_name(key_value.key)), {}, "BTGraphView has no node named: " + key_value.key + ".");
+        BTGraphNode* parent = this->task_name_to_node[key_value.key];
+        parent_to_children.insert(parent, {});
+        
+        for (const godot::StringName& child_name: key_value.value)
+        {
+            ERR_FAIL_COND_V_MSG(!(this->has_task_name(child_name)), {}, "BTGraphView has no node named: " + child_name + ".");
+            parent_to_children[parent].push_back(this->task_name_to_node[child_name]);
+        }
+    }
+    return parent_to_children;
+}
+
 godot::HashMap<BTGraphNode*, godot::Vector2> BTGraphView::get_arranged_nodes_positions(
     const godot::StringName& root_task_name,
     const godot::HashMap<StringName, godot::Vector<StringName>>& parent_to_children_names) const
 {
     ERR_FAIL_COND_V_MSG(!(this->has_task_name(root_task_name)), false, "BTGraphView has no node named: " + root_task_name + ".");
 
-    for (const godot::KeyValue<StringName, godot::Vector<StringName>>& key_value : parent_to_children_names)
-    {
-        ERR_FAIL_COND_V_MSG(!(this->has_task_name(key_value.key)), false, "BTGraphView has no node named: " + key_value.key + ".");
-        
-        for (const godot::StringName& child_name: key_value.value)
-        {
-            ERR_FAIL_COND_V_MSG(!(this->has_task_name(child_name)), false, "BTGraphView has no node named: " + child_name + ".");
-        }
-    }
+    BTGraphNode* root = this->task_name_to_node[root_task_name];
+    godot::HashMap<BTGraphNode*, godot::Vector<BTGraphNode*>> parent_to_children = this->get_node_tree_map(parent_to_children_names);
 
-    return {};
+    godot::Ref<BTGraphSortAlgorithm> algorithm = memnew(BTGraphSortAlgorithm);
+
+    algorithm->set_root_node(root);
+    algorithm->set_parent_to_children(parent_to_children);
+
+    return algorithm->get_arranged_nodes_positions();
+}
+
+
+void BTGraphView::arrange_nodes(
+    const godot::StringName& root_task_name,
+    const godot::HashMap<StringName, godot::Vector<StringName>>& parent_to_children_names)
+{
+    godot::HashMap<BTGraphNode*, godot::Vector2> positons = this->get_arranged_nodes_positions(root_task_name, parent_to_children_names);
+
+    for (const godot::KeyValue<BTGraphNode*, godot::Vector2>& key_value: positons)
+    {
+        key_value.key->set_position_offset(key_value.value);
+    }
 }
 
 void BTGraphView::_bind_methods()

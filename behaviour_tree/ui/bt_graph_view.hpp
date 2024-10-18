@@ -31,16 +31,11 @@ class BTGraphView : public godot::GraphEdit
 
 private:
     godot::HashMap<godot::StringName, BTGraphNode*> task_name_to_node;
-    bool undo_redo_enabled = false;
-    godot::EditorUndoRedoManager* undo_redo_manager = nullptr;
 
 public:
 
     BTGraphView(){};
     ~BTGraphView(){};
-    
-    CREATE_GETTER_SETTER_BOOL_DEFAULT(undo_redo_enabled);
-    CREATE_GETTER_SETTER_DEFAULT(godot::EditorUndoRedoManager*, undo_redo_manager);
 
     bool has_task_name(const godot::StringName& task_name) const;
 
@@ -54,7 +49,16 @@ public:
 
     void set_node_position(const godot::StringName& task_name, godot::Vector2 position);
 
+    _FORCE_INLINE_ BTGraphNode* get_node_task(const godot::StringName& task_name) const
+    {
+        ERR_FAIL_COND_V_MSG(!(this->has_task_name(task_name)), nullptr, "BTGraphView has no node named: " + task_name + ".");
+        return this->task_name_to_node[task_name];
+    }
+
+    godot::HashMap<BTGraphNode*, godot::Vector<BTGraphNode*>> get_node_tree_map(const godot::HashMap<StringName, godot::Vector<StringName>>& parent_to_children_names) const;
+
     godot::HashMap<BTGraphNode*, godot::Vector2> get_arranged_nodes_positions(const godot::StringName& root_task_name, const godot::HashMap<StringName, godot::Vector<StringName>>& parent_to_children_names) const;
+    void arrange_nodes(const godot::StringName& root_task_name, const godot::HashMap<StringName, godot::Vector<StringName>>& parent_to_children_names);
 
 protected:
     static void _bind_methods();
