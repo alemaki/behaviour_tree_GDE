@@ -153,20 +153,21 @@ TEST_SUITE("[editor]" "BTGraphView")
         CHECK_VECTORS_EQ(graph_node->get_position_offset(), godot::Vector2(0, 1));
     }
 
-    TEST_CASE_FIXTURE(BTGraphViewFixture, "Test get_node")
+    TEST_CASE_FIXTURE(BTGraphViewFixture, "Test get node")
     {
         create_default_graph();
-        CHECK_EQ(graph_view->get_node_task("root"), root);
-        CHECK_EQ(graph_view->get_node_task("task1"), task1);
-        CHECK_EQ(graph_view->get_node_task("task11"), task11);
-        CHECK_EQ(graph_view->get_node_task("task12"), task12);
-        CHECK_EQ(graph_view->get_node_task("task2"), task2);
-        CHECK_EQ(graph_view->get_node_task("task214"), task214);
-        CHECK_EQ(graph_view->get_node_task("task212"), task212);
-        CHECK_EQ(graph_view->get_node_task("task3"), task3);
+        CHECK_EQ(graph_view->get_graph_node("root"), root);
+        CHECK_EQ(graph_view->get_graph_node("root"), root);
+        CHECK_EQ(graph_view->get_graph_node("task1"), task1);
+        CHECK_EQ(graph_view->get_graph_node("task11"), task11);
+        CHECK_EQ(graph_view->get_graph_node("task12"), task12);
+        CHECK_EQ(graph_view->get_graph_node("task2"), task2);
+        CHECK_EQ(graph_view->get_graph_node("task214"), task214);
+        CHECK_EQ(graph_view->get_graph_node("task212"), task212);
+        CHECK_EQ(graph_view->get_graph_node("task3"), task3);
     }
 
-    TEST_CASE_FIXTURE(BTGraphViewFixture, "Test get_node_tree_map")
+    TEST_CASE_FIXTURE(BTGraphViewFixture, "Test get node tree map")
     {
         create_default_graph();
         godot::HashMap<BTGraphNode*, godot::Vector<BTGraphNode*>> result;
@@ -175,25 +176,53 @@ TEST_SUITE("[editor]" "BTGraphView")
 
         for (const godot::KeyValue<godot::StringName, godot::Vector<godot::StringName>>& key_value : parent_to_children_names)
         {
-            BTGraphNode* parent = graph_view->get_node_task(key_value.key);
+            BTGraphNode* parent = graph_view->get_graph_node(key_value.key);
             REQUIRE_NE(parent, nullptr);
             REQUIRE(result.has(parent));
             for (const godot::StringName& child_name : key_value.value)
             {
-                BTGraphNode* child = graph_view->get_node_task(child_name);
+                BTGraphNode* child = graph_view->get_graph_node(child_name);
                 CHECK_NE(child, nullptr);
                 CHECK_EQ(result[parent].find(child), parent_to_children_names[key_value.key].find(child_name));
             }
+        }
+    }
+
+    TEST_CASE_FIXTURE(BTGraphViewFixture, "Test arrange nodes")
+    {
+        create_default_graph();
+        godot::Ref<BTGraphSortAlgorithm> graph_sort_algorithm = memnew(BTGraphSortAlgorithm);
+        godot::HashMap<BTGraphNode*, godot::Vector<BTGraphNode*>> parent_to_children = graph_view->get_node_tree_map(parent_to_children_names);
+
+        graph_sort_algorithm->set_root_node(root);
+        graph_sort_algorithm->set_parent_to_children(parent_to_children);
+
+        godot::HashMap<BTGraphNode*, godot::Vector2> result = graph_sort_algorithm->get_arranged_nodes_positions();
+
+        graph_view->arrange_nodes("root", parent_to_children_names);
+
+        for (const godot::KeyValue<BTGraphNode*, godot::Vector2>& key_value : result)
+        {
+            CHECK_VECTORS_EQ(key_value.key->get_position_offset(), key_value.value);
         }
     }
 }
 
 TEST_SUITE("[editor]" "[errors]" "BTGraphView")
 {
-    TEST_CASE_FIXTURE(BTGraphViewFixture, "Fail to create task with empty names")
+    TEST_CASE_FIXTURE(BTGraphViewFixture, "Fail to create task node")
     {
-        CHECK_GODOT_ERROR(graph_view->create_task_node("", "TaskClass"));
-        CHECK_GODOT_ERROR(graph_view->create_task_node("task_1", ""));
+        SUBCASE("Non-existent nodes")
+        {
+            CHECK_GODOT_ERROR(graph_view->create_task_node("", "TaskClass"));
+            CHECK_GODOT_ERROR(graph_view->create_task_node("task_1", ""));
+        }
+
+        SUBCASE("Fail to Create Duplicate Task Nodes")
+        {
+            graph_view->create_task_node("task_1");
+            CHECK_GODOT_ERROR(graph_view->create_task_node("task_1"));
+        }
     }
 
     TEST_CASE_FIXTURE(BTGraphViewFixture, "Fail to set title of non-existent task")
@@ -201,9 +230,19 @@ TEST_SUITE("[editor]" "[errors]" "BTGraphView")
         CHECK_GODOT_ERROR(graph_view->set_task_title("non_existent", "Title"));
     }
 
-    TEST_CASE_FIXTURE(BTGraphViewFixture, "Fail to delete non-existent task node")
+    TEST_CASE_FIXTURE(BTGraphViewFixture, "Fail to delete task node")
     {
-        CHECK_GODOT_ERROR(graph_view->delete_task_node("non_existent"));
+        SUBCASE("Non-existent task node")
+        {
+            CHECK_GODOT_ERROR(graph_view->delete_task_node("non_existent"));
+        }
+
+        SUBCASE("Delete task node again")
+        {
+            graph_view->create_task_node("task_1");
+            graph_view->delete_task_node("task_1");
+            CHECK_GODOT_ERROR(graph_view->delete_task_node("task_1"));
+        }
     }
 
     TEST_CASE_FIXTURE(BTGraphViewFixture, "Fail to change class name of non-existent task")
@@ -219,10 +258,8 @@ TEST_SUITE("[editor]" "[errors]" "BTGraphView")
         CHECK_GODOT_ERROR(graph_view->connect_task_nodes("task_1", "non_existent"));
     }
 
-    TEST_CASE_FIXTURE(BTGraphViewFixture, "Fail to disconnect non-existent task nodes")
+    TEST_CASE_FIXTURE(BTGraphViewFixture, "Fail to disconnect")
     {
-        graph_view->create_task_node("task_1");
-
         CHECK_GODOT_ERROR(graph_view->disconnect_task_nodes("non_existent", "task_1"));
         CHECK_GODOT_ERROR(graph_view->disconnect_task_nodes("task_1", "non_existent"));
     }
@@ -230,5 +267,50 @@ TEST_SUITE("[editor]" "[errors]" "BTGraphView")
     TEST_CASE_FIXTURE(BTGraphViewFixture, "Fail to set position to non-existent task nodes")
     {
         CHECK_GODOT_ERROR(graph_view->set_node_position("non_existent", godot::Vector2(0, 0)));
+    }
+
+    TEST_CASE_FIXTURE(BTGraphViewFixture, "Fail to get non-existent task nodes")
+    {
+        graph_view->create_task_node("task_1");
+        CHECK_GODOT_ERROR(graph_view->get_graph_node("non_existent"));
+    }
+
+    TEST_CASE_FIXTURE(BTGraphViewFixture, "Fail to get tree map")
+    {
+        create_default_graph();
+
+        SUBCASE("Non-existent parent")
+        {
+            parent_to_children_names["non_existent"] = {"root"};
+            CHECK_GODOT_ERROR(graph_view->get_node_tree_map(parent_to_children_names));
+        }
+
+        SUBCASE("Non-existent child")
+        {
+            parent_to_children_names["task213"] = {"non_existent"};
+            CHECK_GODOT_ERROR(graph_view->get_node_tree_map(parent_to_children_names));
+        }
+    }
+
+    TEST_CASE_FIXTURE(BTGraphViewFixture, "Fail to arrange nodes")
+    {
+        create_default_graph();
+
+        SUBCASE("Non-existent parent")
+        {
+            parent_to_children_names["non_existent"] = {"root"};
+            CHECK_GODOT_ERROR(graph_view->arrange_nodes("root", parent_to_children_names));
+        }
+
+        SUBCASE("Non-existent child")
+        {
+            parent_to_children_names["task213"] = {"non_existent"};
+            CHECK_GODOT_ERROR(graph_view->arrange_nodes("root", parent_to_children_names));
+        }
+
+        SUBCASE("Non-existent root")
+        {
+            CHECK_GODOT_ERROR(graph_view->arrange_nodes("non_existent", parent_to_children_names));
+        }
     }
 }

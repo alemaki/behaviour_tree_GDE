@@ -1,5 +1,4 @@
 #include "bt_graph_view.hpp"
-#include "behaviour_tree/ui/bt_graph_sort_algorithm.hpp"
 
 bool BTGraphView::has_task_name(const godot::StringName& task_name) const
 {

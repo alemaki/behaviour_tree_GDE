@@ -8,6 +8,8 @@
 #include <godot_cpp/classes/popup_menu.hpp>
 #include <godot_cpp/templates/hash_map.hpp>
 
+#include "behaviour_tree/ui/bt_graph_sort_algorithm.hpp"
+
 #include "behaviour_tree/behaviour_tree.hpp"
 #include "behaviour_tree/ui/bt_graph_node.hpp"
 #include "behaviour_tree/ui/bt_graph_node_subtree.hpp"
@@ -49,7 +51,7 @@ public:
 
     void set_node_position(const godot::StringName& task_name, godot::Vector2 position);
 
-    _FORCE_INLINE_ BTGraphNode* get_node_task(const godot::StringName& task_name) const
+    _FORCE_INLINE_ BTGraphNode* get_graph_node(const godot::StringName& task_name) const
     {
         ERR_FAIL_COND_V_MSG(!(this->has_task_name(task_name)), nullptr, "BTGraphView has no node named: " + task_name + ".");
         return this->task_name_to_node[task_name];
