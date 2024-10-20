@@ -31,13 +31,21 @@ class BTGraphView : public godot::GraphEdit
 {
     GDCLASS(BTGraphView, godot::GraphEdit)
 
+    using TaskNameToNode = godot::HashMap<godot::StringName, BTGraphNode*>;
+
 private:
-    godot::HashMap<godot::StringName, BTGraphNode*> task_name_to_node;
+    TaskNameToNode task_name_to_node;
+    godot::HashMap<godot::StringName, TaskNameToNode> saved_graphs;
+
+    void detach_graph_nodes();
+    bool save_graph(const godot::StringName& name);
+    bool _load_graph(const godot::StringName& name);
+
 
 public:
 
-    BTGraphView(){};
-    ~BTGraphView(){};
+    BTGraphView();
+    ~BTGraphView();
 
     bool has_task_name(const godot::StringName& task_name) const;
 
@@ -61,6 +69,10 @@ public:
 
     godot::HashMap<BTGraphNode*, godot::Vector2> get_arranged_nodes_positions(const godot::StringName& root_task_name, const godot::HashMap<StringName, godot::Vector<StringName>>& parent_to_children_names) const;
     void arrange_nodes(const godot::StringName& root_task_name, const godot::HashMap<StringName, godot::Vector<StringName>>& parent_to_children_names);
+
+    bool has_saved_graph(const godot::StringName& name);
+    void clear_and_save_graph(const godot::StringName& name);
+    void load_graph(const godot::StringName& name);
 
 protected:
     static void _bind_methods();

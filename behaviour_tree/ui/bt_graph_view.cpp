@@ -1,5 +1,72 @@
 #include "bt_graph_view.hpp"
 
+BTGraphView::BTGraphView()
+{
+    this->set_h_size_flags(godot::Control::SizeFlags::SIZE_EXPAND_FILL);
+    this->set_v_size_flags(godot::Control::SizeFlags::SIZE_EXPAND_FILL);
+
+    /* right to left */
+    this->add_valid_connection_type(1, 0);
+    this->add_valid_left_disconnect_type(0);
+
+    this->set_right_disconnects(true);
+
+    this->set_show_arrange_button(false);
+}
+
+BTGraphView::~BTGraphView()
+{
+    for (const godot::KeyValue<StringName, TaskNameToNode> key_value : this->saved_graphs)
+    {
+        for (const godot::KeyValue<StringName, BTGraphNode*> name_node : key_value.value)
+        {
+            memdelete(name_node.value);
+        }
+    }
+}
+
+void BTGraphView::detach_graph_nodes()
+{
+    for (const godot::KeyValue<godot::StringName, BTGraphNode*> key_value : this->task_name_to_node)
+    {
+        this->remove_child(key_value.value);
+
+        /* item_rect_changed signal still linger even after removal of the node. */
+        godot::TypedArray<godot::Dictionary> connected_signals = key_value.value->get_signal_connection_list("item_rect_changed");
+        
+        for (int i = 0; i < connected_signals.size(); i++)
+        {
+            Dictionary connection_info = connected_signals[i];
+            Callable target_callable = connection_info["callable"];
+
+            key_value.value->disconnect("item_rect_changed", target_callable);
+        }
+    }
+    this->task_name_to_node.clear();
+}
+
+bool BTGraphView::save_graph(const godot::StringName& name)
+{
+    ERR_FAIL_COND_V(this->has_saved_graph(name), false);
+    this->saved_graphs.insert(name, this->task_name_to_node);
+    return true;
+}
+
+bool BTGraphView::_load_graph(const godot::StringName& name)
+{
+    ERR_FAIL_COND_V_MSG(!(this->has_saved_graph(name)), false, "GraphView already has tree saved with name: " + name + ".");
+    ERR_FAIL_COND_V_MSG(!(this->task_name_to_node.is_empty()), false, "GraphView still has nodes that have to be removed.");
+
+    this->task_name_to_node = this->saved_graphs[name];
+
+    for (const godot::KeyValue<godot::StringName, BTGraphNode*> key_value : this->task_name_to_node)
+    {
+        this->add_child(key_value.value);
+    }
+
+    return true;
+}
+
 bool BTGraphView::has_task_name(const godot::StringName& task_name) const
 {
     return this->task_name_to_node.has(task_name);
@@ -122,6 +189,29 @@ void BTGraphView::arrange_nodes(
     {
         key_value.key->set_position_offset(key_value.value);
     }
+}
+
+bool BTGraphView::has_saved_graph(const godot::StringName& name)
+{
+    return this->saved_graphs.has(name);
+}
+
+void BTGraphView::clear_and_save_graph(const godot::StringName& name)
+{
+    if (!(this->save_graph(name)))
+    {
+        return;
+    }
+    this->detach_graph_nodes();
+}
+
+void BTGraphView::load_graph(const godot::StringName& name)
+{
+    if (!(this->_load_graph(name)))
+    {
+        return;
+    }
+    this->saved_graphs.erase(name);
 }
 
 void BTGraphView::_bind_methods()

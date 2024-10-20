@@ -6,6 +6,19 @@
 
 #include "behaviour_tree/ui/bt_graph_node.hpp"
 
+/*  
+    Node sorting algorithm based on John Q. Walker II's general tree node positioning algorithm.  
+    More information can be found here:  
+    https://jacobfilipp.com/DrDobbs/articles/CUJ/1991/9102/walker/walker.htm (last visited: 13.03.2025)  
+
+    Usage:  
+    - Call `get_arranged_nodes_positions()` for automatic execution.  
+    - Alternatively, manually invoke the following functions in order:  
+      1. `init_tree_utils()`  
+      2. `first_walk()`  
+      3. `second_walk()`  
+*/
+
 class BTGraphSortAlgorithm : public godot::Resource
 {
     GDCLASS(BTGraphSortAlgorithm, godot::Resource)
