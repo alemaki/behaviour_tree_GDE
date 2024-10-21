@@ -18,7 +18,7 @@ void custom_gdextension_interface_print_error(const char *p_description, const c
     TestRunner::g_error_called = true;
     if (!(TestRunner::currently_testing_error))
     {
-        godot::UtilityFunctions::printerr(godot::String("[Godot Error: ") + p_description + "] at " + p_file + ": " + p_function + " line(" + godot::itos(p_line) + ")");
+        original_gdextension_interface_print_error(p_description, p_function, p_file, p_line, p_editor_notify);
     }
 }
 
@@ -27,8 +27,7 @@ void custom_gdextension_interface_print_error_with_message(const char *p_descrip
     TestRunner::g_error_called = true;
     if (!(TestRunner::currently_testing_error))
     {
-        godot::UtilityFunctions::printerr(godot::String("[Godot Error: ") + p_description + "] at " + p_file + ": " + p_function + " line(" + godot::itos(p_line) + ")");
-        godot::UtilityFunctions::printerr(godot::String("[Message: ") + p_message + "]");
+        original_gdextension_interface_print_error_with_message(p_description, p_message, p_function, p_file, p_line, p_editor_notify);
     }
 }
 

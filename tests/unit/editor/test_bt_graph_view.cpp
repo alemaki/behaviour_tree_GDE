@@ -12,7 +12,7 @@ struct BTGraphViewFixture
 {
     BTGraphView* graph_view = memnew(BTGraphView);
     int initial_child_count = 0;
-
+    godot::Vector<StringName> default_task_names = {};
     BTGraphNode* root    = nullptr;
     BTGraphNode* task1   = nullptr;
     BTGraphNode* task11  = nullptr;
@@ -69,11 +69,22 @@ struct BTGraphViewFixture
         this->task213 = this->get_graph_node(9);
         this->task214 = this->get_graph_node(10);
         this->task3   = this->get_graph_node(11);
-
-        parent_to_children_names["root"] = {"task1", "task2", "task3"};
-        parent_to_children_names["task1"] = {"task11", "task12", "task13"};
-        parent_to_children_names["task2"] = {"task21"};
-        parent_to_children_names["task21"] = {"task211", "task212", "task213", "task214"};
+        this->graph_view->connect_task_nodes("root", "task1");
+        this->graph_view->connect_task_nodes("root", "task2");
+        this->graph_view->connect_task_nodes("root", "task3");
+        this->graph_view->connect_task_nodes("task1", "task11");
+        this->graph_view->connect_task_nodes("task1", "task12");
+        this->graph_view->connect_task_nodes("task1", "task13");
+        this->graph_view->connect_task_nodes("task2", "task21");
+        this->graph_view->connect_task_nodes("task21", "task211");
+        this->graph_view->connect_task_nodes("task21", "task212");
+        this->graph_view->connect_task_nodes("task21", "task213");
+        this->graph_view->connect_task_nodes("task21", "task214");
+        this->parent_to_children_names["root"] = {"task1", "task2", "task3"};
+        this->parent_to_children_names["task1"] = {"task11", "task12", "task13"};
+        this->parent_to_children_names["task2"] = {"task21"};
+        this->parent_to_children_names["task21"] = {"task211", "task212", "task213", "task214"};
+        this->default_task_names = {"root", "task1", "task2", "task3", "task11", "task12", "task13", "task21", "task211", "task212", "task213", "task214"};
     }
 };
 
@@ -85,6 +96,11 @@ TEST_SUITE("[editor]" "BTGraphView")
         graph_view->create_task_node("task_1");
 
         REQUIRE(graph_view->has_task_name("task_1"));
+        CHECK_EQ(graph_view->get_child_count(), initial_child_count + 1);
+
+        graph_view->create_task_node("task_2");
+        REQUIRE(graph_view->has_task_name("task_2"));
+        CHECK_EQ(graph_view->get_child_count(), initial_child_count + 2);
     }
 
     TEST_CASE_FIXTURE(BTGraphViewFixture, "Set task title")
@@ -99,10 +115,17 @@ TEST_SUITE("[editor]" "BTGraphView")
     TEST_CASE_FIXTURE(BTGraphViewFixture, "Delete task node")
     {
         graph_view->create_task_node("task_1");
+        graph_view->create_task_node("task_2");
 
         graph_view->delete_task_node("task_1");
 
         REQUIRE_FALSE(graph_view->has_task_name("task_1"));
+        REQUIRE(graph_view->has_task_name("task_2"));
+        CHECK_EQ(graph_view->get_child_count(), initial_child_count + 1);
+
+        graph_view->delete_task_node("task_2");
+        REQUIRE_FALSE(graph_view->has_task_name("task_2"));
+        CHECK_EQ(graph_view->get_child_count(), initial_child_count);
     }
 
     TEST_CASE_FIXTURE(BTGraphViewFixture, "Change task class name")
@@ -205,6 +228,36 @@ TEST_SUITE("[editor]" "BTGraphView")
         {
             CHECK_VECTORS_EQ(key_value.key->get_position_offset(), key_value.value);
         }
+    }
+
+    TEST_CASE_FIXTURE(BTGraphViewFixture, "Test save graph")
+    {
+        create_default_graph();
+        graph_view->clear_and_save_graph("graph1");
+        create_default_graph();
+        graph_view->clear_and_save_graph("graph2");
+
+        REQUIRE(graph_view->has_saved_graph("graph1"));
+        REQUIRE(graph_view->has_saved_graph("graph2"));
+        
+        for (const godot::StringName& task_name : default_task_names)
+        {
+            CHECK_FALSE(graph_view->has_task_name(task_name));
+        }
+        REQUIRE(graph_view->get_child_count() == initial_child_count);
+    }
+
+    TEST_CASE_FIXTURE(BTGraphViewFixture, "Test load graph")
+    {
+        create_default_graph();
+        graph_view->clear_and_save_graph("graph");
+        graph_view->load_graph("graph");
+        REQUIRE_FALSE(graph_view->has_saved_graph("graph"));
+        for (const godot::StringName& task_name : default_task_names)
+        {
+            CHECK(graph_view->has_task_name(task_name));
+        }
+        REQUIRE(graph_view->get_child_count() == initial_child_count + default_task_names.size());
     }
 }
 
