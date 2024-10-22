@@ -49,6 +49,7 @@ public:
 
     bool has_task_name(const godot::StringName& task_name) const;
 
+    void create_subtree_task_node(const godot::StringName& task_name);
     void create_task_node(const godot::StringName& task_name, const godot::StringName& task_class_name = BTTask::get_class_static());
     void set_task_title(const godot::StringName& task_name, const godot::String& task_title);
     void delete_task_node(const godot::StringName& task_name);

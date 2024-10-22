@@ -72,6 +72,17 @@ bool BTGraphView::has_task_name(const godot::StringName& task_name) const
     return this->task_name_to_node.has(task_name);
 }
 
+void BTGraphView::create_subtree_task_node(const godot::StringName& task_name)
+{
+    ERR_FAIL_COND(task_name.is_empty());
+    ERR_FAIL_COND_MSG(this->has_task_name(task_name), "BTGraphView already has node named: " + task_name + ".");
+
+    BTGraphNodeSubtree* graph_node = memnew(BTGraphNodeSubtree);
+    this->task_name_to_node[task_name] = graph_node;
+    this->add_child(graph_node);
+    graph_node->set_task_class_name(BTSubtree::get_class_static());
+}
+
 void BTGraphView::create_task_node(const godot::StringName& task_name, const godot::StringName& task_class_name)
 {
     ERR_FAIL_COND(task_name.is_empty());

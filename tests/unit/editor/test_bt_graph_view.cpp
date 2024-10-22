@@ -259,6 +259,15 @@ TEST_SUITE("[editor]" "BTGraphView")
         }
         REQUIRE(graph_view->get_child_count() == initial_child_count + default_task_names.size());
     }
+
+    TEST_CASE_FIXTURE(BTGraphViewFixture, "Create subtree task")
+    {
+        graph_view->create_subtree_task_node("subtree");
+        BTGraphNodeSubtree* node = godot::Object::cast_to<BTGraphNodeSubtree>(get_graph_node(0));
+
+        REQUIRE_NE(node, nullptr);
+        CHECK_EQ(graph_view->get_graph_node("subtree"), node);
+    }
 }
 
 TEST_SUITE("[editor]" "[errors]" "BTGraphView")
@@ -275,6 +284,20 @@ TEST_SUITE("[editor]" "[errors]" "BTGraphView")
         {
             graph_view->create_task_node("task_1");
             CHECK_GODOT_ERROR(graph_view->create_task_node("task_1"));
+        }
+    }
+
+    TEST_CASE_FIXTURE(BTGraphViewFixture, "Fail to create subtree node")
+    {
+        SUBCASE("Non-existent nodes")
+        {
+            CHECK_GODOT_ERROR(graph_view->create_subtree_task_node(""));
+        }
+
+        SUBCASE("Fail to Create Duplicate Subtree/Task Nodes")
+        {
+            graph_view->create_task_node("task_1");
+            CHECK_GODOT_ERROR(graph_view->create_subtree_task_node("task_1"));
         }
     }
 
