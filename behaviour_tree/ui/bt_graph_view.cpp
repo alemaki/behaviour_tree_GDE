@@ -95,12 +95,12 @@ void BTGraphView::create_task_node(const godot::StringName& task_name, const god
     graph_node->set_task_class_name(task_class_name);
 }
 
-void BTGraphView::set_task_title(const godot::StringName& task_name, const godot::String& task_title)
+void BTGraphView::set_task_node_title(const godot::StringName& task_name, const godot::String& title)
 {
     ERR_FAIL_COND_MSG(!(this->has_task_name(task_name)), "BTGraphView has no node named: " + task_name + ".");
 
     BTGraphNode* graph_node = this->task_name_to_node[task_name];
-    graph_node->set_title(task_title);
+    graph_node->set_title(title);
 }
 
 void BTGraphView::delete_task_node(const godot::StringName& task_name)
@@ -227,5 +227,7 @@ void BTGraphView::load_graph(const godot::StringName& name)
 
 void BTGraphView::_bind_methods()
 {
-    
+    ClassDB::bind_method(D_METHOD("create_task_node", "task_name", "class_name"), &BTGraphView::create_task_node, DEFVAL(BTTask::get_class_static()));
+    ClassDB::bind_method(D_METHOD("delete_task_node", "task_name"), &BTGraphView::delete_task_node);
+    ClassDB::bind_method(D_METHOD("set_task_node_title", "task_name", "title"), &BTGraphView::set_task_node_title);
 }

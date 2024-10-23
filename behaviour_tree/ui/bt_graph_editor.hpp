@@ -9,6 +9,8 @@
 #include <godot_cpp/classes/popup_menu.hpp>
 #include <godot_cpp/templates/hash_map.hpp>
 
+#include "behaviour_tree/ui/bt_graph_view.hpp"
+
 #include "behaviour_tree/behaviour_tree.hpp"
 #include "behaviour_tree/ui/bt_graph_node.hpp"
 #include "behaviour_tree/ui/bt_graph_node_subtree.hpp"
@@ -41,6 +43,7 @@ class BTGraphEditor : public godot::Node
     friend BTEditorPlugin;
 
 private:
+    BTGraphView* bt_graph_view = nullptr;
     godot::EditorPlugin* editor_plugin = nullptr;
     godot::GraphEdit* graph_edit = nullptr;
     BehaviourTree* behaviour_tree = nullptr;
@@ -177,6 +180,11 @@ public:
     _FORCE_INLINE_ BehaviourTree* get_behaviour_tree() const
     {
         return this->behaviour_tree; 
+    }
+
+    _FORCE_INLINE_ BTGraphView* get_graph_view() const
+    {
+        return this->bt_graph_view; 
     }
 
 protected:

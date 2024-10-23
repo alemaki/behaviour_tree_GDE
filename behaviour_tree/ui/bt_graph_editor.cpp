@@ -17,6 +17,8 @@ BTGraphEditor::BTGraphEditor()
     this->drag_called = false;
 
     task_to_node[nullptr] = nullptr;
+
+    this->bt_graph_view = memnew(BTGraphView);
 }
 
 void BTGraphEditor::delete_saved_trees()
@@ -42,6 +44,7 @@ BTGraphEditor::~BTGraphEditor()
     this->clear_copied_nodes();
     this->delete_saved_trees();
     memdelete(this->graph_edit);
+    memdelete(this->bt_graph_view);
 }
 
 /* Setup Methods */
@@ -890,31 +893,27 @@ void BTGraphEditor::_move_nodes()
 
 void BTGraphEditor::_add_new_node_button_pressed()
 {
-    BTGraphNode* bt_graph_node = this->new_graph_node();
-    ERR_FAIL_COND(bt_graph_node == nullptr);
-
     int id = this->behaviour_tree->get_valid_id();
-    bt_graph_node->set_title(godot::itos(id));
-    bt_graph_node->set_name(godot::itos(id));
-    bt_graph_node->get_task()->set_custom_name(godot::itos(id));
+    godot::StringName task_name = godot::itos(id);
+    godot::Ref<BTTask> new_task = memnew(BTTask);
+    new_task->set_custom_name(task_name);
 
     godot::EditorUndoRedoManager* undo_redo_manager = this->editor_plugin->get_undo_redo();
 
     undo_redo_manager->create_action("Add a node.");
 
-    undo_redo_manager->add_do_method(this->behaviour_tree, "add_task", id, bt_graph_node->get_task());
-    undo_redo_manager->add_do_method(this->graph_edit, "add_child", bt_graph_node);
-    undo_redo_manager->add_do_method(this, "insert_node", bt_graph_node);
-    undo_redo_manager->add_do_method(this, "color_root_node");
+    undo_redo_manager->add_do_method(this->behaviour_tree, "add_task", id, new_task);
+    undo_redo_manager->add_do_method(this->bt_graph_view, "create_task_node", task_name);
+    undo_redo_manager->add_do_method(this->bt_graph_view, "set_task_node_title", task_name, task_name);
+    //undo_redo_manager->add_do_method(this, "color_root_node");
 
-    undo_redo_manager->add_undo_method(this, "erase_node", bt_graph_node);
-    undo_redo_manager->add_undo_method(this->graph_edit, "remove_child", bt_graph_node);
+    undo_redo_manager->add_undo_method(this->bt_graph_view, "delete_task_node", task_name);
     undo_redo_manager->add_undo_method(this->behaviour_tree, "remove_task", id);
-    undo_redo_manager->add_undo_method(this, "color_root_node");
+   // undo_redo_manager->add_undo_method(this, "color_root_node");
 
     undo_redo_manager->commit_action();
 
-    this->connect_graph_node_signals(bt_graph_node);
+    //this->connect_graph_node_signals(bt_graph_node);
 }
 
 void BTGraphEditor::_add_new_subtree_node_button_pressed()
