@@ -107,7 +107,7 @@ TEST_SUITE("[editor]" "BTGraphView")
     {
         graph_view->create_task_node("task_1");
 
-        graph_view->set_task_title("task_1", "Task Title");
+        graph_view->set_task_node_title("task_1", "Task Title");
         BTGraphNode* graph_node = this->get_graph_node(0);
         REQUIRE_EQ(graph_node->get_title(), godot::StringName("Task Title"));
     }
@@ -303,7 +303,7 @@ TEST_SUITE("[editor]" "[errors]" "BTGraphView")
 
     TEST_CASE_FIXTURE(BTGraphViewFixture, "Fail to set title of non-existent task")
     {
-        CHECK_GODOT_ERROR(graph_view->set_task_title("non_existent", "Title"));
+        CHECK_GODOT_ERROR(graph_view->set_task_node_title("non_existent", "Title"));
     }
 
     TEST_CASE_FIXTURE(BTGraphViewFixture, "Fail to delete task node")
