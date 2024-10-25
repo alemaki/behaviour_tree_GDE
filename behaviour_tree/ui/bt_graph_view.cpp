@@ -228,6 +228,7 @@ void BTGraphView::load_graph(const godot::StringName& name)
 void BTGraphView::_bind_methods()
 {
     ClassDB::bind_method(D_METHOD("create_task_node", "task_name", "class_name"), &BTGraphView::create_task_node, DEFVAL(BTTask::get_class_static()));
+    ClassDB::bind_method(D_METHOD("create_subtree_task_node", "task_name"), &BTGraphView::create_subtree_task_node);
     ClassDB::bind_method(D_METHOD("delete_task_node", "task_name"), &BTGraphView::delete_task_node);
     ClassDB::bind_method(D_METHOD("set_task_node_title", "task_name", "title"), &BTGraphView::set_task_node_title);
 }

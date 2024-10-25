@@ -909,7 +909,7 @@ void BTGraphEditor::_add_new_node_button_pressed()
 
     undo_redo_manager->add_undo_method(this->bt_graph_view, "delete_task_node", task_name);
     undo_redo_manager->add_undo_method(this->behaviour_tree, "remove_task", id);
-   // undo_redo_manager->add_undo_method(this, "color_root_node");
+    //undo_redo_manager->add_undo_method(this, "color_root_node");
 
     undo_redo_manager->commit_action();
 
@@ -918,29 +918,26 @@ void BTGraphEditor::_add_new_node_button_pressed()
 
 void BTGraphEditor::_add_new_subtree_node_button_pressed()
 {
-    BTGraphNode* bt_graph_node = this->new_graph_node_subtree();
-    ERR_FAIL_COND(bt_graph_node == nullptr);
-
     int id = this->behaviour_tree->get_valid_id();
-    bt_graph_node->set_name(godot::itos(id));
+    godot::StringName task_name = godot::itos(id);
+    godot::Ref<BTSubtree> new_task = memnew(BTSubtree);
+    new_task->set_custom_name(task_name);
 
     godot::EditorUndoRedoManager* undo_redo_manager = this->editor_plugin->get_undo_redo();
 
     undo_redo_manager->create_action("Add a node.");
 
-    undo_redo_manager->add_do_method(this->behaviour_tree, "add_task", id, bt_graph_node->get_task());
-    undo_redo_manager->add_do_method(this->graph_edit, "add_child", bt_graph_node);
-    undo_redo_manager->add_do_method(this, "insert_node", bt_graph_node);
-    undo_redo_manager->add_do_method(this, "color_root_node");
+    undo_redo_manager->add_do_method(this->behaviour_tree, "add_task", id, new_task);
+    undo_redo_manager->add_do_method(this->bt_graph_view, "create_subtree_task_node", task_name);
+    //undo_redo_manager->add_do_method(this, "color_root_node");
 
-    undo_redo_manager->add_undo_method(this, "erase_node", bt_graph_node);
-    undo_redo_manager->add_undo_method(this->graph_edit, "remove_child", bt_graph_node);
+    undo_redo_manager->add_undo_method(this->bt_graph_view, "delete_task_node", task_name);
     undo_redo_manager->add_undo_method(this->behaviour_tree, "remove_task", id);
-    undo_redo_manager->add_undo_method(this, "color_root_node");
+    //undo_redo_manager->add_undo_method(this, "color_root_node");
 
     undo_redo_manager->commit_action();
 
-    this->connect_graph_node_signals(bt_graph_node);
+    //this->connect_graph_node_signals(bt_graph_node);
 }
 
 void BTGraphEditor::_arrange_nodes_button_pressed()
