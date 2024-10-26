@@ -94,11 +94,31 @@ TEST_SUITE("[editor]" "BTGraphEditor")
         REQUIRE(task.is_valid());
         CHECK_EQ(task->get_custom_name(), "1");
     }
+
+    TEST_CASE_FIXTURE(BTGraphEditorFixture, "Test subtree creation")
+    {
+        editor->_add_new_subtree_node_button_pressed();
+
+        REQUIRE_EQ(graph_view->get_child_count(), initial_child_count + 1);
+        BTGraphNodeSubtree* node = godot::Object::cast_to<BTGraphNodeSubtree>(get_graph_node(0));
+
+        REQUIRE_NE(node, nullptr);
+        CHECK_EQ(graph_view->get_graph_node("1"), node);
+        CHECK_EQ(node->get_title(), "");
+        CHECK_EQ(node->get_file_path(), "");
+
+        
+        REQUIRE_EQ(tree->get_task_count(), 1);
+        godot::Ref<BTSubtree> task = tree->get_task(1);
+        REQUIRE(task.is_valid());
+        CHECK_EQ(task->get_custom_name(), "1");
+        CHECK_EQ(task->get_file_path(), "");
+    }
 }
 
 TEST_SUITE("[editor]" "[undo_redo]" "BTGraphEditor")
 {
-    TEST_CASE_FIXTURE(BTGraphEditorFixture, "[undo_redo]" "[undo_redo] Test node creation")
+    TEST_CASE_FIXTURE(BTGraphEditorFixture, "Test node creation")
     {
         editor->_add_new_node_button_pressed();
 
@@ -112,12 +132,37 @@ TEST_SUITE("[editor]" "[undo_redo]" "BTGraphEditor")
         godot::UndoRedo* redo = get_redo(tree);
         redo->redo();
 
-        CHECK_EQ(graph_view->get_child_count(), initial_child_count + 1);
+        REQUIRE_EQ(graph_view->get_child_count(), initial_child_count + 1);
+        REQUIRE_EQ(tree->get_task_count(), 1);
         BTGraphNode* node = get_graph_node(0);
         REQUIRE_NE(node, nullptr);
-        REQUIRE_EQ(node->get_title(), "1");
-        REQUIRE_EQ(tree->get_task_count(), 1);
+        CHECK_EQ(node->get_title(), "1");
+        CHECK_EQ(tree->get_task_count(), 1);
         REQUIRE(tree->has_task(task));
+
+    }
+
+    TEST_CASE_FIXTURE(BTGraphEditorFixture, "Test subtree creation")
+    {
+        editor->_add_new_subtree_node_button_pressed();
+
+        godot::Ref<BTTask> task = tree->get_task(1);
+        godot::UndoRedo* undo = get_undo(tree);
+        undo->undo();
+
+        REQUIRE_EQ(graph_view->get_child_count(), initial_child_count);
+        REQUIRE_EQ(tree->get_task_count(), 0);
+
+        godot::UndoRedo* redo = get_redo(tree);
+        redo->redo();
+
+        REQUIRE_EQ(graph_view->get_child_count(), initial_child_count + 1);
+        REQUIRE_EQ(tree->get_task_count(), 1);
+        BTGraphNodeSubtree* node = godot::Object::cast_to<BTGraphNodeSubtree>(get_graph_node(0));
+        REQUIRE_NE(node, nullptr);
+        CHECK_EQ(node->get_title(), "1");
+        CHECK_EQ(tree->get_task_count(), 1);
+        CHECK(tree->has_task(task));
 
     }
 }
