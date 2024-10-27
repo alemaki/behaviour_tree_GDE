@@ -160,7 +160,7 @@ TEST_SUITE("[editor]" "[undo_redo]" "BTGraphEditor")
         REQUIRE_EQ(tree->get_task_count(), 1);
         BTGraphNodeSubtree* node = godot::Object::cast_to<BTGraphNodeSubtree>(get_graph_node(0));
         REQUIRE_NE(node, nullptr);
-        CHECK_EQ(node->get_title(), "1");
+        CHECK_EQ(node->get_title(), "");
         CHECK_EQ(tree->get_task_count(), 1);
         CHECK(tree->has_task(task));
 

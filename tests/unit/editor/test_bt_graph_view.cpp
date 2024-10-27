@@ -220,7 +220,7 @@ TEST_SUITE("[editor]" "BTGraphView")
         graph_sort_algorithm->set_root_node(root);
         graph_sort_algorithm->set_parent_to_children(parent_to_children);
 
-        godot::HashMap<BTGraphNode*, godot::Vector2> result = graph_sort_algorithm->get_arranged_nodes_positions();
+        godot::HashMap<BTGraphNode*, godot::Vector2> result = graph_sort_algorithm->get_arranged_nodes_position();
 
         graph_view->arrange_nodes("root", parent_to_children_names);
 

@@ -258,7 +258,7 @@ bool BTGraphSortAlgorithm::second_walk(BTGraphNode* node,
 }
 
 
-godot::HashMap<BTGraphNode*, godot::Vector2> BTGraphSortAlgorithm::get_arranged_nodes_positions()
+godot::HashMap<BTGraphNode*, godot::Vector2> BTGraphSortAlgorithm::get_arranged_nodes_position()
 {
     ERR_FAIL_NULL_V(this->root_node, {});
     this->result = {};

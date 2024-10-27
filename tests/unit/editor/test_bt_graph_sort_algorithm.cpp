@@ -242,7 +242,7 @@ TEST_SUITE("[editor]" "BTGraphSortAlgorithm")
     TEST_CASE_FIXTURE(BTGraphSortAlgorithmFixture, "Nodes are all acounted for.")
     {
         create_default_graph();
-        positions = bt_sort_algorithm->get_arranged_nodes_positions();
+        positions = bt_sort_algorithm->get_arranged_nodes_position();
 
         for (BTGraphNode* node : graph_nodes)
         {
@@ -253,7 +253,7 @@ TEST_SUITE("[editor]" "BTGraphSortAlgorithm")
     TEST_CASE_FIXTURE(BTGraphSortAlgorithmFixture, "Nodes are appropriately spaced between levels")
     {
         create_default_graph();
-        positions = bt_sort_algorithm->get_arranged_nodes_positions();
+        positions = bt_sort_algorithm->get_arranged_nodes_position();
 
         CHECK_EQ(positions[root].x, 0);
         CHECK_EQ(positions[child1].x, positions[child2].x);
@@ -270,7 +270,7 @@ TEST_SUITE("[editor]" "BTGraphSortAlgorithm")
     TEST_CASE_FIXTURE(BTGraphSortAlgorithmFixture, "Sibling nodes are properly spaced to avoid overlap")
     {
         create_default_graph();
-        positions = bt_sort_algorithm->get_arranged_nodes_positions();
+        positions = bt_sort_algorithm->get_arranged_nodes_position();
         
         int min_separation = bt_sort_algorithm->sibling_separation;
         godot::Vector<godot::Vector<BTGraphNode*>> node_levels = {
@@ -291,7 +291,7 @@ TEST_SUITE("[editor]" "BTGraphSortAlgorithm")
     TEST_CASE_FIXTURE(BTGraphSortAlgorithmFixture, "Parents are centered between their children")
     {
         create_default_graph();
-        positions = bt_sort_algorithm->get_arranged_nodes_positions();
+        positions = bt_sort_algorithm->get_arranged_nodes_position();
         
         int expected_center1 = (positions[child11].y + positions[child12].y) / 2;
         CHECK_EQ(positions[child1].y, expected_center1);

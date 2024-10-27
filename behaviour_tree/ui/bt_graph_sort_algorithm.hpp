@@ -12,7 +12,7 @@
     https://jacobfilipp.com/DrDobbs/articles/CUJ/1991/9102/walker/walker.htm (last visited: 13.03.2025)  
 
     Usage:  
-    - Call `get_arranged_nodes_positions()` for automatic execution.  
+    - Call `get_arranged_nodes_position()` for automatic execution.  
     - Alternatively, manually invoke the following functions in order:  
       1. `init_tree_utils()`  
       2. `first_walk()`  
@@ -53,7 +53,7 @@ public:
     bool first_walk(BTGraphNode* node, int level = 0);
     bool second_walk(BTGraphNode* node, godot::HashMap<BTGraphNode*, godot::Vector2>& result, int level = 0, int modsum = 0);
     
-    godot::HashMap<BTGraphNode*, godot::Vector2> get_arranged_nodes_positions();
+    godot::HashMap<BTGraphNode*, godot::Vector2> get_arranged_nodes_position();
 
 protected:
     static void _bind_methods();

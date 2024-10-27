@@ -172,7 +172,7 @@ godot::HashMap<BTGraphNode*, godot::Vector<BTGraphNode*>> BTGraphView::get_node_
     return parent_to_children;
 }
 
-godot::HashMap<BTGraphNode*, godot::Vector2> BTGraphView::get_arranged_nodes_positions(
+godot::HashMap<BTGraphNode*, godot::Vector2> BTGraphView::get_arranged_nodes_position(
     const godot::StringName& root_task_name,
     const godot::HashMap<StringName, godot::Vector<StringName>>& parent_to_children_names) const
 {
@@ -186,7 +186,7 @@ godot::HashMap<BTGraphNode*, godot::Vector2> BTGraphView::get_arranged_nodes_pos
     algorithm->set_root_node(root);
     algorithm->set_parent_to_children(parent_to_children);
 
-    return algorithm->get_arranged_nodes_positions();
+    return algorithm->get_arranged_nodes_position();
 }
 
 
@@ -194,7 +194,7 @@ void BTGraphView::arrange_nodes(
     const godot::StringName& root_task_name,
     const godot::HashMap<StringName, godot::Vector<StringName>>& parent_to_children_names)
 {
-    godot::HashMap<BTGraphNode*, godot::Vector2> positons = this->get_arranged_nodes_positions(root_task_name, parent_to_children_names);
+    godot::HashMap<BTGraphNode*, godot::Vector2> positons = this->get_arranged_nodes_position(root_task_name, parent_to_children_names);
 
     for (const godot::KeyValue<BTGraphNode*, godot::Vector2>& key_value: positons)
     {

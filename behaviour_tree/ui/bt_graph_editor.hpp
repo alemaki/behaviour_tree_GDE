@@ -43,7 +43,7 @@ class BTGraphEditor : public godot::Node
     friend BTEditorPlugin;
 
 private:
-    BTGraphView* bt_graph_view = nullptr;
+    BTGraphView* graph_view = nullptr;
     godot::EditorPlugin* editor_plugin = nullptr;
     godot::GraphEdit* graph_edit = nullptr;
     BehaviourTree* behaviour_tree = nullptr;
@@ -184,7 +184,7 @@ public:
 
     _FORCE_INLINE_ BTGraphView* get_graph_view() const
     {
-        return this->bt_graph_view; 
+        return this->graph_view; 
     }
 
 protected:

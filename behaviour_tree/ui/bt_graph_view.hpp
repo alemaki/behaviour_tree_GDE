@@ -68,7 +68,7 @@ public:
 
     godot::HashMap<BTGraphNode*, godot::Vector<BTGraphNode*>> get_node_tree_map(const godot::HashMap<StringName, godot::Vector<StringName>>& parent_to_children_names) const;
 
-    godot::HashMap<BTGraphNode*, godot::Vector2> get_arranged_nodes_positions(const godot::StringName& root_task_name, const godot::HashMap<StringName, godot::Vector<StringName>>& parent_to_children_names) const;
+    godot::HashMap<BTGraphNode*, godot::Vector2> get_arranged_nodes_position(const godot::StringName& root_task_name, const godot::HashMap<StringName, godot::Vector<StringName>>& parent_to_children_names) const;
     void arrange_nodes(const godot::StringName& root_task_name, const godot::HashMap<StringName, godot::Vector<StringName>>& parent_to_children_names);
 
     bool has_saved_graph(const godot::StringName& name);
