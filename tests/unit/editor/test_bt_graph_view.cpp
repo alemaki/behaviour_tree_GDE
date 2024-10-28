@@ -190,6 +190,16 @@ TEST_SUITE("[editor]" "BTGraphView")
         CHECK_EQ(graph_view->get_graph_node("task3"), task3);
     }
 
+    TEST_CASE_FIXTURE(BTGraphViewFixture, "Test get task name")
+    {
+        create_default_graph();
+        CHECK_EQ(graph_view->get_task_name(root->get_name()), godot::String("root"));
+        CHECK_EQ(graph_view->get_task_name(task1->get_name()), godot::String("task1"));
+        CHECK_EQ(graph_view->get_task_name(task12->get_name()), godot::String("task12"));
+        CHECK_EQ(graph_view->get_task_name(task2->get_name()), godot::String("task2"));
+        CHECK_EQ(graph_view->get_task_name(task214->get_name()), godot::String("task214"));
+    }
+
     TEST_CASE_FIXTURE(BTGraphViewFixture, "Test get node tree map")
     {
         create_default_graph();

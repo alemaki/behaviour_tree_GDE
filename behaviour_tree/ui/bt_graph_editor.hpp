@@ -47,7 +47,7 @@ private:
     godot::EditorPlugin* editor_plugin = nullptr;
     godot::GraphEdit* graph_edit = nullptr;
     BehaviourTree* behaviour_tree = nullptr;
-    
+
     godot::HashMap<godot::StringName, BTGraphNode*> name_to_node;
     godot::HashMap<godot::Ref<BTTask>, BTGraphNode*> task_to_node;
 
@@ -136,24 +136,25 @@ private:
     void paste_nodes_request();
     void clear_copied_nodes();
 
+
+    /* Task Management */
+    void change_task_type(const godot::StringName& class_name, BTGraphNode* node);
+
+public:
     /* Connection Handling */
     void _connect_nodes(BTGraphNode* parent, BTGraphNode* child);
     void _disconnect_nodes(BTGraphNode* parent, BTGraphNode* child);
     void connection_request(godot::StringName _from_node, int from_port, godot::StringName _to_node, int to_port);
     void disconnection_request(godot::StringName _from_node, int from_port, godot::StringName _to_node, int to_port);
 
-    /* Task Management */
-    void change_task_type(const godot::StringName& class_name, BTGraphNode* node);
-
-public:
     /* Drag and Drop */
     void _node_dragged(const godot::Vector2 &_from, const godot::Vector2 &_to, BTGraphNode *node);
     void _move_nodes();
 
     /* Event Handlers */
-    void _add_new_node_button_pressed();
-    void _add_new_subtree_node_button_pressed();
-    void _arrange_nodes_button_pressed();
+    void _add_new_node_button_pressed(); /* refactored */
+    void _add_new_subtree_node_button_pressed(); /* refactored */
+    void _arrange_nodes_button_pressed(); /* refactored */
     void _on_rename_edit_text_submitted(const godot::String& new_text);
     void _on_rename_edit_focus_exited();
     void _on_path_edit_text_submitted(const godot::String& new_path);

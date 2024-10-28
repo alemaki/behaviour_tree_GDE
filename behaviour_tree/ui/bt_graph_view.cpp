@@ -121,6 +121,18 @@ void BTGraphView::change_task_class_name(const godot::StringName& task_name, con
     graph_node->set_task_class_name(task_class_name);
 }
 
+godot::StringName BTGraphView::get_task_name(const godot::StringName& graph_node_name)
+{
+    for (const godot::KeyValue<godot::StringName, BTGraphNode*>& key_value : this->task_name_to_node)
+    {
+        if (key_value.value->get_name() == graph_node_name)
+        {
+            return key_value.key;
+        }
+    }
+    ERR_FAIL_V_MSG("", "Cannot find graph node name: " + graph_node_name);
+}
+
 void BTGraphView::connect_task_nodes(const godot::StringName& parent_task_name, const godot::StringName& child_task_name)
 {
     ERR_FAIL_COND_MSG(!(this->has_task_name(parent_task_name)), "BTGraphView has no parent node named: " + parent_task_name + ".");
