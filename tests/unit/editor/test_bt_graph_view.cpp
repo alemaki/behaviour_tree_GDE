@@ -278,6 +278,57 @@ TEST_SUITE("[editor]" "BTGraphView")
         REQUIRE_NE(node, nullptr);
         CHECK_EQ(graph_view->get_graph_node("subtree"), node);
     }
+
+    TEST_CASE_FIXTURE(BTGraphViewFixture, "Sort task names by Y position")
+    {
+        this->create_default_graph();
+        graph_view->set_node_position("task211", godot::Vector2(0, 100));
+        graph_view->set_node_position("task212", godot::Vector2(0, 50));
+        graph_view->set_node_position("task213", godot::Vector2(0, 150));
+        graph_view->set_node_position("task214", godot::Vector2(0, 0));
+
+        godot::Vector<StringName> unsorted_tasks = {"task211", "task212", "task213", "task214"};
+        godot::Vector<StringName> sorted_tasks = graph_view->sorted_task_names_by_y(unsorted_tasks);
+
+        REQUIRE_EQ(sorted_tasks.size(), 4);
+        CHECK_EQ(sorted_tasks[0], godot::StringName("task214"));
+        CHECK_EQ(sorted_tasks[1], godot::StringName("task212"));  
+        CHECK_EQ(sorted_tasks[2], godot::StringName("task211"));
+        CHECK_EQ(sorted_tasks[3], godot::StringName("task213"));  
+    }
+
+    TEST_CASE_FIXTURE(BTGraphViewFixture, "Find insert index by Y position")
+    {
+        this->create_default_graph();
+        graph_view->set_node_position("task211", godot::Vector2(0, 100));
+        graph_view->set_node_position("task212", godot::Vector2(0, 50));
+        graph_view->set_node_position("task213", godot::Vector2(0, 150));
+        graph_view->set_node_position("task214", godot::Vector2(0, 0));
+
+        godot::Vector<StringName> task_list = {"task211", "task212", "task213", "task214"};
+
+        graph_view->create_task_node("task_new");
+        graph_view->set_node_position("task_new", godot::Vector2(0, 125));
+
+        int index = graph_view->find_insert_index_by_y("task_new", task_list);
+
+        REQUIRE(index >= 0);
+        CHECK_EQ(index, 3);
+
+        graph_view->set_node_position("task_new", godot::Vector2(0, 75));
+
+        int index = graph_view->find_insert_index_by_y("task_new", task_list);
+
+        REQUIRE(index >= 0);
+        CHECK_EQ(index, 2);
+
+        graph_view->set_node_position("task_new", godot::Vector2(0, 100));
+
+        int index = graph_view->find_insert_index_by_y("task_new", task_list);
+
+        REQUIRE(index >= 0);
+        CHECK(index == 3 || index == 2);
+    }
 }
 
 TEST_SUITE("[editor]" "[errors]" "BTGraphView")

@@ -1151,8 +1151,8 @@ void BTGraphEditor::connection_request(godot::StringName _from_node, int from_po
     ERR_FAIL_COND_MSG(!(this->name_to_node.has(_from_node)), "From_node doesn't exist.");
     ERR_FAIL_COND_MSG(!(this->name_to_node.has(_to_node)), "To_node doesn't exist.");
 
-    BTGraphNode* from_node = this->name_to_node[_from_node];
-    BTGraphNode* to_node = this->name_to_node[_to_node];
+    godot::StringName parent_task_name = this->name_to_node[_from_node];
+    godot::StringName child_task_name = this->name_to_node[_to_node];
 
     bool can_connect = this->behaviour_tree->can_connect(from_node->get_task(), to_node->get_task());
     if (can_connect)

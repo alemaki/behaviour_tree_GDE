@@ -67,6 +67,9 @@ public:
         return this->task_name_to_node[task_name];
     }
 
+    godot::Vector<StringName> sorted_task_names_by_y(const godot::Vector<StringName>& task_names);
+    int find_insert_index_by_y(const godot::StringName& task_name, const godot::Vector<StringName>& task_names);
+
     godot::HashMap<BTGraphNode*, godot::Vector<BTGraphNode*>> get_node_tree_map(const godot::HashMap<StringName, godot::Vector<StringName>>& parent_to_children_names) const;
 
     godot::HashMap<BTGraphNode*, godot::Vector2> get_arranged_nodes_position(const godot::StringName& root_task_name, const godot::HashMap<StringName, godot::Vector<StringName>>& parent_to_children_names) const;

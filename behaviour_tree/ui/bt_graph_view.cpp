@@ -165,6 +165,37 @@ void BTGraphView::set_node_position(const godot::StringName& task_name, godot::V
     node->set_position_offset(position);
 }
 
+struct GraphNodeComparatorByY {
+    BTGraphView *graph_view;
+
+    bool operator()(const StringName &a, const StringName &b) const {
+        return graph_view->get_graph_node(a)->get_position_offset().y < graph_view->get_graph_node(b)->get_position_offset().y;
+    }
+};
+
+godot::Vector<StringName> BTGraphView::sorted_task_names_by_y(const godot::Vector<StringName>& task_names)
+{
+    
+    for (const godot::StringName& task_name : task_names)
+    {
+        ERR_FAIL_COND_V_MSG(!(this->has_task_name(task_name)), {}, "BTGraphView has no node named: " + task_name + ".");
+    }
+
+    godot::Vector<StringName> temp = task_names;
+    GraphNodeComparatorByY comparator{this};
+    temp.sort_custom<GraphNodeComparatorByY>(comparator);
+
+    return temp;
+}
+
+int BTGraphView::find_insert_index_by_y(const godot::StringName& task_name, const godot::Vector<StringName>& task_names)
+{
+    godot::Vector<StringName> temp = task_names;
+    temp.push_back(task_name);
+    temp = this->sorted_task_names_by_y(temp);
+    return temp.find(task_name);
+}
+
 godot::HashMap<BTGraphNode*, godot::Vector<BTGraphNode*>> BTGraphView::get_node_tree_map(const godot::HashMap<StringName, godot::Vector<StringName>>& parent_to_children_names) const
 {
     godot::HashMap<BTGraphNode*, godot::Vector<BTGraphNode*>> parent_to_children;
