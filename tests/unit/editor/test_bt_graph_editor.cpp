@@ -114,6 +114,65 @@ TEST_SUITE("[editor]" "BTGraphEditor")
         CHECK_EQ(task->get_custom_name(), "1");
         CHECK_EQ(task->get_file_path(), "");
     }
+
+    TEST_CASE_FIXTURE(BTGraphEditorFixture, "Test connection creation")
+    {
+        editor->_add_new_subtree_node_button_pressed();
+        editor->_add_new_subtree_node_button_pressed();
+
+        REQUIRE_EQ(graph_view->get_child_count(), initial_child_count + 2);
+        BTGraphNode* parent = get_graph_node(0);
+        BTGraphNode* child = get_graph_node(1);
+
+        REQUIRE_NE(parent, nullptr);
+        REQUIRE_NE(child, nullptr);
+
+        editor->connection_request(parent->get_name(), 0, child->get_name(), 0);
+
+        
+        REQUIRE_EQ(tree->get_task_count(), 2);
+        godot::Ref<BTTask> parent_task = tree->get_task(1);
+        godot::Ref<BTTask> child_task = tree->get_task(2);
+        REQUIRE(parent_task.is_valid());
+        REQUIRE(child_task.is_valid());
+        CHECK_EQ(parent_task->get_custom_name(), "1");
+        CHECK_EQ(child_task->get_custom_name(), "2");
+        REQUIRE_EQ(parent_task->get_child_count(), 1);
+        CHECK(parent_task->has_child(child_task));
+
+        godot::TypedArray<godot::Dictionary> connections = graph_view->get_connection_list();
+        REQUIRE_EQ(connections.size(), 1);
+        REQUIRE_EQ(godot::Dictionary(connections[0])["from_node"], parent->get_name());
+        REQUIRE_EQ(godot::Dictionary(connections[0])["to_node"], child->get_name());
+    }
+
+    TEST_CASE_FIXTURE(BTGraphEditorFixture, "Test connection disconnection")
+    {
+        editor->_add_new_subtree_node_button_pressed();
+        editor->_add_new_subtree_node_button_pressed();
+
+        REQUIRE_EQ(graph_view->get_child_count(), initial_child_count + 2);
+        BTGraphNode* parent = get_graph_node(0);
+        BTGraphNode* child = get_graph_node(1);
+
+        REQUIRE_NE(parent, nullptr);
+        REQUIRE_NE(child, nullptr);
+
+        editor->connection_request(parent->get_name(), 0, child->get_name(), 0);
+        editor->disconnection_request(parent->get_name(), 0, child->get_name(), 0);
+
+        godot::TypedArray<godot::Dictionary> connections = graph_view->get_connection_list();
+        REQUIRE_EQ(connections.size(), 0);
+
+        REQUIRE_EQ(graph_view->get_child_count(), initial_child_count + 2);
+
+        godot::Ref<BTTask> parent_task = tree->get_task(1);
+        godot::Ref<BTTask> child_task = tree->get_task(2);
+        REQUIRE(parent_task.is_valid());
+        REQUIRE(child_task.is_valid());
+        REQUIRE_EQ(parent_task->get_child_count(), 0);
+        REQUIRE_FALSE(parent_task->has_child(child_task));
+    }
 }
 
 TEST_SUITE("[editor]" "[undo_redo]" "BTGraphEditor")

@@ -317,17 +317,17 @@ TEST_SUITE("[editor]" "BTGraphView")
 
         graph_view->set_node_position("task_new", godot::Vector2(0, 75));
 
-        int index = graph_view->find_insert_index_by_y("task_new", task_list);
+        index = graph_view->find_insert_index_by_y("task_new", task_list);
 
         REQUIRE(index >= 0);
         CHECK_EQ(index, 2);
 
         graph_view->set_node_position("task_new", godot::Vector2(0, 100));
 
-        int index = graph_view->find_insert_index_by_y("task_new", task_list);
+        index = graph_view->find_insert_index_by_y("task_new", task_list);
 
         REQUIRE(index >= 0);
-        CHECK(index == 3 || index == 2);
+        CHECK((index == 3 || index == 2));
     }
 }
 

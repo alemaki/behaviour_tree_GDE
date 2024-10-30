@@ -1144,29 +1144,38 @@ void BTGraphEditor::_disconnect_nodes(BTGraphNode* parent, BTGraphNode* child)
     this->graph_edit->disconnect_node(parent->get_name(), 0, child->get_name(), 0);
 }
 
-
-
 void BTGraphEditor::connection_request(godot::StringName _from_node, int from_port, godot::StringName _to_node, int to_port)
 {
-    ERR_FAIL_COND_MSG(!(this->name_to_node.has(_from_node)), "From_node doesn't exist.");
-    ERR_FAIL_COND_MSG(!(this->name_to_node.has(_to_node)), "To_node doesn't exist.");
+    godot::StringName parent_task_name = this->graph_view->get_task_name(_from_node);
+    godot::StringName child_task_name = this->graph_view->get_task_name(_to_node);
 
-    godot::StringName parent_task_name = this->name_to_node[_from_node];
-    godot::StringName child_task_name = this->name_to_node[_to_node];
+    godot::Ref<BTTask> parent_task = this->behaviour_tree->get_task_by_custom_name(parent_task_name);
+    godot::Ref<BTTask> child_task = this->behaviour_tree->get_task_by_custom_name(child_task_name);
 
-    bool can_connect = this->behaviour_tree->can_connect(from_node->get_task(), to_node->get_task());
+    ERR_FAIL_COND_MSG(parent_task.is_null(), "\"" + parent_task_name + "\" custom task name is not in the behaviour tree.");
+    ERR_FAIL_COND_MSG(child_task.is_null(), "\"" + child_task_name + "\" custom task name is not in the behaviour tree.");
+
+    bool can_connect = this->behaviour_tree->can_connect(parent_task, child_task);
     if (can_connect)
     {
         godot::EditorUndoRedoManager* undo_redo_manager = this->editor_plugin->get_undo_redo();
 
         undo_redo_manager->create_action("Create a connection.");
+        
+        godot::Vector<StringName> current_children_names;
+        godot::Array children = parent_task->get_children();
+        for (int i = 0; i < children.size(); i++)
+        {
+            current_children_names.push_back(godot::Ref<BTTask>(children[i])->get_custom_name());
+        }
 
-        int index = this->get_node_insert_index_by_y_in_children(from_node, to_node);
-        undo_redo_manager->add_do_method(this->behaviour_tree, "connect_tasks", from_node->get_task(), to_node->get_task(), index);
-        undo_redo_manager->add_undo_method(this->behaviour_tree, "disconnect_tasks", from_node->get_task(), to_node->get_task());
+        int index = this->graph_view->find_insert_index_by_y(child_task_name, current_children_names);
 
-        undo_redo_manager->add_do_method(this->graph_edit, "connect_node", from_node->get_name(), from_port, to_node->get_name(), to_port);
-        undo_redo_manager->add_undo_method(this->graph_edit, "disconnect_node", from_node->get_name(), from_port, to_node->get_name(), to_port);
+        undo_redo_manager->add_do_method(this->behaviour_tree, "connect_tasks", parent_task, child_task, index);
+        undo_redo_manager->add_undo_method(this->behaviour_tree, "disconnect_tasks", parent_task, child_task);
+
+        undo_redo_manager->add_do_method(this->graph_view, "connect_task_nodes", parent_task_name, child_task_name);
+        undo_redo_manager->add_undo_method(this->graph_edit, "disconnect_task_nodes", parent_task_name, child_task_name);
 
         undo_redo_manager->commit_action();
     }
@@ -1174,26 +1183,29 @@ void BTGraphEditor::connection_request(godot::StringName _from_node, int from_po
 
 void BTGraphEditor::disconnection_request(godot::StringName _from_node, int from_port, godot::StringName _to_node, int to_port)
 {
-    ERR_FAIL_COND_MSG(!(this->name_to_node.has(_from_node)), "From_node doesn't exist.");
-    ERR_FAIL_COND_MSG(!(this->name_to_node.has(_to_node)), "To_node doesn't exist.");
+    godot::StringName parent_task_name = this->graph_view->get_task_name(_from_node);
+    godot::StringName child_task_name = this->graph_view->get_task_name(_to_node);
 
-    BTGraphNode* from_node = this->name_to_node[_from_node];
-    BTGraphNode* to_node = this->name_to_node[_to_node];
+    godot::Ref<BTTask> parent_task = this->behaviour_tree->get_task_by_custom_name(parent_task_name);
+    godot::Ref<BTTask> child_task = this->behaviour_tree->get_task_by_custom_name(child_task_name);
 
-    bool can_disconnect = this->behaviour_tree->can_disconnect(from_node->get_task(), to_node->get_task());
+    ERR_FAIL_COND_MSG(parent_task.is_null(), "\"" + parent_task_name + "\" custom task name is not in the behaviour tree.");
+    ERR_FAIL_COND_MSG(child_task.is_null(), "\"" + child_task_name + "\" custom task name is not in the behaviour tree.");
+
+    bool can_disconnect = this->behaviour_tree->can_disconnect(parent_task, child_task);
     if (can_disconnect)
     {
         godot::EditorUndoRedoManager* undo_redo_manager = this->editor_plugin->get_undo_redo();
 
         undo_redo_manager->create_action("Remove a connection.");
 
-        int index = from_node->get_task()->get_child_index(to_node->get_task());
-        undo_redo_manager->add_do_method(this->behaviour_tree, "disconnect_tasks", from_node->get_task(), to_node->get_task());
-        undo_redo_manager->add_undo_method(this->behaviour_tree, "connect_tasks", from_node->get_task(), to_node->get_task(), index);
+        int index = parent_task->get_child_index(child_task);
 
-        
-        undo_redo_manager->add_do_method(this->graph_edit, "disconnect_node", from_node->get_name(), from_port, to_node->get_name(), to_port);
-        undo_redo_manager->add_undo_method(this->graph_edit, "connect_node", from_node->get_name(), from_port, to_node->get_name(), to_port);
+        undo_redo_manager->add_do_method(this->behaviour_tree, "disconnect_tasks", parent_task, child_task);
+        undo_redo_manager->add_undo_method(this->behaviour_tree, "connect_tasks", parent_task, child_task, index);
+
+        undo_redo_manager->add_do_method(this->graph_view, "disconnect_task_nodes", parent_task_name, child_task_name);
+        undo_redo_manager->add_undo_method(this->graph_view, "connect_task_nodes", parent_task_name, child_task_name);
 
         undo_redo_manager->commit_action();
     }

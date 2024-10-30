@@ -28,12 +28,6 @@ void BehaviourTree::set_root_task(godot::Ref<BTTask> task)
     this->root_task = task;
 }
 
-void BehaviourTree::set_custom_name_task_by_ref(godot::Ref<BTTask> task, const godot::String& new_name)
-{
-    ERR_FAIL_COND_MSG(!(this->has_task(task)), "Task not found.");
-    task->set_custom_name(new_name);
-}
-
 int BehaviourTree::get_valid_id() const
 {
     return (this->task_map.size() > 0) ? (this->task_map.back()->key() + 1) : 1;
@@ -132,13 +126,32 @@ void BehaviourTree::clear_tasks()
     this->root_task.unref();
 }
 
+void BehaviourTree::set_custom_name_task_by_ref(godot::Ref<BTTask> task, const godot::String& new_name)
+{
+    ERR_FAIL_COND_MSG(!(this->has_task(task)), "Task not found.");
+    task->set_custom_name(new_name);
+}
+
+godot::Ref<BTTask> BehaviourTree::get_task_by_custom_name(const godot::StringName& name) const
+{
+    for (const godot::KeyValue<int, godot::Ref<BTTask>>& key_value : this->task_map)
+    {
+        if (key_value.value->get_custom_name() == name)
+        {
+            return key_value.value;
+        }
+    }
+
+    return nullptr;
+}
+
 godot::Array BehaviourTree::get_tasks() const
 {
     godot::Array array;
     int size = this->task_map.size();
     array.resize(size);
     int i = 0;
-    for (const godot::KeyValue<int, godot::Ref<BTTask>> &key_value : this->task_map)
+    for (const godot::KeyValue<int, godot::Ref<BTTask>>& key_value : this->task_map)
     {
         array[i] = key_value.value;
         i++;

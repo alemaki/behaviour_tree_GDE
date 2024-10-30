@@ -274,4 +274,6 @@ void BTGraphView::_bind_methods()
     ClassDB::bind_method(D_METHOD("create_subtree_task_node", "task_name"), &BTGraphView::create_subtree_task_node);
     ClassDB::bind_method(D_METHOD("delete_task_node", "task_name"), &BTGraphView::delete_task_node);
     ClassDB::bind_method(D_METHOD("set_task_node_title", "task_name", "title"), &BTGraphView::set_task_node_title);
+    ClassDB::bind_method(D_METHOD("connect_task_nodes", "parent_task_name", "child_task_name"), &BTGraphView::connect_task_nodes);
+    ClassDB::bind_method(D_METHOD("disconnect_task_nodes", "parent_task_name", "child_task_name"), &BTGraphView::disconnect_task_nodes);
 }
