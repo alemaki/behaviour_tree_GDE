@@ -139,13 +139,14 @@ private:
 
     /* Task Management */
     void change_task_type(const godot::StringName& class_name, BTGraphNode* node);
-
+    static godot::Vector<StringName> bttask_array_to_names(godot::Array children);
+    
 public:
     /* Connection Handling */
     void _connect_nodes(BTGraphNode* parent, BTGraphNode* child);
     void _disconnect_nodes(BTGraphNode* parent, BTGraphNode* child);
-    void connection_request(godot::StringName _from_node, int from_port, godot::StringName _to_node, int to_port);
-    void disconnection_request(godot::StringName _from_node, int from_port, godot::StringName _to_node, int to_port);
+    void connection_request(godot::StringName _from_node, int from_port, godot::StringName _to_node, int to_port); /* refactored */
+    void disconnection_request(godot::StringName _from_node, int from_port, godot::StringName _to_node, int to_port); /* refactored */
 
     /* Drag and Drop */
     void _node_dragged(const godot::Vector2 &_from, const godot::Vector2 &_to, BTGraphNode *node);

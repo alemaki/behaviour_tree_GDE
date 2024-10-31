@@ -21,8 +21,6 @@ void BTGraphNode::_set_default_properties()
 {
     this->set_resizable(false);
     this->set_custom_minimum_size(godot::Size2(100, 30));
-
-    this->set_position_offset(godot::Vector2(100, 100));
 }
 
 void BTGraphNode::_setup_connections_ui()

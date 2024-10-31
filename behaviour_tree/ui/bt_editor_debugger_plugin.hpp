@@ -60,12 +60,12 @@ public:
         }
     }
 
-    void BTEditorDebuggerPlugin::on_session_started()
+    void on_session_started()
     {
         godot::UtilityFunctions::print("Debugger session started");
     }
 
-    void BTEditorDebuggerPlugin::on_session_stopped()
+    void on_session_stopped()
     {
         godot::UtilityFunctions::print("Debugger session stopped");
     }

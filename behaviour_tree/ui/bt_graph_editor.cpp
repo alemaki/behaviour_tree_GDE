@@ -553,19 +553,19 @@ void BTGraphEditor::arrange_nodes(bool with_undo_redo)
             task_queue_i++;
             continue;
         }
-        parent_to_child_names.insert(task->get_custom_name(), {});
+        parent_to_child_names.insert(task->get_name(), {});
         godot::Array children = task->get_children();
         for (int j = 0; j < children.size(); j++)
         {
             godot::Ref<BTTask> child = children[j];
-            parent_to_child_names[task->get_custom_name()].push_back(child->get_custom_name());
+            parent_to_child_names[task->get_name()].push_back(child->get_name());
             task_queue.push_back(child);
         }
     }
 
     if (with_undo_redo)
     {
-        godot::HashMap<BTGraphNode*, godot::Vector2> node_positions = this->graph_view->get_arranged_nodes_position(root_task->get_custom_name(), parent_to_child_names);
+        godot::HashMap<BTGraphNode*, godot::Vector2> node_positions = this->graph_view->get_arranged_nodes_position(root_task->get_name(), parent_to_child_names);
         godot::EditorUndoRedoManager* undo_redo = this->editor_plugin->get_undo_redo();
         undo_redo->create_action("Arrange nodes.");
         for (const godot::KeyValue<BTGraphNode*, godot::Vector2>& key_value : node_positions)
@@ -577,7 +577,7 @@ void BTGraphEditor::arrange_nodes(bool with_undo_redo)
     }
     else
     {
-        this->graph_view->arrange_nodes(root_task->get_custom_name(), parent_to_child_names);
+        this->graph_view->arrange_nodes(root_task->get_name(), parent_to_child_names);
     }
 }
 
@@ -625,7 +625,6 @@ void BTGraphEditor::deselect_all_nodes()
 void BTGraphEditor::_node_dragged(const godot::Vector2 &_from, const godot::Vector2 &_to, BTGraphNode *node)
 {
     ERR_FAIL_COND(node == nullptr);
-    ERR_FAIL_COND_MSG(!(this->name_to_node.has(node->get_name())), "Dragged an invalid node");
 
     this->drag_buffer.push_back({_from, _to, node});
     if (!this->drag_called)
@@ -637,6 +636,11 @@ void BTGraphEditor::_node_dragged(const godot::Vector2 &_from, const godot::Vect
 
 void BTGraphEditor::_move_nodes()
 {
+    if (!this->drag_called)
+    {
+        return;
+    }
+
     this->drag_called = false;
 
     godot::EditorUndoRedoManager* undo_redo = this->editor_plugin->get_undo_redo();
@@ -647,7 +651,8 @@ void BTGraphEditor::_move_nodes()
 
     for (DragOperation operation : this->drag_buffer)
     {
-        godot::Ref<BTTask> parent = operation.node->get_task()->get_parent();
+        godot::StringName task_name = this->graph_view->get_node_name(operation.node);
+        godot::Ref<BTTask> parent = this->behaviour_tree->get_task_by_name(task_name)->get_parent();
         if (!parent.is_valid())
         {
             continue;
@@ -655,7 +660,13 @@ void BTGraphEditor::_move_nodes()
         if (!(sorted_parents.has(parent)))
         {
             godot::Array old_children = parent->get_children();
-            godot::Array new_children = this->get_sorted_by_y_children_of_parent(this->task_to_node[parent]);
+            godot::Vector<godot::StringName> children_names = BTGraphEditor::bttask_array_to_names(old_children);
+            godot::Vector<godot::StringName> sorted_children = this->graph_view->sorted_task_names_by_y(children_names);
+            godot::Array new_children;
+            for (const godot::StringName& name : sorted_children)
+            {
+                new_children.push_back(this->behaviour_tree->get_task_by_name(name));
+            }
             undo_redo->add_do_method(this->behaviour_tree, "set_children_of_task", parent, new_children);
             undo_redo->add_undo_method(this->behaviour_tree, "set_children_of_task", parent, old_children);
             sorted_parents.insert(parent);
@@ -678,9 +689,11 @@ void BTGraphEditor::_move_nodes()
 void BTGraphEditor::_add_new_node_button_pressed()
 {
     int id = this->behaviour_tree->get_valid_id();
-    godot::StringName task_name = godot::itos(id);
     godot::Ref<BTTask> new_task = memnew(BTTask);
-    new_task->set_custom_name(task_name);
+    godot::StringName task_custom_name = godot::itos(id);
+    godot::StringName task_name = new_task->get_name();
+    
+    new_task->set_custom_name(task_custom_name);
 
     godot::EditorUndoRedoManager* undo_redo_manager = this->editor_plugin->get_undo_redo();
 
@@ -688,7 +701,7 @@ void BTGraphEditor::_add_new_node_button_pressed()
 
     undo_redo_manager->add_do_method(this->behaviour_tree, "add_task", id, new_task);
     undo_redo_manager->add_do_method(this->graph_view, "create_task_node", task_name);
-    undo_redo_manager->add_do_method(this->graph_view, "set_task_node_title", task_name, task_name);
+    undo_redo_manager->add_do_method(this->graph_view, "set_task_node_title", task_name, task_custom_name);
     //undo_redo_manager->add_do_method(this, "color_root_node");
 
     undo_redo_manager->add_undo_method(this->graph_view, "delete_task_node", task_name);
@@ -703,9 +716,12 @@ void BTGraphEditor::_add_new_node_button_pressed()
 void BTGraphEditor::_add_new_subtree_node_button_pressed()
 {
     int id = this->behaviour_tree->get_valid_id();
-    godot::StringName task_name = godot::itos(id);
+
     godot::Ref<BTSubtree> new_task = memnew(BTSubtree);
-    new_task->set_custom_name(task_name);
+    godot::StringName task_custom_name = godot::itos(id);
+    godot::StringName task_name = new_task->get_name();
+
+    new_task->set_custom_name(task_custom_name);
 
     godot::EditorUndoRedoManager* undo_redo_manager = this->editor_plugin->get_undo_redo();
 
@@ -1118,6 +1134,18 @@ void BTGraphEditor::clear_copied_nodes()
 
 /* Connection Handling */
 
+godot::Vector<StringName> BTGraphEditor::bttask_array_to_names(godot::Array tasks)
+{
+    godot::Vector<StringName> result;
+    for (int i = 0; i < tasks.size(); i++)
+    {
+        godot::Ref<BTTask> task = tasks[i];
+        ERR_CONTINUE(task.is_null());
+        result.push_back(godot::Ref<BTTask>(tasks[i])->get_name());
+    }
+    return result;
+}
+
 void BTGraphEditor::_connect_nodes(BTGraphNode* parent, BTGraphNode* child)
 {
     ERR_FAIL_NULL(this->behaviour_tree);
@@ -1149,36 +1177,35 @@ void BTGraphEditor::connection_request(godot::StringName _from_node, int from_po
     godot::StringName parent_task_name = this->graph_view->get_task_name(_from_node);
     godot::StringName child_task_name = this->graph_view->get_task_name(_to_node);
 
-    godot::Ref<BTTask> parent_task = this->behaviour_tree->get_task_by_custom_name(parent_task_name);
-    godot::Ref<BTTask> child_task = this->behaviour_tree->get_task_by_custom_name(child_task_name);
+    godot::Ref<BTTask> parent_task = this->behaviour_tree->get_task_by_name(parent_task_name);
+    godot::Ref<BTTask> child_task = this->behaviour_tree->get_task_by_name(child_task_name);
 
     ERR_FAIL_COND_MSG(parent_task.is_null(), "\"" + parent_task_name + "\" custom task name is not in the behaviour tree.");
     ERR_FAIL_COND_MSG(child_task.is_null(), "\"" + child_task_name + "\" custom task name is not in the behaviour tree.");
 
+    ERR_FAIL_COND_MSG(godot::Ref<BTSubtree>(parent_task).is_valid(), "Parent cannot be subtree.");
+
     bool can_connect = this->behaviour_tree->can_connect(parent_task, child_task);
-    if (can_connect)
+    if (!can_connect)
     {
-        godot::EditorUndoRedoManager* undo_redo_manager = this->editor_plugin->get_undo_redo();
-
-        undo_redo_manager->create_action("Create a connection.");
-        
-        godot::Vector<StringName> current_children_names;
-        godot::Array children = parent_task->get_children();
-        for (int i = 0; i < children.size(); i++)
-        {
-            current_children_names.push_back(godot::Ref<BTTask>(children[i])->get_custom_name());
-        }
-
-        int index = this->graph_view->find_insert_index_by_y(child_task_name, current_children_names);
-
-        undo_redo_manager->add_do_method(this->behaviour_tree, "connect_tasks", parent_task, child_task, index);
-        undo_redo_manager->add_undo_method(this->behaviour_tree, "disconnect_tasks", parent_task, child_task);
-
-        undo_redo_manager->add_do_method(this->graph_view, "connect_task_nodes", parent_task_name, child_task_name);
-        undo_redo_manager->add_undo_method(this->graph_edit, "disconnect_task_nodes", parent_task_name, child_task_name);
-
-        undo_redo_manager->commit_action();
+        return;
     }
+
+    godot::EditorUndoRedoManager* undo_redo_manager = this->editor_plugin->get_undo_redo();
+
+    undo_redo_manager->create_action("Create a connection.");
+    
+    godot::Vector<StringName> current_children_names = BTGraphEditor::bttask_array_to_names(parent_task->get_children());
+
+    int index = this->graph_view->find_insert_index_by_y(child_task_name, current_children_names);
+
+    undo_redo_manager->add_do_method(this->behaviour_tree, "connect_tasks", parent_task, child_task, index);
+    undo_redo_manager->add_undo_method(this->behaviour_tree, "disconnect_tasks", parent_task, child_task);
+
+    undo_redo_manager->add_do_method(this->graph_view, "connect_task_nodes", parent_task_name, child_task_name);
+    undo_redo_manager->add_undo_method(this->graph_edit, "disconnect_task_nodes", parent_task_name, child_task_name);
+
+    undo_redo_manager->commit_action();
 }
 
 void BTGraphEditor::disconnection_request(godot::StringName _from_node, int from_port, godot::StringName _to_node, int to_port)
@@ -1186,29 +1213,30 @@ void BTGraphEditor::disconnection_request(godot::StringName _from_node, int from
     godot::StringName parent_task_name = this->graph_view->get_task_name(_from_node);
     godot::StringName child_task_name = this->graph_view->get_task_name(_to_node);
 
-    godot::Ref<BTTask> parent_task = this->behaviour_tree->get_task_by_custom_name(parent_task_name);
-    godot::Ref<BTTask> child_task = this->behaviour_tree->get_task_by_custom_name(child_task_name);
+    godot::Ref<BTTask> parent_task = this->behaviour_tree->get_task_by_name(parent_task_name);
+    godot::Ref<BTTask> child_task = this->behaviour_tree->get_task_by_name(child_task_name);
 
     ERR_FAIL_COND_MSG(parent_task.is_null(), "\"" + parent_task_name + "\" custom task name is not in the behaviour tree.");
     ERR_FAIL_COND_MSG(child_task.is_null(), "\"" + child_task_name + "\" custom task name is not in the behaviour tree.");
 
     bool can_disconnect = this->behaviour_tree->can_disconnect(parent_task, child_task);
-    if (can_disconnect)
+    if (!can_disconnect)
     {
-        godot::EditorUndoRedoManager* undo_redo_manager = this->editor_plugin->get_undo_redo();
-
-        undo_redo_manager->create_action("Remove a connection.");
-
-        int index = parent_task->get_child_index(child_task);
-
-        undo_redo_manager->add_do_method(this->behaviour_tree, "disconnect_tasks", parent_task, child_task);
-        undo_redo_manager->add_undo_method(this->behaviour_tree, "connect_tasks", parent_task, child_task, index);
-
-        undo_redo_manager->add_do_method(this->graph_view, "disconnect_task_nodes", parent_task_name, child_task_name);
-        undo_redo_manager->add_undo_method(this->graph_view, "connect_task_nodes", parent_task_name, child_task_name);
-
-        undo_redo_manager->commit_action();
+        return;
     }
+    godot::EditorUndoRedoManager* undo_redo_manager = this->editor_plugin->get_undo_redo();
+
+    undo_redo_manager->create_action("Remove a connection.");
+
+    int index = parent_task->get_child_index(child_task);
+
+    undo_redo_manager->add_do_method(this->behaviour_tree, "disconnect_tasks", parent_task, child_task);
+    undo_redo_manager->add_undo_method(this->behaviour_tree, "connect_tasks", parent_task, child_task, index);
+
+    undo_redo_manager->add_do_method(this->graph_view, "disconnect_task_nodes", parent_task_name, child_task_name);
+    undo_redo_manager->add_undo_method(this->graph_view, "connect_task_nodes", parent_task_name, child_task_name);
+
+    undo_redo_manager->commit_action();
 }
 
 /* Task Management */
