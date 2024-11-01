@@ -41,7 +41,7 @@ public:
     void detach_task(int id); 
     void clear_tasks();
     void set_custom_name_task_by_ref(godot::Ref<BTTask> task, const godot::String& new_name);
-    godot::Ref<BTTask> get_task_by_custom_name(const godot::StringName& name) const;
+    godot::Ref<BTTask> get_task_by_name(const godot::StringName& name) const;
 
     godot::Array get_tasks() const;
 

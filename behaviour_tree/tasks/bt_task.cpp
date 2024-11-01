@@ -7,6 +7,7 @@ BTTask::BTTask()
     this->parent = nullptr;
     this->status = Status::FRESH;
     this->custom_name = "";
+    this->set_name(this->get_class_static() + godot::String("_") + godot::itos(this->get_instance_id()));
 }
 
 void BTTask::set_parent(godot::Ref<BTTask> parent)

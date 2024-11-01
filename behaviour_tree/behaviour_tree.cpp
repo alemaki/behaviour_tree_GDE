@@ -132,11 +132,11 @@ void BehaviourTree::set_custom_name_task_by_ref(godot::Ref<BTTask> task, const g
     task->set_custom_name(new_name);
 }
 
-godot::Ref<BTTask> BehaviourTree::get_task_by_custom_name(const godot::StringName& name) const
+godot::Ref<BTTask> BehaviourTree::get_task_by_name(const godot::StringName& name) const
 {
     for (const godot::KeyValue<int, godot::Ref<BTTask>>& key_value : this->task_map)
     {
-        if (key_value.value->get_custom_name() == name)
+        if (key_value.value->get_name() == name)
         {
             return key_value.value;
         }
