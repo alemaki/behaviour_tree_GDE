@@ -245,19 +245,6 @@ void BTGraphView::arrange_nodes(
     }
 }
 
-godot::StringName BTGraphView::get_node_name(const BTGraphNode* node) const
-{
-    ERR_FAIL_NULL_V(node, "");
-    for (const KeyValue<godot::StringName, BTGraphNode*> key_value : this->task_name_to_node)
-    {
-        if (key_value.value == node)
-        {
-            return key_value.key;
-        }
-    }
-    ERR_FAIL_V_MSG("", godot::String("Node not in graph: ") + godot::String(godot::Variant(node)));
-}
-
 bool BTGraphView::has_saved_graph(const godot::StringName& name) const
 {
     return this->saved_graphs.has(name);

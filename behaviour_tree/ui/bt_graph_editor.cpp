@@ -651,7 +651,7 @@ void BTGraphEditor::_move_nodes()
 
     for (DragOperation operation : this->drag_buffer)
     {
-        godot::StringName task_name = this->graph_view->get_node_name(operation.node);
+        godot::StringName task_name = this->graph_view->get_task_name(operation.node->get_name());
         godot::Ref<BTTask> parent = this->behaviour_tree->get_task_by_name(task_name)->get_parent();
         if (!parent.is_valid())
         {
