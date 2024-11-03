@@ -450,4 +450,27 @@ TEST_SUITE("[editor]" "[errors]" "BTGraphView")
             CHECK_GODOT_ERROR(graph_view->arrange_nodes("non_existent", parent_to_children_names));
         }
     }
+
+    TEST_CASE_FIXTURE(BTGraphViewFixture, "Fail to sort task names with non-existent task")
+    {
+        godot::Vector<StringName> tasks;
+        graph_view->create_task_node("existing_task");
+        tasks.push_back("existing_task");
+        tasks.push_back("non_existent");
+
+        CHECK_GODOT_ERROR(graph_view->sorted_task_names_by_y(tasks));
+    }
+
+    TEST_CASE_FIXTURE(BTGraphViewFixture, "Fail to find insert index with non-existent task")
+    {
+        godot::Vector<StringName> tasks;
+        tasks.push_back("existent_task");
+
+        CHECK_GODOT_ERROR(graph_view->find_insert_index_by_y("non_existent", tasks));
+    }
+
+    TEST_CASE_FIXTURE(BTGraphViewFixture, "Fail to get task name of non-existent graph node")
+    {
+        CHECK_GODOT_ERROR(graph_view->get_task_name("non_existent_graph_node"));
+    }
 }

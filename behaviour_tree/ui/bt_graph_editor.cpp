@@ -809,9 +809,11 @@ void BTGraphEditor::_on_path_edit_focus_exited()
 void BTGraphEditor::_on_node_selected(BTGraphNode* selected_node)
 {
     ERR_FAIL_COND(selected_node == nullptr);
-    ERR_FAIL_COND(selected_node->get_task().is_null());
+    godot::StringName task_name = this->graph_view->get_task_name(selected_node->get_name());
+    godot::Ref<BTTask> task = this->behaviour_tree->get_task_by_name(task_name);
 
-    selected_node->focus_task_in_inspector();
+    godot::EditorInterface* editor_interface = godot::EditorInterface::get_singleton();
+    editor_interface->inspect_object(task.ptr());
 }
 
 void BTGraphEditor::_on_node_deselected(BTGraphNode* deselected_node)

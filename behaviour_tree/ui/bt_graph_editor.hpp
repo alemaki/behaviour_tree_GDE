@@ -149,8 +149,8 @@ public:
     void disconnection_request(godot::StringName _from_node, int from_port, godot::StringName _to_node, int to_port); /* refactored */
 
     /* Drag and Drop */
-    void _node_dragged(const godot::Vector2 &_from, const godot::Vector2 &_to, BTGraphNode *node);
-    void _move_nodes();
+    void _node_dragged(const godot::Vector2 &_from, const godot::Vector2 &_to, BTGraphNode *node); /* refactored */
+    void _move_nodes(); /* refactored */
 
     /* Event Handlers */
     void _add_new_node_button_pressed(); /* refactored */
@@ -160,8 +160,8 @@ public:
     void _on_rename_edit_focus_exited();
     void _on_path_edit_text_submitted(const godot::String& new_path);
     void _on_path_edit_focus_exited();
-    void _on_node_selected(BTGraphNode* selected_node);
-    void _on_node_deselected(BTGraphNode* deselected_node);
+    void _on_node_selected(BTGraphNode* selected_node); /* refactored */
+    void _on_node_deselected(BTGraphNode* deselected_node); /* refactored */
     void _on_node_double_clicked(BTGraphNode* clicked_node);
     void _on_node_right_clicked(BTGraphNode* clicked_node);
     void _on_node_subtree_double_clicked(BTGraphNodeSubtree* clicked_node);

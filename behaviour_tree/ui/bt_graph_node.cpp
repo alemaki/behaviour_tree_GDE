@@ -94,15 +94,6 @@ void BTGraphNode::_on_gui_input(const godot::Ref<godot::InputEvent>& event)
     }
 }
 
-void BTGraphNode::focus_task_in_inspector()
-{
-    ERR_FAIL(); // currently disabled.
-    // ERR_FAIL_COND(this->task.is_null());
-
-    // godot::EditorInterface* editor_interface = godot::EditorInterface::get_singleton();
-    // editor_interface->inspect_object(task.ptr());
-}
-
 void BTGraphNode::_bind_methods()
 {
     using namespace godot;
