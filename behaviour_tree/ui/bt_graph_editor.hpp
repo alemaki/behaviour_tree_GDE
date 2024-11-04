@@ -120,7 +120,7 @@ private:
     /* Node Management */
     void insert_node(BTGraphNode* bt_graph_node);
     void erase_node(BTGraphNode* bt_graph_node);
-    void delete_nodes(const godot::Vector<BTGraphNode*>& nodes_to_delete);
+    void delete_nodes(const godot::Vector<StringName>& task_names_to_delete);
     void clear_graph_nodes();
     void create_default_graph_nodes();
     void set_root_node(BTGraphNode* new_root_node);

@@ -391,16 +391,19 @@ void BTGraphEditor::erase_node(BTGraphNode* bt_graph_node)
     this->task_to_node.erase(bt_graph_node->get_task());
 }
 
-void BTGraphEditor::delete_nodes(const godot::Vector<BTGraphNode*>& nodes_to_delete)
+void BTGraphEditor::delete_nodes(const godot::Vector<StringName>& task_names_to_delete)
 {
-    int size = nodes_to_delete.size();
+    ERR_FAIL_NULL(this->behaviour_tree);
+    int size = task_names_to_delete.size();
+
     godot::EditorUndoRedoManager* undo_redo_manager = this->editor_plugin->get_undo_redo();
 
     undo_redo_manager->create_action("Delete node(s)");
 
     for (int i = 0; i < size; i++)
     {
-        godot::Ref<BTTask> task_to_remove = nodes_to_delete[i]->get_task();
+        godot::Ref<BTTask> task_to_remove = this->behaviour_tree->get_task_by_name(task_names_to_delete[i]);
+        godot::StringName task_to_remove_name = task_to_remove->get_name();
         godot::Array task_children = task_to_remove->get_children();
         godot::Ref<BTTask> parent = task_to_remove->get_parent();
         int task_id = this->behaviour_tree->get_task_id(task_to_remove);
@@ -411,22 +414,22 @@ void BTGraphEditor::delete_nodes(const godot::Vector<BTGraphNode*>& nodes_to_del
         undo_redo_manager->add_undo_method(this->behaviour_tree, "set_children_of_task", task_to_remove, task_children);
 
         /* add node first when undoing so connections can form*/
-        undo_redo_manager->add_undo_method(this->graph_edit, "add_child", nodes_to_delete[i]);
+        undo_redo_manager->add_undo_method(this->graph_view, "add_child", nodes_to_delete[i]);
         undo_redo_manager->add_undo_method(this, "insert_node", nodes_to_delete[i]);
 
         for (int j = 0; j < task_children.size(); j++)
         {
             /* remove_task_by_ref will remove connections in bt_tasks*/
-            undo_redo_manager->add_do_method(this->graph_edit, "disconnect_node", nodes_to_delete[i]->get_name(), 0, task_to_node[task_children[j]]->get_name(), 0);
-            undo_redo_manager->add_undo_method(this->graph_edit, "connect_node", nodes_to_delete[i]->get_name(), 0, task_to_node[task_children[j]]->get_name(), 0);
+            undo_redo_manager->add_do_method(this->graph_view, "disconnect_node", nodes_to_delete[i]->get_name(), 0, task_to_node[task_children[j]]->get_name(), 0);
+            undo_redo_manager->add_undo_method(this->graph_view, "connect_node", nodes_to_delete[i]->get_name(), 0, task_to_node[task_children[j]]->get_name(), 0);
         }
 
         if (parent.is_valid())
         {
             int index = parent->get_child_index(task_to_remove);
             undo_redo_manager->add_undo_method(this->behaviour_tree, "connect_tasks", parent, task_to_remove, index);
-            undo_redo_manager->add_do_method(this->graph_edit, "disconnect_node", task_to_node[parent]->get_name(), 0, nodes_to_delete[i]->get_name(), 0);
-            undo_redo_manager->add_undo_method(this->graph_edit, "connect_node", task_to_node[parent]->get_name(), 0, nodes_to_delete[i]->get_name(), 0);
+            undo_redo_manager->add_do_method(this->graph_view, "disconnect_node", task_to_node[parent]->get_name(), 0, nodes_to_delete[i]->get_name(), 0);
+            undo_redo_manager->add_undo_method(this->graph_view, "connect_node", task_to_node[parent]->get_name(), 0, nodes_to_delete[i]->get_name(), 0);
         }
 
         if (this->behaviour_tree->get_root_task() == task_to_remove)
@@ -859,7 +862,7 @@ void BTGraphEditor::_on_node_right_clicked(BTGraphNode* clicked_node)
     this->main_popup_menu->set_current_screen(current_screen);
     this->main_popup_menu->call_deferred("grab_focus");
 
-    clicked_node->focus_task_in_inspector();
+    // clicked_node->focus_task_in_inspector();
     
 
     /* TODO: find better solution. */
@@ -962,11 +965,9 @@ void BTGraphEditor::_on_action_condition_type_popup_menu_item_selected(int id)
     this->change_task_type(item, this->last_right_clicked_node);
 }
 
-void BTGraphEditor::_delete_nodes_request(godot::TypedArray<godot::StringName> _nodes_to_delete)
+void BTGraphEditor::_delete_nodes_request(godot::TypedArray<godot::StringName> _node_names_to_delete)
 {
-    godot::Vector<BTGraphNode*> nodes_to_delete;
-    int size = _nodes_to_delete.size();
-    nodes_to_delete.resize(size);
+    int size = _node_names_to_delete.size();
 
     if (size == 0)
     {
@@ -978,14 +979,16 @@ void BTGraphEditor::_delete_nodes_request(godot::TypedArray<godot::StringName> _
      * https://en.wikipedia.org/wiki/Ostrich_algorithm .*/
     ERR_FAIL_COND_EDMSG(size != 1, "Cannot delete mutliple nodes.");
 
+    godot::Vector<StringName> task_names_to_delete;
+    task_names_to_delete.resize(size);
+
     for (int i = 0; i < size; i++)
     {
-        BTGraphNode* node_to_delete = this->name_to_node[_nodes_to_delete[i]];
-        ERR_FAIL_COND(node_to_delete == nullptr);
-        nodes_to_delete.set(i, node_to_delete);
+        godot::StringName task_name = this->graph_view->get_task_name(_node_names_to_delete[i]);
+        task_names_to_delete.set(i, task_name);
     }
 
-    this->delete_nodes(nodes_to_delete);
+    this->delete_nodes(task_names_to_delete);
     
 }
 
@@ -1205,7 +1208,7 @@ void BTGraphEditor::connection_request(godot::StringName _from_node, int from_po
     undo_redo_manager->add_undo_method(this->behaviour_tree, "disconnect_tasks", parent_task, child_task);
 
     undo_redo_manager->add_do_method(this->graph_view, "connect_task_nodes", parent_task_name, child_task_name);
-    undo_redo_manager->add_undo_method(this->graph_edit, "disconnect_task_nodes", parent_task_name, child_task_name);
+    undo_redo_manager->add_undo_method(this->graph_view, "disconnect_task_nodes", parent_task_name, child_task_name);
 
     undo_redo_manager->commit_action();
 }

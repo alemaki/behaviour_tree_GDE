@@ -41,7 +41,6 @@ public:
         return this->task_class_name;
     }
 
-    void focus_task_in_inspector();
 protected:
     static void _bind_methods();
 };

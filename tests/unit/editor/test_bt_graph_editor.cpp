@@ -68,17 +68,9 @@ struct BTGraphEditorFixture
         this->tree->queue_free();
         this->editor->queue_free();
     }
-};
 
 
-TEST_SUITE("[editor]" "BTGraphEditor")
-{
-    TEST_CASE_FIXTURE(BTGraphEditorFixture, "Graph editor basic")
-    {
-        REQUIRE_EQ(editor->get_behaviour_tree(), tree);
-    }
-
-    TEST_CASE_FIXTURE(BTGraphEditorFixture, "Test node creation")
+    void test_node_creation()
     {
         editor->_add_new_node_button_pressed();
 
@@ -96,7 +88,7 @@ TEST_SUITE("[editor]" "BTGraphEditor")
         CHECK_EQ(node->get_title(), "1");
     }
 
-    TEST_CASE_FIXTURE(BTGraphEditorFixture, "Test subtree creation")
+    void test_subtree_creation()
     {
         editor->_add_new_subtree_node_button_pressed();
 
@@ -117,7 +109,7 @@ TEST_SUITE("[editor]" "BTGraphEditor")
         CHECK_EQ(node->get_file_path(), "");
     }
 
-    TEST_CASE_FIXTURE(BTGraphEditorFixture, "Test connection creation")
+    void test_connection_creation()
     {
         editor->_add_new_node_button_pressed();
         editor->_add_new_subtree_node_button_pressed();
@@ -143,15 +135,11 @@ TEST_SUITE("[editor]" "BTGraphEditor")
         REQUIRE_EQ(parent_task->get_child_count(), 1);
         CHECK(parent_task->has_child(child_task));
 
-
-        godot::TypedArray<godot::Dictionary> connections = graph_view->get_connection_list();
-
-        REQUIRE_EQ(connections.size(), 1);
-        REQUIRE_EQ(godot::Dictionary(connections[0])["from_node"], parent->get_name());
-        REQUIRE_EQ(godot::Dictionary(connections[0])["to_node"], child->get_name());
+        REQUIRE_EQ(graph_view->get_connection_list().size(), 1);
+        REQUIRE(graph_view->is_node_connected(parent->get_name(), 0, child->get_name(), 0));
     }
 
-    TEST_CASE_FIXTURE(BTGraphEditorFixture, "Test connection disconnection")
+    void test_connection_deletion()
     {
         editor->_add_new_node_button_pressed();
         editor->_add_new_node_button_pressed();
@@ -166,8 +154,7 @@ TEST_SUITE("[editor]" "BTGraphEditor")
         editor->connection_request(parent->get_name(), 0, child->get_name(), 0);
         editor->disconnection_request(parent->get_name(), 0, child->get_name(), 0);
 
-        godot::TypedArray<godot::Dictionary> connections = graph_view->get_connection_list();
-        REQUIRE_EQ(connections.size(), 0);
+        REQUIRE_EQ(graph_view->get_connection_list().size(), 0);
 
         REQUIRE_EQ(graph_view->get_child_count(), initial_child_count + 2);
 
@@ -179,7 +166,7 @@ TEST_SUITE("[editor]" "BTGraphEditor")
         REQUIRE_FALSE(parent_task->has_child(child_task));
     }
 
-    TEST_CASE_FIXTURE(BTGraphEditorFixture, "Test move nodes")
+    void test_node_moving()
     {
         editor->_add_new_node_button_pressed();
         editor->_add_new_subtree_node_button_pressed();
@@ -201,8 +188,6 @@ TEST_SUITE("[editor]" "BTGraphEditor")
         REQUIRE(child_task1.is_valid());
         REQUIRE(child_task2.is_valid());
 
-        godot::UtilityFunctions::print(child1->get_position_offset());
-        godot::UtilityFunctions::print(child2->get_position_offset());
         graph_view->set_node_position(child_task1->get_name(), godot::Vector2(0, 0));
         graph_view->set_node_position(child_task2->get_name(), godot::Vector2(0, 50));
 
@@ -231,13 +216,47 @@ TEST_SUITE("[editor]" "BTGraphEditor")
         CHECK_EQ(parent_task->get_child(0), child_task2);
         CHECK_EQ(parent_task->get_child(1), child_task1);
     }
+};
+
+
+TEST_SUITE("[editor]" "[plugin]" "BTGraphEditor")
+{
+    TEST_CASE_FIXTURE(BTGraphEditorFixture, "Graph editor basic")
+    {
+        REQUIRE_EQ(editor->get_behaviour_tree(), tree);
+    }
+
+    TEST_CASE_FIXTURE(BTGraphEditorFixture, "Test node creation")
+    {
+        test_node_creation();
+    }
+
+    TEST_CASE_FIXTURE(BTGraphEditorFixture, "Test subtree creation")
+    {
+        test_subtree_creation();
+    }
+
+    TEST_CASE_FIXTURE(BTGraphEditorFixture, "Test connection creation")
+    {
+        test_connection_creation();
+    }
+
+    TEST_CASE_FIXTURE(BTGraphEditorFixture, "Test connection deletion")
+    {
+        test_connection_deletion();
+    }
+
+    TEST_CASE_FIXTURE(BTGraphEditorFixture, "Test move nodes")
+    {
+        test_node_moving();
+    }
 }
 
-TEST_SUITE("[editor]" "[undo_redo]" "BTGraphEditor")
+TEST_SUITE("[editor]" "[plugin]" "[undo_redo]" "BTGraphEditor")
 {
     TEST_CASE_FIXTURE(BTGraphEditorFixture, "Test node creation")
     {
-        editor->_add_new_node_button_pressed();
+        test_node_creation();
 
         godot::Ref<BTTask> task = tree->get_task(1);
         godot::UndoRedo* undo = get_undo(tree);
@@ -261,7 +280,7 @@ TEST_SUITE("[editor]" "[undo_redo]" "BTGraphEditor")
 
     TEST_CASE_FIXTURE(BTGraphEditorFixture, "Test subtree creation")
     {
-        editor->_add_new_subtree_node_button_pressed();
+        test_subtree_creation();
 
         godot::Ref<BTTask> task = tree->get_task(1);
         godot::UndoRedo* undo = get_undo(tree);
@@ -280,6 +299,97 @@ TEST_SUITE("[editor]" "[undo_redo]" "BTGraphEditor")
         CHECK_EQ(node->get_title(), "");
         CHECK_EQ(tree->get_task_count(), 1);
         CHECK(tree->has_task(task));
+
+    }
+
+    TEST_CASE_FIXTURE(BTGraphEditorFixture, "Test connection creation")
+    {
+        test_connection_creation();
+
+        BTGraphNode* parent = get_graph_node(0);
+        BTGraphNode* child = get_graph_node(1);
+
+        godot::Ref<BTTask> parent_task = tree->get_task(1);
+        godot::Ref<BTTask> child_task = tree->get_task(2);
+
+        godot::UndoRedo* undo = get_undo(tree);
+        undo->undo();
+
+        REQUIRE_EQ(graph_view->get_connection_list().size(), 0);
+        REQUIRE_EQ(parent_task->get_child_count(), 0);
+
+        godot::UndoRedo* redo = get_redo(tree);
+        redo->redo();
+
+        REQUIRE_EQ(parent_task->get_child_count(), 1);
+        REQUIRE_EQ(parent_task->get_child(0), child_task);
+        REQUIRE_EQ(graph_view->get_connection_list().size(), 1);
+        REQUIRE(graph_view->is_node_connected(parent->get_name(), 0, child->get_name(), 0));
+    }
+
+    TEST_CASE_FIXTURE(BTGraphEditorFixture, "Test connection deletion")
+    {
+        test_connection_deletion();
+
+        BTGraphNode* parent = get_graph_node(0);
+        BTGraphNode* child = get_graph_node(1);
+
+        godot::Ref<BTTask> parent_task = tree->get_task(1);
+        godot::Ref<BTTask> child_task = tree->get_task(2);
+
+        godot::UndoRedo* undo = get_undo(tree);
+        undo->undo();
+
+
+        REQUIRE_EQ(parent_task->get_child_count(), 1);
+        REQUIRE_EQ(parent_task->get_child(0), child_task);
+        REQUIRE_EQ(graph_view->get_connection_list().size(), 1);
+        REQUIRE(graph_view->is_node_connected(parent->get_name(), 0, child->get_name(), 0));
+
+        godot::UndoRedo* redo = get_redo(tree);
+        redo->redo();
+
+        REQUIRE_EQ(graph_view->get_connection_list().size(), 0);
+        REQUIRE_EQ(parent_task->get_child_count(), 0);
+    }
+
+    TEST_CASE_FIXTURE(BTGraphEditorFixture, "Test move nodes")
+    {
+        test_node_moving();
+
+        BTGraphNode* parent = get_graph_node(0);
+        BTGraphNode* child1 = get_graph_node(1);
+        BTGraphNode* child2 = get_graph_node(2);
+
+        godot::Ref<BTTask> parent_task = tree->get_task(1);
+        godot::Ref<BTTask> child_task1 = tree->get_task(2);
+        godot::Ref<BTTask> child_task2 = tree->get_task(3);
+
+        godot::Vector2 parent_pos = parent->get_position_offset();
+        godot::Vector2 child1_pos = child1->get_position_offset();
+        godot::Vector2 child2_pos = child2->get_position_offset();
+
+        godot::UndoRedo* undo = get_undo(tree);
+        undo->undo();
+
+        REQUIRE_EQ(parent->get_position_offset(),  godot::Vector2(0, 0));
+        REQUIRE_EQ(child1->get_position_offset(),  godot::Vector2(0, 0));
+        REQUIRE_EQ(child2->get_position_offset(),  godot::Vector2(0, 50));
+
+        REQUIRE_EQ(parent_task->get_child_count(), 2);
+        REQUIRE_EQ(parent_task->get_child(0), child_task1);
+        REQUIRE_EQ(parent_task->get_child(1), child_task2);
+
+        godot::UndoRedo* redo = get_redo(tree);
+        redo->redo();
+
+        CHECK_VECTORS_EQ(parent->get_position_offset(), godot::Vector2(0, 0));
+        CHECK_VECTORS_EQ(child1->get_position_offset(), godot::Vector2(0, 50));
+        CHECK_VECTORS_EQ(child2->get_position_offset(), godot::Vector2(0, -50));
+
+        REQUIRE_EQ(parent_task->get_child_count(), 2);
+        CHECK_EQ(parent_task->get_child(0), child_task2);
+        CHECK_EQ(parent_task->get_child(1), child_task1);
 
     }
 }
