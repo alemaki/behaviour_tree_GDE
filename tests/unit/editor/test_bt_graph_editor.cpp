@@ -216,6 +216,57 @@ struct BTGraphEditorFixture
         CHECK_EQ(parent_task->get_child(0), child_task2);
         CHECK_EQ(parent_task->get_child(1), child_task1);
     }
+
+    void test_node_deletion()
+    {
+        editor->_add_new_node_button_pressed();
+        editor->_add_new_node_button_pressed();
+        editor->_add_new_node_button_pressed();
+        editor->_add_new_node_button_pressed();
+        REQUIRE_EQ(tree->get_task_count(), 4);
+        REQUIRE_EQ(graph_view->get_child_count(), initial_child_count + 4);
+
+        
+        BTGraphNode* parent = get_graph_node(0);
+        BTGraphNode* node1 = get_graph_node(1);
+        BTGraphNode* node11 = get_graph_node(2);
+        BTGraphNode* node12 = get_graph_node(3);
+
+        REQUIRE_NE(parent, nullptr);
+        REQUIRE_NE(node1, nullptr);
+        REQUIRE_NE(node11, nullptr);
+        REQUIRE_NE(node12, nullptr);
+
+        godot::Ref<BTTask> parent_task = tree->get_task(1);
+        godot::Ref<BTTask> node1_task = tree->get_task(2);
+        godot::Ref<BTTask> node11_task = tree->get_task(3);
+        godot::Ref<BTTask> node12_task = tree->get_task(4);
+
+        graph_view->set_node_position(node1_task->get_name(), godot::Vector2(0, 1));
+
+        editor->connection_request(parent->get_name(), 0, node1->get_name(), 0);
+        editor->connection_request(node1->get_name(), 0, node11->get_name(), 0);
+        editor->connection_request(node1->get_name(), 0, node12->get_name(), 0);
+
+        REQUIRE_EQ(graph_view->get_connection_list().size(), 3);
+        REQUIRE_EQ(parent_task->get_child_count(), 1);
+        CHECK_EQ(parent_task->get_child(0), node1_task);
+        CHECK_EQ(node1_task->get_child(0), node11_task);
+        CHECK_EQ(node1_task->get_child(1), node12_task);
+
+        godot::TypedArray<godot::StringName> nodes_to_delete;
+        nodes_to_delete.push_back(node1->get_name());
+        editor->_delete_nodes_request(nodes_to_delete);
+
+        CHECK_EQ(tree->get_task_count(), 3);
+        CHECK_FALSE(tree->has_task(node1_task));
+        CHECK_EQ(graph_view->get_connection_list().size(), 0);
+        CHECK_EQ(graph_view->get_child_count(), initial_child_count + 3);
+        CHECK_EQ(parent_task->get_child_count(), 0);
+        CHECK_EQ(node1_task->get_child_count(), 0);
+        CHECK(node11_task->get_parent().is_null());
+        CHECK(node12_task->get_parent().is_null());
+    }
 };
 
 
@@ -249,6 +300,11 @@ TEST_SUITE("[editor]" "[plugin]" "BTGraphEditor")
     TEST_CASE_FIXTURE(BTGraphEditorFixture, "Test move nodes")
     {
         test_node_moving();
+    }
+
+    TEST_CASE_FIXTURE(BTGraphEditorFixture, "Test node deletion")
+    {
+        test_node_deletion();
     }
 }
 

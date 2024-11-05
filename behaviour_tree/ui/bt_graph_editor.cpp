@@ -23,14 +23,7 @@ BTGraphEditor::BTGraphEditor()
 
 void BTGraphEditor::delete_saved_trees()
 {
-    for (godot::KeyValue<BehaviourTree*, godot::Vector<BTGraphNode*>> key_value : this->saved_trees)
-    {
-        for (BTGraphNode* node : key_value.value)
-        {
-            ERR_CONTINUE(node == nullptr);
-            memdelete(node);
-        }
-    }
+    this->saved_trees.clear();
 }
 
 BTGraphEditor::~BTGraphEditor()
@@ -331,15 +324,10 @@ void BTGraphEditor::name_node(BTGraphNode* node)
 void BTGraphEditor::save_tree()
 {
     ERR_FAIL_NULL(this->behaviour_tree);
-
-    godot::Vector<BTGraphNode*> graph_nodes;
-    for (godot::KeyValue<godot::Ref<BTTask>, BTGraphNode*> element : this->task_to_node)
-    {
-        ERR_CONTINUE(element.key == nullptr);
-        ERR_CONTINUE(element.value == nullptr);
-        graph_nodes.push_back(element.value);
-    }
-    this->saved_trees.insert(this->behaviour_tree, graph_nodes);
+    godot::StringName behaviour_tree_save_name = "BehaviourTree_" + this->behaviour_tree->get_instance_id();
+    this->graph_view->clear_and_save_graph(behaviour_tree_save_name);
+    
+    this->saved_trees.insert(this->behaviour_tree);
 }
 
 void BTGraphEditor::load_tree()
@@ -347,29 +335,10 @@ void BTGraphEditor::load_tree()
     ERR_FAIL_COND(!(this->task_to_node.is_empty()));
     ERR_FAIL_COND(!(this->name_to_node.is_empty()));
     ERR_FAIL_NULL(this->behaviour_tree);
-    godot::Vector<BTGraphNode*> saved_nodes = this->saved_trees[this->behaviour_tree];
-    for (BTGraphNode* saved_node : saved_nodes)
-    {
-        ERR_CONTINUE(saved_node == nullptr);
-        this->insert_node(saved_node);
-        this->graph_edit->add_child(saved_node);
-        /* Should be already connected */
-        // this->connect_graph_node_signals(bt_graph_node);
-    }
-    
-    for (BTGraphNode* saved_node : saved_nodes)
-    {
-        ERR_CONTINUE(saved_node == nullptr);
-        godot::Array children = saved_node->get_task()->get_children();
-        for (int i = 0, size = children.size(); i < size; i++)
-        {
-            ERR_CONTINUE(!(this->task_to_node.has(godot::Ref<BTTask>(children[i]))));
-            BTGraphNode* child_node = this->task_to_node[godot::Ref<BTTask>(children[i])];
-            this->graph_edit->connect_node(saved_node->get_name(), 0, child_node->get_name(), 0);
-        }
-    }
-
-    this->color_root_node();
+    ERR_FAIL_COND(!(this->saved_trees.has(this->behaviour_tree)));
+    godot::StringName behaviour_tree_save_name = "BehaviourTree_" + this->behaviour_tree->get_instance_id();
+    this->graph_view->load_graph(behaviour_tree_save_name);
+    //this->color_root_node();
 }
 
 
@@ -406,6 +375,7 @@ void BTGraphEditor::delete_nodes(const godot::Vector<StringName>& task_names_to_
         godot::StringName task_to_remove_name = task_to_remove->get_name();
         godot::Array task_children = task_to_remove->get_children();
         godot::Ref<BTTask> parent = task_to_remove->get_parent();
+        BTGraphNode* node_to_delete = graph_view->get_graph_node(task_to_remove_name);
         int task_id = this->behaviour_tree->get_task_id(task_to_remove);
 
         undo_redo_manager->add_do_method(this->behaviour_tree, "set_children_of_task", task_to_remove, godot::Array());
@@ -414,35 +384,35 @@ void BTGraphEditor::delete_nodes(const godot::Vector<StringName>& task_names_to_
         undo_redo_manager->add_undo_method(this->behaviour_tree, "set_children_of_task", task_to_remove, task_children);
 
         /* add node first when undoing so connections can form*/
-        undo_redo_manager->add_undo_method(this->graph_view, "add_child", nodes_to_delete[i]);
-        undo_redo_manager->add_undo_method(this, "insert_node", nodes_to_delete[i]);
+        undo_redo_manager->add_undo_method(this->graph_view, "create_task_node", task_to_remove_name, task_to_remove->get_class_static());
+        undo_redo_manager->add_undo_method(this->graph_view, "set_node_positon", task_to_remove_name, node_to_delete->get_position_offset());
+        undo_redo_manager->add_undo_method(this->graph_view, "set_task_node_title", task_to_remove_name, task_to_remove->get_custom_name());
 
         for (int j = 0; j < task_children.size(); j++)
         {
-            /* remove_task_by_ref will remove connections in bt_tasks*/
-            undo_redo_manager->add_do_method(this->graph_view, "disconnect_node", nodes_to_delete[i]->get_name(), 0, task_to_node[task_children[j]]->get_name(), 0);
-            undo_redo_manager->add_undo_method(this->graph_view, "connect_node", nodes_to_delete[i]->get_name(), 0, task_to_node[task_children[j]]->get_name(), 0);
+            godot::Ref<BTTask> child = task_children[j];
+            undo_redo_manager->add_do_method(this->graph_view, "disconnect_task_nodes", task_to_remove->get_name(), child->get_name());
+            undo_redo_manager->add_undo_method(this->graph_view, "connect_task_nodes", task_to_remove->get_name(), child->get_name());
         }
 
         if (parent.is_valid())
         {
             int index = parent->get_child_index(task_to_remove);
             undo_redo_manager->add_undo_method(this->behaviour_tree, "connect_tasks", parent, task_to_remove, index);
-            undo_redo_manager->add_do_method(this->graph_view, "disconnect_node", task_to_node[parent]->get_name(), 0, nodes_to_delete[i]->get_name(), 0);
-            undo_redo_manager->add_undo_method(this->graph_view, "connect_node", task_to_node[parent]->get_name(), 0, nodes_to_delete[i]->get_name(), 0);
+            undo_redo_manager->add_do_method(this->graph_view, "disconnect_task_nodes", parent->get_name(), task_to_remove->get_name());
+            undo_redo_manager->add_undo_method(this->graph_view, "connect_task_nodes", parent->get_name(), task_to_remove->get_name());
         }
 
         if (this->behaviour_tree->get_root_task() == task_to_remove)
         {
             undo_redo_manager->add_undo_method(this->behaviour_tree, "set_root_task", task_to_remove);
-            undo_redo_manager->add_undo_method(this, "color_root_node");
+            //undo_redo_manager->add_undo_method(this, "color_root_node");
         }
         /* remove node last safely */
-        undo_redo_manager->add_do_method(this->graph_edit, "remove_child", nodes_to_delete[i]);
-        undo_redo_manager->add_do_method(this, "erase_node", nodes_to_delete[i]);
-        undo_redo_manager->add_do_method(this, "color_root_node");
+        undo_redo_manager->add_do_method(this->graph_view, "delete_task_node", task_to_remove->get_name());
+        //undo_redo_manager->add_do_method(this, "color_root_node");
 
-        undo_redo_manager->add_undo_method(this, "color_root_node");
+        //undo_redo_manager->add_undo_method(this, "color_root_node");
     }
 
     undo_redo_manager->commit_action();
@@ -472,10 +442,6 @@ void BTGraphEditor::clear_graph_nodes()
 
 void BTGraphEditor::create_default_graph_nodes()
 {
-    godot::Array tasks = this->behaviour_tree->get_tasks();
-    ERR_FAIL_COND(!(this->task_to_node.is_empty()));
-    ERR_FAIL_COND(!(this->name_to_node.is_empty()));
-
     for (int i = 0, size = tasks.size(); i < size; i++)
     {   
         BTGraphNode* bt_graph_node;
@@ -537,14 +503,8 @@ void BTGraphEditor::set_root_node(BTGraphNode* new_root_node)
     undo_redo_manager->commit_action();
 }
 
-void BTGraphEditor::arrange_nodes(bool with_undo_redo)
+godot::HashMap<godot::StringName, godot::Vector<godot::StringName>> get_node_map(godot::Ref<BTTask> root_task)
 {
-    if (!(this->behaviour_tree->get_root_task().is_valid()))
-    {
-        return;
-    }
-
-    godot::Ref<BTTask> root_task = this->behaviour_tree->get_root_task();
     godot::HashMap<godot::StringName, godot::Vector<godot::StringName>> parent_to_child_names;
     godot::Vector<godot::Ref<BTTask>> task_queue = {root_task};
     int task_queue_i = 0;
@@ -565,6 +525,18 @@ void BTGraphEditor::arrange_nodes(bool with_undo_redo)
             task_queue.push_back(child);
         }
     }
+    return parent_to_child_names;
+}
+
+void BTGraphEditor::arrange_nodes(bool with_undo_redo)
+{
+    if (!(this->behaviour_tree->get_root_task().is_valid()))
+    {
+        return;
+    }
+
+    godot::Ref<BTTask> root_task = this->behaviour_tree->get_root_task();
+    godot::HashMap<godot::StringName, godot::Vector<godot::StringName>> parent_to_child_names = get_node_map(root_task);
 
     if (with_undo_redo)
     {
@@ -922,7 +894,7 @@ void BTGraphEditor::_on_main_popup_menu_item_selected(int id)
     }
     else if (item == "Delete")
     {
-        this->delete_nodes({this->last_right_clicked_node});
+        this->delete_nodes({});
     }
 }
 
@@ -1296,7 +1268,6 @@ void BTGraphEditor::set_behaviour_tree(BehaviourTree* new_tree)
         this->save_tree();
     }
     this->behaviour_tree = new_tree;
-    this->clear_graph_nodes();
     if (this->saved_trees.has(new_tree))
     {
         this->load_tree();
@@ -1305,7 +1276,7 @@ void BTGraphEditor::set_behaviour_tree(BehaviourTree* new_tree)
     {
         this->create_default_graph_nodes();
     }
-    //TODO : make instance read_only if node is instanced scene.
+    //TODO!!! : make instance read_only if node is instanced scene.
 }
 
 void BTGraphEditor::_bind_methods()

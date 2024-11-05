@@ -8,6 +8,7 @@
 #include <godot_cpp/classes/line_edit.hpp>
 #include <godot_cpp/classes/popup_menu.hpp>
 #include <godot_cpp/templates/hash_map.hpp>
+#include <godot_cpp/templates/hash_set.hpp>
 
 #include "behaviour_tree/ui/bt_graph_view.hpp"
 
@@ -76,7 +77,7 @@ private:
     godot::Vector<BTGraphNode*> copied_nodes;
     godot::Vector<godot::Pair<BTGraphNode*, BTGraphNode*>> copied_connections;
 
-    godot::HashMap<BehaviourTree*, godot::Vector<BTGraphNode*>> saved_trees;
+    godot::HashSet<BehaviourTree*> saved_trees;
     void delete_saved_trees();
     
 /* TODO, make it not public? */
@@ -120,7 +121,7 @@ private:
     /* Node Management */
     void insert_node(BTGraphNode* bt_graph_node);
     void erase_node(BTGraphNode* bt_graph_node);
-    void delete_nodes(const godot::Vector<StringName>& task_names_to_delete);
+    void delete_nodes(const godot::Vector<StringName>& task_names_to_delete); /* refactored */
     void clear_graph_nodes();
     void create_default_graph_nodes();
     void set_root_node(BTGraphNode* new_root_node);
@@ -128,8 +129,8 @@ private:
     void color_root_node();
     void deselect_all_nodes();
     void name_node(BTGraphNode* node);
-    void save_tree();
-    void load_tree();
+    void save_tree(); /* refactored */
+    void load_tree(); /* refactored */
 
     /* Copy-pasta Handling */
     void copy_nodes_request();
@@ -170,7 +171,7 @@ public:
     void _on_task_type_popup_menu_item_selected(int id);
     void _on_action_condition_type_popup_menu_item_selected(int id);
     void _on_action_condition_type_popup_menu_show(const godot::StringName& action_condition);
-    void _delete_nodes_request(godot::TypedArray<godot::StringName> _nodes_to_delete);
+    void _delete_nodes_request(godot::TypedArray<godot::StringName> _nodes_to_delete); /* refactored */
 
     /* Getters and Setters */
     void set_editor_plugin(godot::EditorPlugin* editor_plugin);
