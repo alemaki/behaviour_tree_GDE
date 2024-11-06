@@ -442,43 +442,26 @@ void BTGraphEditor::clear_graph_nodes()
 
 void BTGraphEditor::create_default_graph_nodes()
 {
-    for (int i = 0, size = tasks.size(); i < size; i++)
-    {   
-        BTGraphNode* bt_graph_node;
-        if (godot::Ref<BTSubtree>(tasks[i]) != nullptr)
-        {
-            BTGraphNodeSubtree* bt_graph_node_subtree = new_bt_graph_node_subtree_from_task(godot::Ref<BTSubtree>(tasks[i]));
-            bt_graph_node = bt_graph_node_subtree;
-            
-            bt_graph_node_subtree->set_file_path(godot::Ref<BTSubtree>(tasks[i])->get_file_path());
-        }
-        else
-        {
-            bt_graph_node = new_bt_graph_node_from_task(godot::Ref<BTTask>(tasks[i]));
-            bt_graph_node->set_title(bt_graph_node->get_task()->get_custom_name());
-        }
+    godot::Array tasks_array = this->behaviour_tree->get_tasks();
 
-        int id = this->behaviour_tree->get_task_id(godot::Ref<BTTask>(tasks[i]));
-        bt_graph_node->set_name(godot::itos(id));
-
-        this->insert_node(bt_graph_node);
-
-        this->graph_edit->add_child(bt_graph_node);
-        this->connect_graph_node_signals(bt_graph_node);
-    }
-
-    for (int i = 0, size = tasks.size(); i < size; i++)
+    for (int i = 0; i < tasks_array.size(); i++)
     {
-        BTGraphNode* parent_node = this->task_to_node[godot::Ref<BTTask>(tasks[i])];
-        godot::Array children = parent_node->get_task()->get_children();
-        for (int j = 0, size = children.size(); j < size; j++)
+        this->graph_view->create_task_node(godot::Ref<BTTask>(tasks_array[i])->get_name());
+    }
+
+    this->arrange_nodes();
+    
+    for (int i = 0; i < tasks_array.size(); i++)
+    {
+        godot::Ref<BTTask> task = tasks_array[i];
+        godot::Array children = task->get_children();
+        for (int j = 0; j < children.size(); j++)
         {
-            BTGraphNode* child_node = this->task_to_node[godot::Ref<BTTask>(children[j])];
-            this->graph_edit->connect_node(parent_node->get_name(), 0, child_node->get_name(), 0);
+            godot::Ref<BTTask> child = children[j];
+            this->graph_view->connect_task_nodes(task->get_name(), child->get_name());
         }
     }
-    this->color_root_node();
-    this->arrange_nodes();
+    // this->color_root_node();
 }
 
 void BTGraphEditor::set_root_node(BTGraphNode* new_root_node)
