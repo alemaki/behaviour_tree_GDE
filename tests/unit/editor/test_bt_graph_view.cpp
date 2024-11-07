@@ -329,6 +329,19 @@ TEST_SUITE("[editor]" "BTGraphView")
         REQUIRE(index >= 0);
         CHECK((index == 3 || index == 2));
     }
+
+    TEST_CASE_FIXTURE(BTGraphViewFixture, "Deleting node removes it's connections")
+    {
+        this->create_default_graph();
+        graph_view->create_task_node("task22");
+        graph_view->connect_task_nodes("task2", "task22");
+
+        REQUIRE_EQ(graph_view->get_connection_list().size(), 12);
+
+        graph_view->delete_task_node("task2");
+
+        REQUIRE_EQ(graph_view->get_connection_list().size(), 9);
+    }
 }
 
 TEST_SUITE("[editor]" "[errors]" "BTGraphView")

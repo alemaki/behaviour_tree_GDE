@@ -28,12 +28,6 @@ void BTGraphEditor::delete_saved_trees()
 
 BTGraphEditor::~BTGraphEditor()
 {
-    if (behaviour_tree != nullptr)
-    {
-        /* Save for later deletion*/
-        this->save_tree();
-        this->clear_graph_nodes();
-    }
     this->clear_copied_nodes();
     this->delete_saved_trees();
     memdelete(this->graph_edit);
@@ -383,7 +377,7 @@ void BTGraphEditor::delete_nodes(const godot::Vector<StringName>& task_names_to_
         undo_redo_manager->add_undo_method(this->behaviour_tree, "add_task", task_id, task_to_remove);
         undo_redo_manager->add_undo_method(this->behaviour_tree, "set_children_of_task", task_to_remove, task_children);
 
-        /* add node first when undoing so connections can form*/
+        /* add node first when undoing so connections can form. No need to disconnect them later because deleting will remove connection.*/
         undo_redo_manager->add_undo_method(this->graph_view, "create_task_node", task_to_remove_name, task_to_remove->get_class_static());
         undo_redo_manager->add_undo_method(this->graph_view, "set_node_positon", task_to_remove_name, node_to_delete->get_position_offset());
         undo_redo_manager->add_undo_method(this->graph_view, "set_task_node_title", task_to_remove_name, task_to_remove->get_custom_name());
@@ -391,7 +385,6 @@ void BTGraphEditor::delete_nodes(const godot::Vector<StringName>& task_names_to_
         for (int j = 0; j < task_children.size(); j++)
         {
             godot::Ref<BTTask> child = task_children[j];
-            undo_redo_manager->add_do_method(this->graph_view, "disconnect_task_nodes", task_to_remove->get_name(), child->get_name());
             undo_redo_manager->add_undo_method(this->graph_view, "connect_task_nodes", task_to_remove->get_name(), child->get_name());
         }
 

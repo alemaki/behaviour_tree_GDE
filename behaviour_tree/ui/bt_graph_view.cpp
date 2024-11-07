@@ -108,6 +108,19 @@ void BTGraphView::delete_task_node(const godot::StringName& task_name)
     ERR_FAIL_COND_MSG(!(this->has_task_name(task_name)), "BTGraphView has no node named: " + task_name + ".");
 
     BTGraphNode* graph_node = this->task_name_to_node[task_name];
+
+    godot::TypedArray<godot::Dictionary> connection_list = this->get_connection_list();
+
+    for (int i = 0; i < connection_list.size(); i++) {
+        const godot::Dictionary& connection = connection_list[i];
+        if (
+            godot::StringName(connection["from_node"]) == graph_node->get_name() ||
+            godot::StringName(connection["to_node"]) == graph_node->get_name())
+        {
+            this->disconnect_node(connection["from_node"], connection["from_port"], connection["to_node"], connection["to_port"]);
+        }
+    }
+
     this->remove_child(graph_node);
     this->task_name_to_node.erase(task_name);
     memdelete(graph_node);
