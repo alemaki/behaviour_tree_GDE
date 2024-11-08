@@ -43,18 +43,20 @@ void BTGraphView::detach_graph_nodes()
         }
     }
     this->task_name_to_node.clear();
+    this->clear_connections();
 }
 
 bool BTGraphView::save_graph(const godot::StringName& name)
 {
     ERR_FAIL_COND_V(this->has_saved_graph(name), false);
     this->saved_graphs.insert(name, this->task_name_to_node);
+    this->saved_connection_lists.insert(name, this->get_connection_list());
     return true;
 }
 
 bool BTGraphView::_load_graph(const godot::StringName& name)
 {
-    ERR_FAIL_COND_V_MSG(!(this->has_saved_graph(name)), false, "GraphView already has tree saved with name: " + name + ".");
+    ERR_FAIL_COND_V_MSG(!(this->has_saved_graph(name)), false, "GraphView doesn't have tree saved: " + name + ".");
     ERR_FAIL_COND_V_MSG(!(this->task_name_to_node.is_empty()), false, "GraphView still has nodes that have to be removed.");
 
     this->task_name_to_node = this->saved_graphs[name];
@@ -62,6 +64,14 @@ bool BTGraphView::_load_graph(const godot::StringName& name)
     for (const godot::KeyValue<godot::StringName, BTGraphNode*> key_value : this->task_name_to_node)
     {
         this->add_child(key_value.value);
+    }
+
+    godot::TypedArray<godot::Dictionary> connections = this->saved_connection_lists[name];
+
+    for (int i = 0; i < connections.size(); i++)
+    {
+        godot::Dictionary connection = connections[i];
+        this->connect_node(connection["from_node"], connection["from_port"], connection["to_node"], connection["to_port"]);
     }
 
     return true;
@@ -260,7 +270,7 @@ void BTGraphView::arrange_nodes(
 
 bool BTGraphView::has_saved_graph(const godot::StringName& name) const
 {
-    return this->saved_graphs.has(name);
+    return this->saved_graphs.has(name) || this->saved_connection_lists.has(name);
 }
 
 void BTGraphView::clear_and_save_graph(const godot::StringName& name)
@@ -279,6 +289,7 @@ void BTGraphView::load_graph(const godot::StringName& name)
         return;
     }
     this->saved_graphs.erase(name);
+    this->saved_connection_lists.erase(name);
 }
 
 void BTGraphView::_bind_methods()

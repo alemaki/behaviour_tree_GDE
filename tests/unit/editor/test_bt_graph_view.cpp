@@ -311,22 +311,16 @@ TEST_SUITE("[editor]" "BTGraphView")
         graph_view->set_node_position("task_new", godot::Vector2(0, 125));
 
         int index = graph_view->find_insert_index_by_y("task_new", task_list);
-
-        REQUIRE(index >= 0);
         CHECK_EQ(index, 3);
 
         graph_view->set_node_position("task_new", godot::Vector2(0, 75));
 
         index = graph_view->find_insert_index_by_y("task_new", task_list);
-
-        REQUIRE(index >= 0);
         CHECK_EQ(index, 2);
 
         graph_view->set_node_position("task_new", godot::Vector2(0, 100));
 
         index = graph_view->find_insert_index_by_y("task_new", task_list);
-
-        REQUIRE(index >= 0);
         CHECK((index == 3 || index == 2));
     }
 
@@ -336,11 +330,25 @@ TEST_SUITE("[editor]" "BTGraphView")
         graph_view->create_task_node("task22");
         graph_view->connect_task_nodes("task2", "task22");
 
-        REQUIRE_EQ(graph_view->get_connection_list().size(), 12);
+        CHECK_EQ(graph_view->get_connection_list().size(), 12);
 
         graph_view->delete_task_node("task2");
 
-        REQUIRE_EQ(graph_view->get_connection_list().size(), 9);
+        CHECK_EQ(graph_view->get_connection_list().size(), 9);
+    }
+
+    TEST_CASE_FIXTURE(BTGraphViewFixture, "Graph saves and loads connections between nodes")
+    {
+        create_default_graph();
+        graph_view->clear_and_save_graph("somename");
+        CHECK_EQ(graph_view->get_connection_list().size(), 0);
+
+        graph_view->load_graph("somename");
+        CHECK_EQ(graph_view->get_connection_list().size(), 11);
+        CHECK(graph_view->is_node_connected(root->get_name(), 0, task1->get_name(), 0));
+        CHECK(graph_view->is_node_connected(task1->get_name(), 0, task11->get_name(), 0));
+        CHECK(graph_view->is_node_connected(task2->get_name(), 0, task21->get_name(), 0));
+        CHECK(graph_view->is_node_connected(task21->get_name(), 0, task211->get_name(), 0));
     }
 }
 

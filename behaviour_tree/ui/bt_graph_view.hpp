@@ -36,7 +36,7 @@ class BTGraphView : public godot::GraphEdit
 private:
     TaskNameToNode task_name_to_node;
     godot::HashMap<godot::StringName, TaskNameToNode> saved_graphs;
-
+    godot::HashMap<godot::StringName, godot::TypedArray<godot::Dictionary>> saved_connection_lists;
     void detach_graph_nodes();
     bool save_graph(const godot::StringName& name);
     bool _load_graph(const godot::StringName& name);
