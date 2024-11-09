@@ -37,6 +37,11 @@ void BTGraphNodeSubtree::set_file_path(const godot::String& path)
     memdelete(behaviour_tree);
 }
 
+void BTGraphNodeSubtree::set_default_node_color()
+{
+    this->set_self_modulate(godot::Color::named("YELLOW"));
+}
+
 void BTGraphNodeSubtree::_bind_methods()
 {
     using namespace godot;

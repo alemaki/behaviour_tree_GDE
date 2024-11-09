@@ -41,6 +41,8 @@ public:
         return this->task_class_name;
     }
 
+    virtual void set_default_node_color();
+
 protected:
     static void _bind_methods();
 };

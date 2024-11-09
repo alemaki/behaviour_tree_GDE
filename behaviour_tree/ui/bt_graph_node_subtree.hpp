@@ -26,6 +26,8 @@ public:
         return this->path;
     }
 
+    virtual void set_default_node_color() override;
+
 protected:
     static void _bind_methods();
 };

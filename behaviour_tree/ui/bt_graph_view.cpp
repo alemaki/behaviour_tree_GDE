@@ -292,6 +292,20 @@ void BTGraphView::load_graph(const godot::StringName& name)
     this->saved_connection_lists.erase(name);
 }
 
+void BTGraphView::set_root_task_name(const godot::StringName& name)
+{
+    ERR_FAIL_COND_MSG(!(this->has_task_name(name)), "BTGraphView has no node named: " + name + ".");
+    if (!(this->root_task_name.is_empty()))
+    {
+        BTGraphNode* node = this->task_name_to_node[this->root_task_name];
+        node->set_default_node_color();
+    }
+
+    BTGraphNode* new_root = this->task_name_to_node[name];
+    new_root->set_self_modulate(godot::Color::named("BLUE"));
+    this->root_task_name = name;
+}
+
 void BTGraphView::_bind_methods()
 {
     ClassDB::bind_method(D_METHOD("create_task_node", "task_name", "class_name"), &BTGraphView::create_task_node, DEFVAL(BTTask::get_class_static()));

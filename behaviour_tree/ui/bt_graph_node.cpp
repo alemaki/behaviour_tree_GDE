@@ -94,6 +94,11 @@ void BTGraphNode::_on_gui_input(const godot::Ref<godot::InputEvent>& event)
     }
 }
 
+void BTGraphNode::set_default_node_color()
+{
+    this->set_self_modulate(godot::Color::named("WHITE"));
+}
+
 void BTGraphNode::_bind_methods()
 {
     using namespace godot;

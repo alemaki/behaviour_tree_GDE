@@ -399,13 +399,12 @@ void BTGraphEditor::delete_nodes(const godot::Vector<StringName>& task_names_to_
         if (this->behaviour_tree->get_root_task() == task_to_remove)
         {
             undo_redo_manager->add_undo_method(this->behaviour_tree, "set_root_task", task_to_remove);
-            //undo_redo_manager->add_undo_method(this, "color_root_node");
         }
         /* remove node last safely */
         undo_redo_manager->add_do_method(this->graph_view, "delete_task_node", task_to_remove->get_name());
-        //undo_redo_manager->add_do_method(this, "color_root_node");
+        undo_redo_manager->add_do_method(this, "color_root_node");
 
-        //undo_redo_manager->add_undo_method(this, "color_root_node");
+        undo_redo_manager->add_undo_method(this, "color_root_node");
     }
 
     undo_redo_manager->commit_action();
@@ -454,7 +453,7 @@ void BTGraphEditor::create_default_graph_nodes()
             this->graph_view->connect_task_nodes(task->get_name(), child->get_name());
         }
     }
-    // this->color_root_node();
+    this->color_root_node();
 }
 
 void BTGraphEditor::set_root_node(BTGraphNode* new_root_node)

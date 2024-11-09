@@ -37,10 +37,12 @@ private:
     TaskNameToNode task_name_to_node;
     godot::HashMap<godot::StringName, TaskNameToNode> saved_graphs;
     godot::HashMap<godot::StringName, godot::TypedArray<godot::Dictionary>> saved_connection_lists;
+    godot::StringName root_task_name = "";
+
+
     void detach_graph_nodes();
     bool save_graph(const godot::StringName& name);
     bool _load_graph(const godot::StringName& name);
-
 
 public:
 
@@ -78,6 +80,8 @@ public:
     bool has_saved_graph(const godot::StringName& name) const;
     void clear_and_save_graph(const godot::StringName& name);
     void load_graph(const godot::StringName& name);
+
+    void set_root_task_name(const godot::StringName& name);
 
 protected:
     static void _bind_methods();
