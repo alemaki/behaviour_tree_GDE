@@ -90,6 +90,7 @@ void BTGraphView::create_subtree_task_node(const godot::StringName& task_name)
     BTGraphNodeSubtree* graph_node = memnew(BTGraphNodeSubtree);
     this->task_name_to_node[task_name] = graph_node;
     this->add_child(graph_node);
+    graph_node->set_focus_mode(godot::Control::FocusMode::FOCUS_CLICK);
     graph_node->set_task_class_name(BTSubtree::get_class_static());
 }
 

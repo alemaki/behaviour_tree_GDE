@@ -132,6 +132,12 @@ void BehaviourTree::set_custom_name_task_by_ref(godot::Ref<BTTask> task, const g
     task->set_custom_name(new_name);
 }
 
+void BehaviourTree::set_path_subtree_by_ref(godot::Ref<BTSubtree> task, const godot::String& new_path)
+{
+    ERR_FAIL_COND_MSG(!(this->has_task(task)), "Task not found.");
+    task->set_custom_name(new_name);
+}
+
 godot::Ref<BTTask> BehaviourTree::get_task_by_name(const godot::StringName& name) const
 {
     for (const godot::KeyValue<int, godot::Ref<BTTask>>& key_value : this->task_map)

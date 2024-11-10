@@ -59,8 +59,8 @@ private:
 
     godot::PopupMenu* action_condition_type_popup_menu = nullptr;
 
-    BTGraphNode* last_double_clicked_node = nullptr;
-    BTGraphNode* last_right_clicked_node = nullptr;
+    godot::StringName last_double_clicked_node = "";
+    godot::StringName last_right_clicked_node = "";
 
     godot::Vector<godot::StringName> composite_names;
     godot::Vector<godot::StringName> decorator_names;
@@ -69,7 +69,7 @@ private:
     {
         godot::Vector2 from_position;
         godot::Vector2 to_position;
-        BTGraphNode* node;
+        godot::StringName task_name;
     };
     godot::Vector<DragOperation> drag_buffer;
     bool drag_called;
@@ -108,7 +108,7 @@ private:
     void _fill_action_condition_type_popup_menu(const godot::StringName& action_condition);
 
     /* Utility Methods */
-    void connect_graph_node_signals(BTGraphNode* node);
+    void connect_graph_node_signals(const godot::StringName& task_name);
     BTGraphNode* new_graph_node();
     BTGraphNodeSubtree* new_graph_node_subtree();
     BTGraphNode* new_bt_graph_node_from_task(godot::Ref<BTTask> bt_task);
@@ -123,10 +123,10 @@ private:
     void erase_node(BTGraphNode* bt_graph_node);
     void delete_nodes(const godot::Vector<StringName>& task_names_to_delete); /* refactored */
     void clear_graph_nodes();
-    void create_default_graph_nodes();
+    void create_default_graph_nodes(); /* refactored */
     void set_root_node(BTGraphNode* new_root_node);
     void arrange_nodes(bool with_undo_redo = false);
-    void color_root_node();
+    void color_root_node(); /* refactored */
     void deselect_all_nodes();
     void name_node(BTGraphNode* node);
     void save_tree(); /* refactored */
@@ -150,7 +150,7 @@ public:
     void disconnection_request(godot::StringName _from_node, int from_port, godot::StringName _to_node, int to_port); /* refactored */
 
     /* Drag and Drop */
-    void _node_dragged(const godot::Vector2 &_from, const godot::Vector2 &_to, BTGraphNode *node); /* refactored */
+    void _node_dragged(const godot::Vector2 &_from, const godot::Vector2 &_to, const godot::StringName& task_name); /* refactored */
     void _move_nodes(); /* refactored */
 
     /* Event Handlers */
@@ -161,12 +161,12 @@ public:
     void _on_rename_edit_focus_exited();
     void _on_path_edit_text_submitted(const godot::String& new_path);
     void _on_path_edit_focus_exited();
-    void _on_node_selected(BTGraphNode* selected_node); /* refactored */
-    void _on_node_deselected(BTGraphNode* deselected_node); /* refactored */
-    void _on_node_double_clicked(BTGraphNode* clicked_node);
-    void _on_node_right_clicked(BTGraphNode* clicked_node);
-    void _on_node_subtree_double_clicked(BTGraphNodeSubtree* clicked_node);
-    void _on_node_subtree_right_clicked(BTGraphNodeSubtree* clicked_node);
+    void _on_node_selected(const godot::StringName& task_name); /* refactored */
+    void _on_node_deselected(const godot::StringName& task_name); /* refactored */
+    void _on_node_double_clicked(const godot::StringName& task_name); /* refactored */
+    void _on_node_right_clicked(const godot::StringName& task_name); /* refactored */
+    void _on_node_subtree_double_clicked(const godot::StringName& task_name); /* refactored */
+    void _on_node_subtree_right_clicked(const godot::StringName& task_name); /* refactored */
     void _on_main_popup_menu_item_selected(int id);
     void _on_task_type_popup_menu_item_selected(int id);
     void _on_action_condition_type_popup_menu_item_selected(int id);
@@ -179,7 +179,7 @@ public:
     {
         return this->graph_edit;
     }
-    void set_behaviour_tree(BehaviourTree* new_tree);
+    void set_behaviour_tree(BehaviourTree* new_tree); /* refactored */
     _FORCE_INLINE_ BehaviourTree* get_behaviour_tree() const
     {
         return this->behaviour_tree; 
