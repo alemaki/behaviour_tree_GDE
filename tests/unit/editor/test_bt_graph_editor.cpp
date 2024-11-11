@@ -203,8 +203,8 @@ struct BTGraphEditorFixture
         graph_view->set_node_position(child_task2->get_name(), godot::Vector2(0, -50));
         graph_view->set_node_position(child_task1->get_name(), godot::Vector2(0, 50));
 
-        editor->_node_dragged(godot::Vector2(0, 50), godot::Vector2(0, -50), child2);
-        editor->_node_dragged(godot::Vector2(0, 0), godot::Vector2(0, 50), child1);
+        editor->_node_dragged(godot::Vector2(0, 50), godot::Vector2(0, -50), child_task2->get_name());
+        editor->_node_dragged(godot::Vector2(0, 0), godot::Vector2(0, 50), child_task1->get_name());
 
         editor->_move_nodes();
 

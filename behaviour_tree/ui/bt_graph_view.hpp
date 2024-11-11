@@ -82,6 +82,10 @@ public:
     void load_graph(const godot::StringName& name);
 
     void set_root_task_name(const godot::StringName& name);
+    _FORCE_INLINE_ godot::StringName get_root_task_name()
+    {
+        return this->root_task_name;
+    }
 
 protected:
     static void _bind_methods();

@@ -315,4 +315,5 @@ void BTGraphView::_bind_methods()
     ClassDB::bind_method(D_METHOD("set_task_node_title", "task_name", "title"), &BTGraphView::set_task_node_title);
     ClassDB::bind_method(D_METHOD("connect_task_nodes", "parent_task_name", "child_task_name"), &BTGraphView::connect_task_nodes);
     ClassDB::bind_method(D_METHOD("disconnect_task_nodes", "parent_task_name", "child_task_name"), &BTGraphView::disconnect_task_nodes);
+    ClassDB::bind_method(D_METHOD("set_node_position", "task_name", "position"), &BTGraphView::set_node_position);
 }

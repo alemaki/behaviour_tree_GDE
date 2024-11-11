@@ -124,8 +124,8 @@ private:
     void delete_nodes(const godot::Vector<StringName>& task_names_to_delete); /* refactored */
     void clear_graph_nodes();
     void create_default_graph_nodes(); /* refactored */
-    void set_root_node(BTGraphNode* new_root_node);
-    void arrange_nodes(bool with_undo_redo = false);
+    void set_root_node(const godot::StringName& task_name); /* refactored */
+    void arrange_nodes(bool with_undo_redo = false); /* refactored */
     void color_root_node(); /* refactored */
     void deselect_all_nodes();
     void name_node(BTGraphNode* node);
@@ -139,7 +139,7 @@ private:
 
 
     /* Task Management */
-    void change_task_type(const godot::StringName& class_name, BTGraphNode* node);
+    void change_task_type(const godot::StringName& class_name, const godot::StringName& task_name); /* refactored*/
     static godot::Vector<StringName> bttask_array_to_names(godot::Array children);
     
 public:

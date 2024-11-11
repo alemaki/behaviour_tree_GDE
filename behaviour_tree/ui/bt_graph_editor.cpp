@@ -438,11 +438,12 @@ void BTGraphEditor::create_default_graph_nodes()
 
     for (int i = 0; i < tasks_array.size(); i++)
     {
-        this->graph_view->create_task_node(godot::Ref<BTTask>(tasks_array[i])->get_name());
+        godot::Ref<BTTask> task = tasks_array[i];
+        this->graph_view->create_task_node(task->get_name(), task->get_class());
     }
 
     this->arrange_nodes();
-    
+
     for (int i = 0; i < tasks_array.size(); i++)
     {
         godot::Ref<BTTask> task = tasks_array[i];
@@ -456,23 +457,27 @@ void BTGraphEditor::create_default_graph_nodes()
     this->color_root_node();
 }
 
-void BTGraphEditor::set_root_node(BTGraphNode* new_root_node)
+void BTGraphEditor::set_root_node(const godot::StringName& task_name)
 {
-    BTGraphNode* old_root_node = task_to_node[this->behaviour_tree->get_root_task()];
-    
-    if (new_root_node == old_root_node)
+    godot::Ref<BTTask> current_root = this->behaviour_tree->get_root_task();
+    ERR_FAIL_COND(current_root.is_null());
+
+    if (task_name == current_root->get_name())
     {
         return;
     }
+
+    godot::Ref<BTTask> old_root = this->behaviour_tree->get_root_task();
+    godot::Ref<BTTask> new_root = this->behaviour_tree->get_task_by_name(task_name);
 
     godot::EditorUndoRedoManager* undo_redo_manager = this->editor_plugin->get_undo_redo();
 
     undo_redo_manager->create_action("Set root node.");
 
-    undo_redo_manager->add_do_method(this->behaviour_tree, "set_root_task", new_root_node->get_task());
+    undo_redo_manager->add_do_method(this->behaviour_tree, "set_root_task", new_root);
     undo_redo_manager->add_do_method(this, "color_root_node");
 
-    undo_redo_manager->add_undo_method(this->behaviour_tree, "set_root_task", old_root_node->get_task());
+    undo_redo_manager->add_undo_method(this->behaviour_tree, "set_root_task", old_root);
     undo_redo_manager->add_undo_method(this, "color_root_node");
 
     undo_redo_manager->commit_action();
@@ -534,6 +539,10 @@ void BTGraphEditor::arrange_nodes(bool with_undo_redo)
 void BTGraphEditor::color_root_node()
 {
     godot::Ref<BTTask> root = this->behaviour_tree->get_root_task();
+    if (root.is_null())
+    {
+        return;
+    }
     graph_view->set_root_task_name(root->get_name());
 }
 
@@ -869,15 +878,15 @@ void BTGraphEditor::_on_task_type_popup_menu_item_selected(int id)
 
 void BTGraphEditor::_on_action_condition_type_popup_menu_show(const godot::StringName& action_condition)
 {
-    ERR_FAIL_COND(this->action_condition_type_popup_menu == nullptr);
-
+    ERR_FAIL_COND(this->graph_view->has_task_name(this->last_right_clicked_node));
     /* Refill every time because user might define new subclasses*/
     this->_fill_action_condition_type_popup_menu(action_condition);
+    BTGraphNode* node = this->graph_view->get_graph_node(this->last_right_clicked_node);
 
-    godot::Vector2 menu_position = last_right_clicked_node->get_global_position();
-    int current_screen = last_right_clicked_node->get_viewport()->get_window()->get_current_screen();
+    godot::Vector2 menu_position = node->get_global_position();
+    int current_screen = node->get_viewport()->get_window()->get_current_screen();
 
-    menu_position.y += last_right_clicked_node->get_size().y;
+    menu_position.y += node->get_size().y;
 
     this->action_condition_type_popup_menu->set_visible(true);
     this->action_condition_type_popup_menu->set_position(menu_position);
@@ -1172,34 +1181,33 @@ void BTGraphEditor::disconnection_request(godot::StringName _from_node, int from
 
 /* Task Management */
 
-void BTGraphEditor::change_task_type(const godot::StringName& class_name, BTGraphNode* node)
+void BTGraphEditor::change_task_type(const godot::StringName& class_name, const godot::StringName& task_name)
 {
-    if (node->get_task()->get_class() == class_name)
+    godot::Ref<BTTask> old_task = this->behaviour_tree->get_task_by_name(task_name);
+    ERR_FAIL_COND(old_task.is_null());
+
+    if (old_task->get_class() == class_name)
     {
         return;
     }
 
+    ERR_FAIL_COND(!(this->graph_view->has_task_name(task_name)));
+    BTGraphNode* node = this->graph_view->get_graph_node(task_name);
+
     godot::Ref<BTTask> new_task = godot::ClassDB::instantiate(class_name);
-    godot::Ref<BTTask> old_task = node->get_task();
     
-    ERR_FAIL_COND(new_task == nullptr);
-    ERR_FAIL_COND(old_task == nullptr);
+    ERR_FAIL_COND(new_task.is_null());
     
-    new_task->set_custom_name(node->get_task()->get_custom_name());
+    new_task->set_custom_name(old_task->get_custom_name());
     godot::EditorUndoRedoManager* undo_redo_manager = this->editor_plugin->get_undo_redo();
 
     undo_redo_manager->create_action("Change task type.");
-    undo_redo_manager->add_do_method(this->behaviour_tree, "swap_task_in", old_task, new_task);
-    /* reset node */
-    undo_redo_manager->add_do_method(this, "erase_node", node);
-    undo_redo_manager->add_do_method(node, "set_task", new_task);
-    undo_redo_manager->add_do_method(this, "insert_node", node);
 
+    undo_redo_manager->add_do_method(this->behaviour_tree, "swap_task_in", old_task, new_task);
+    undo_redo_manager->add_do_method(this->graph_view, "change_task_class_name", task_name, class_name);
+
+    undo_redo_manager->add_undo_method(this->graph_view, "change_task_class_name", task_name, old_task->get_class());
     undo_redo_manager->add_undo_method(this->behaviour_tree, "swap_task_in", new_task, old_task);
-    /* reset node */
-    undo_redo_manager->add_undo_method(this, "erase_node", node);
-    undo_redo_manager->add_undo_method(node, "set_task", old_task);
-    undo_redo_manager->add_undo_method(this, "insert_node", node);
 
     undo_redo_manager->commit_action();
 }
