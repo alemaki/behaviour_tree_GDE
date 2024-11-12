@@ -270,6 +270,64 @@ struct BTGraphEditorFixture
 };
 
 
+struct BTGraphEditorReadyTreeFixture : public BTGraphEditorFixture
+{
+
+    BTGraphEditorReadyTreeFixture()
+    {
+        REQUIRE_NE(editor_plugin, nullptr);
+        this->undo_redo_manager = editor_plugin->get_undo_redo();
+        REQUIRE_NE(undo_redo_manager, nullptr);
+        this->editor = memnew(BTGraphEditor);
+        this->editor->set_editor_plugin(editor_plugin); /* Need it for the undo redo manager */
+        create_default_graph();
+        this->editor->set_behaviour_tree(tree);
+        this->graph_view = this->editor->get_graph_view();
+        REQUIRE_NE(this->graph_view, nullptr);
+        this->initial_child_count = this->graph_view->get_child_count();
+    }
+
+    ~BTGraphEditorReadyTreeFixture()
+    {
+        godot::UndoRedo* undo_redo = undo_redo_manager->get_history_undo_redo(undo_redo_manager->get_object_history_id(this->tree));
+        undo_redo->clear_history(false);
+
+        undo_redo = undo_redo_manager->get_history_undo_redo(undo_redo_manager->get_object_history_id(this->graph_view));
+        undo_redo->clear_history(false);
+
+        undo_redo = undo_redo_manager->get_history_undo_redo(godot::EditorUndoRedoManager::SpecialHistory::GLOBAL_HISTORY);
+        undo_redo->clear_history(false);
+
+        this->tree->queue_free();
+        this->editor->queue_free();
+    }
+
+    void create_default_graph()
+    {
+        this->tree = memnew(BehaviourTree);
+        godot::Ref<BTTask> root;
+        godot::Ref<BTTask> child1;
+        godot::Ref<BTTask> child2;
+        godot::Ref<BTTask> child11;
+        godot::Ref<BTTask> child12;
+        godot::Ref<BTTask> child21;
+        godot::Ref<BTTask> child22;
+        this->tree->add_task_by_ref(root);
+        this->tree->add_task_by_ref(child1);
+        this->tree->add_task_by_ref(child2);
+        this->tree->add_task_by_ref(child11);
+        this->tree->add_task_by_ref(child12);
+        this->tree->add_task_by_ref(child21);
+        this->tree->add_task_by_ref(child22);
+        this->tree->connect_tasks(root, child1);
+        this->tree->connect_tasks(root, child2);
+        this->tree->connect_tasks(child1, child11);
+        this->tree->connect_tasks(child1, child12);
+        this->tree->connect_tasks(child2, child21);
+        this->tree->connect_tasks(child2, child22);
+    }
+};
+
 TEST_SUITE("[editor]" "[plugin]" "BTGraphEditor")
 {
     TEST_CASE_FIXTURE(BTGraphEditorFixture, "Graph editor basic")
@@ -306,6 +364,47 @@ TEST_SUITE("[editor]" "[plugin]" "BTGraphEditor")
     {
         test_node_deletion();
     }
+
+    TEST_CASE_FIXTURE(BTGraphEditorReadyTreeFixture, "Default graph creation creates valid nodes and connections")
+    {
+        REQUIRE_EQ(graph_view->get_child_count(), initial_child_count + this->tree->get_task_count());
+        godot::Array tasks = this->tree->get_tasks();
+        for (int i = 0; i < tasks.size(); i++)
+        {
+            godot::Ref<BTTask> task = tasks[i];
+            BTGraphNode* node = this->graph_view->get_graph_node(task->get_name());
+            REQUIRE_NE(node, nullptr);
+        }
+     
+        REQUIRE_EQ(graph_view->get_connection_list().size(), 6);
+        CHECK(graph_view->is_node_connected("root", 0, "child1", 0));
+        CHECK(graph_view->is_node_connected("root", 0, "child2", 0));
+        CHECK(graph_view->is_node_connected("child1", 0, "child11", 0));
+        CHECK(graph_view->is_node_connected("child1", 0, "child12", 0));
+        CHECK(graph_view->is_node_connected("child2", 0, "child21", 0));
+        CHECK(graph_view->is_node_connected("child2", 0, "child22", 0));
+    }
+    
+    TEST_CASE_FIXTURE(BTGraphEditorReadyTreeFixture, "Default graph arranges the nodes properly")
+    {
+        godot::Ref<BTGraphSortAlgorithm> graph_sort_algorithm = memnew(BTGraphSortAlgorithm);
+        godot::HashMap<godot::StringName, godot::Vector<godot::StringName>> parent_to_children_names;
+        parent_to_children_names["root"] = {"child1", "child2"};
+        parent_to_children_names["child1"] = {"child11", "child12"};
+        parent_to_children_names["child2"] = {"child21", "child22"};
+        godot::HashMap<BTGraphNode*, godot::Vector<BTGraphNode*>> parent_to_children = graph_view->get_node_tree_map(parent_to_children_names);
+    
+        graph_sort_algorithm->set_root_node(get_graph_node(0));
+        graph_sort_algorithm->set_parent_to_children(parent_to_children);
+    
+        godot::HashMap<BTGraphNode*, godot::Vector2> result = graph_sort_algorithm->get_arranged_nodes_position();
+    
+        for (const auto& key_value : result)
+        {
+            CHECK_VECTORS_EQ(key_value.key->get_position_offset(), key_value.value);
+        }
+    }
+    
 }
 
 TEST_SUITE("[editor]" "[plugin]" "[undo_redo]" "BTGraphEditor")
