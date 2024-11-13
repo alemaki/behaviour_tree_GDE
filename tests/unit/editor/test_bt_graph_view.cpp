@@ -337,11 +337,17 @@ TEST_SUITE("[editor]" "BTGraphView")
         CHECK_EQ(graph_view->get_connection_list().size(), 9);
     }
 
-    TEST_CASE_FIXTURE(BTGraphViewFixture, "Graph saves and loads connections between nodes")
+    TEST_CASE_FIXTURE(BTGraphViewFixture, "Saves and removes connections")
     {
         create_default_graph();
         graph_view->clear_and_save_graph("somename");
         CHECK_EQ(graph_view->get_connection_list().size(), 0);
+    }
+
+    TEST_CASE_FIXTURE(BTGraphViewFixture, "Loads connections between nodes")
+    {
+        create_default_graph();
+        graph_view->clear_and_save_graph("somename");
 
         graph_view->load_graph("somename");
         CHECK_EQ(graph_view->get_connection_list().size(), 11);
@@ -349,6 +355,38 @@ TEST_SUITE("[editor]" "BTGraphView")
         CHECK(graph_view->is_node_connected(task1->get_name(), 0, task11->get_name(), 0));
         CHECK(graph_view->is_node_connected(task2->get_name(), 0, task21->get_name(), 0));
         CHECK(graph_view->is_node_connected(task21->get_name(), 0, task211->get_name(), 0));
+    }
+
+    TEST_CASE_FIXTURE(BTGraphViewFixture, "Can save again after one reload")
+    {
+        create_default_graph();
+        graph_view->clear_and_save_graph("somename");
+        graph_view->load_graph("somename");
+        graph_view->clear_and_save_graph("somename");
+        CHECK_EQ(graph_view->get_connection_list().size(), 0);
+        CHECK_EQ(graph_view->get_child_count(), initial_child_count);
+    }
+
+    TEST_CASE_FIXTURE(BTGraphViewFixture, "Set root colors the root")
+    {
+        create_default_graph();
+        graph_view->set_root_task_name("root");
+        CHECK_EQ(graph_view->get_root_task_name(), "root");
+        CHECK_EQ(root->get_self_modulate(), godot::Color::named("BLUE"));
+
+        graph_view->set_root_task_name("child1");
+        CHECK_EQ(graph_view->get_root_task_name(), "child1");
+        CHECK_EQ(task1->get_self_modulate(), godot::Color::named("BLUE"));
+    }
+
+    TEST_CASE_FIXTURE(BTGraphViewFixture, "Removes color from old root")
+    {
+        create_default_graph();
+        graph_view->set_root_task_name("root");
+        graph_view->set_root_task_name("child1");
+        CHECK_EQ(root->get_self_modulate(), godot::Color::named("WHITE"));
+        graph_view->set_root_task_name("child2");
+        CHECK_EQ(task1->get_self_modulate(), godot::Color::named("WHITE"));
     }
 }
 
