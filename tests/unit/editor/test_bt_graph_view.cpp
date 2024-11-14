@@ -371,11 +371,11 @@ TEST_SUITE("[editor]" "BTGraphView")
     {
         create_default_graph();
         graph_view->set_root_task_name("root");
-        CHECK_EQ(graph_view->get_root_task_name(), "root");
+        CHECK_EQ(graph_view->get_root_task_name(), godot::StringName("root"));
         CHECK_EQ(root->get_self_modulate(), godot::Color::named("BLUE"));
 
-        graph_view->set_root_task_name("child1");
-        CHECK_EQ(graph_view->get_root_task_name(), "child1");
+        graph_view->set_root_task_name("task1");
+        CHECK_EQ(graph_view->get_root_task_name(), godot::StringName("task1"));
         CHECK_EQ(task1->get_self_modulate(), godot::Color::named("BLUE"));
     }
 
@@ -383,9 +383,9 @@ TEST_SUITE("[editor]" "BTGraphView")
     {
         create_default_graph();
         graph_view->set_root_task_name("root");
-        graph_view->set_root_task_name("child1");
+        graph_view->set_root_task_name("task1");
         CHECK_EQ(root->get_self_modulate(), godot::Color::named("WHITE"));
-        graph_view->set_root_task_name("child2");
+        graph_view->set_root_task_name("task2");
         CHECK_EQ(task1->get_self_modulate(), godot::Color::named("WHITE"));
     }
 }

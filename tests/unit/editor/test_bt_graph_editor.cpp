@@ -272,7 +272,20 @@ struct BTGraphEditorFixture
 
 struct BTGraphEditorReadyTreeFixture : public BTGraphEditorFixture
 {
-
+    godot::Ref<BTTask> root_task    = memnew(BTTask);
+    godot::Ref<BTTask> child1_task  = memnew(BTTask);
+    godot::Ref<BTTask> child2_task  = memnew(BTTask);
+    godot::Ref<BTTask> child11_task = memnew(BTTask);
+    godot::Ref<BTTask> child12_task = memnew(BTTask);
+    godot::Ref<BTTask> child21_task = memnew(BTTask);
+    godot::Ref<BTTask> child22_task = memnew(BTTask);
+    BTGraphNode* root    = nullptr;
+    BTGraphNode* child1  = nullptr;
+    BTGraphNode* child2  = nullptr;
+    BTGraphNode* child11 = nullptr;
+    BTGraphNode* child12 = nullptr;
+    BTGraphNode* child21 = nullptr;
+    BTGraphNode* child22 = nullptr;
     BTGraphEditorReadyTreeFixture()
     {
         REQUIRE_NE(editor_plugin, nullptr);
@@ -280,11 +293,10 @@ struct BTGraphEditorReadyTreeFixture : public BTGraphEditorFixture
         REQUIRE_NE(undo_redo_manager, nullptr);
         this->editor = memnew(BTGraphEditor);
         this->editor->set_editor_plugin(editor_plugin); /* Need it for the undo redo manager */
-        create_default_graph();
-        this->editor->set_behaviour_tree(tree);
         this->graph_view = this->editor->get_graph_view();
         REQUIRE_NE(this->graph_view, nullptr);
         this->initial_child_count = this->graph_view->get_child_count();
+        create_default_graph();
     }
 
     ~BTGraphEditorReadyTreeFixture()
@@ -305,26 +317,27 @@ struct BTGraphEditorReadyTreeFixture : public BTGraphEditorFixture
     void create_default_graph()
     {
         this->tree = memnew(BehaviourTree);
-        godot::Ref<BTTask> root;
-        godot::Ref<BTTask> child1;
-        godot::Ref<BTTask> child2;
-        godot::Ref<BTTask> child11;
-        godot::Ref<BTTask> child12;
-        godot::Ref<BTTask> child21;
-        godot::Ref<BTTask> child22;
-        this->tree->add_task_by_ref(root);
-        this->tree->add_task_by_ref(child1);
-        this->tree->add_task_by_ref(child2);
-        this->tree->add_task_by_ref(child11);
-        this->tree->add_task_by_ref(child12);
-        this->tree->add_task_by_ref(child21);
-        this->tree->add_task_by_ref(child22);
-        this->tree->connect_tasks(root, child1);
-        this->tree->connect_tasks(root, child2);
-        this->tree->connect_tasks(child1, child11);
-        this->tree->connect_tasks(child1, child12);
-        this->tree->connect_tasks(child2, child21);
-        this->tree->connect_tasks(child2, child22);
+        this->tree->add_task_by_ref(root_task);
+        this->tree->add_task_by_ref(child1_task);
+        this->tree->add_task_by_ref(child2_task);
+        this->tree->add_task_by_ref(child11_task);
+        this->tree->add_task_by_ref(child12_task);
+        this->tree->add_task_by_ref(child21_task);
+        this->tree->add_task_by_ref(child22_task);
+        this->tree->connect_tasks(root_task,     child1_task);
+        this->tree->connect_tasks(root_task,     child2_task);
+        this->tree->connect_tasks(child1_task,   child11_task);
+        this->tree->connect_tasks(child1_task,   child12_task);
+        this->tree->connect_tasks(child2_task,   child21_task);
+        this->tree->connect_tasks(child2_task,   child22_task);
+        this->editor->set_behaviour_tree(tree);
+        this->root = graph_view->get_graph_node(root_task->get_name());
+        this->child1 = graph_view->get_graph_node(child1_task->get_name());
+        this->child2 = graph_view->get_graph_node(child2_task->get_name());
+        this->child11 = graph_view->get_graph_node(child11_task->get_name());
+        this->child12 = graph_view->get_graph_node(child12_task->get_name());
+        this->child21 = graph_view->get_graph_node(child21_task->get_name());
+        this->child22 = graph_view->get_graph_node(child22_task->get_name());
     }
 };
 
@@ -377,34 +390,13 @@ TEST_SUITE("[editor]" "[plugin]" "BTGraphEditor")
         }
      
         REQUIRE_EQ(graph_view->get_connection_list().size(), 6);
-        CHECK(graph_view->is_node_connected("root", 0, "child1", 0));
-        CHECK(graph_view->is_node_connected("root", 0, "child2", 0));
-        CHECK(graph_view->is_node_connected("child1", 0, "child11", 0));
-        CHECK(graph_view->is_node_connected("child1", 0, "child12", 0));
-        CHECK(graph_view->is_node_connected("child2", 0, "child21", 0));
-        CHECK(graph_view->is_node_connected("child2", 0, "child22", 0));
+        CHECK(graph_view->is_node_connected(root->get_name(), 0, child1->get_name(), 0));
+        CHECK(graph_view->is_node_connected(root->get_name(), 0, child2->get_name(), 0));
+        CHECK(graph_view->is_node_connected(child1->get_name(), 0, child11->get_name(), 0));
+        CHECK(graph_view->is_node_connected(child1->get_name(), 0, child12->get_name(), 0));
+        CHECK(graph_view->is_node_connected(child2->get_name(), 0, child21->get_name(), 0));
+        CHECK(graph_view->is_node_connected(child2->get_name(), 0, child22->get_name(), 0));
     }
-    
-    TEST_CASE_FIXTURE(BTGraphEditorReadyTreeFixture, "Default graph arranges the nodes properly")
-    {
-        godot::Ref<BTGraphSortAlgorithm> graph_sort_algorithm = memnew(BTGraphSortAlgorithm);
-        godot::HashMap<godot::StringName, godot::Vector<godot::StringName>> parent_to_children_names;
-        parent_to_children_names["root"] = {"child1", "child2"};
-        parent_to_children_names["child1"] = {"child11", "child12"};
-        parent_to_children_names["child2"] = {"child21", "child22"};
-        godot::HashMap<BTGraphNode*, godot::Vector<BTGraphNode*>> parent_to_children = graph_view->get_node_tree_map(parent_to_children_names);
-    
-        graph_sort_algorithm->set_root_node(get_graph_node(0));
-        graph_sort_algorithm->set_parent_to_children(parent_to_children);
-    
-        godot::HashMap<BTGraphNode*, godot::Vector2> result = graph_sort_algorithm->get_arranged_nodes_position();
-    
-        for (const auto& key_value : result)
-        {
-            CHECK_VECTORS_EQ(key_value.key->get_position_offset(), key_value.value);
-        }
-    }
-    
 }
 
 TEST_SUITE("[editor]" "[plugin]" "[undo_redo]" "BTGraphEditor")

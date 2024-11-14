@@ -504,6 +504,7 @@ godot::HashMap<godot::StringName, godot::Vector<godot::StringName>> get_node_map
             parent_to_child_names[task->get_name()].push_back(child->get_name());
             task_queue.push_back(child);
         }
+        task_queue_i++;
     }
     return parent_to_child_names;
 }
@@ -871,7 +872,7 @@ void BTGraphEditor::_on_task_type_popup_menu_item_selected(int id)
     }
     else
     {
-        this->change_task_type(item_text, this->last_right_clicked_node);
+        this->_change_task_type(item_text, this->last_right_clicked_node);
     }
 }
 
@@ -897,7 +898,7 @@ void BTGraphEditor::_on_action_condition_type_popup_menu_show(const godot::Strin
 void BTGraphEditor::_on_action_condition_type_popup_menu_item_selected(int id)
 {
     godot::StringName item = this->action_condition_type_popup_menu->get_item_text(id);
-    this->change_task_type(item, this->last_right_clicked_node);
+    this->_change_task_type(item, this->last_right_clicked_node);
 }
 
 void BTGraphEditor::_delete_nodes_request(godot::TypedArray<godot::StringName> _node_names_to_delete)
@@ -1181,7 +1182,7 @@ void BTGraphEditor::disconnection_request(godot::StringName _from_node, int from
 
 /* Task Management */
 
-void BTGraphEditor::change_task_type(const godot::StringName& class_name, const godot::StringName& task_name)
+void BTGraphEditor::_change_task_type(const godot::StringName& class_name, const godot::StringName& task_name)
 {
     godot::Ref<BTTask> old_task = this->behaviour_tree->get_task_by_name(task_name);
     ERR_FAIL_COND(old_task.is_null());
@@ -1316,7 +1317,7 @@ void BTGraphEditor::_bind_methods()
     ClassDB::bind_method(D_METHOD("disconnection_request", "from_node", "from_port", "to_node", "to_port"), &BTGraphEditor::disconnection_request);
 
     // Task Management
-    ClassDB::bind_method(D_METHOD("change_task_type", "class_name", "node"), &BTGraphEditor::change_task_type);
+    ClassDB::bind_method(D_METHOD("_change_task_type", "class_name", "node"), &BTGraphEditor::_change_task_type);
 
     // Getters and Setters
     ClassDB::bind_method(D_METHOD("set_editor_plugin", "editor_plugin"), &BTGraphEditor::set_editor_plugin);

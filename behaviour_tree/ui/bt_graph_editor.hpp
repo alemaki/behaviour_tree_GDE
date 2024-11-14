@@ -137,9 +137,6 @@ private:
     void paste_nodes_request();
     void clear_copied_nodes();
 
-
-    /* Task Management */
-    void change_task_type(const godot::StringName& class_name, const godot::StringName& task_name); /* refactored*/
     static godot::Vector<StringName> bttask_array_to_names(godot::Array children);
     
 public:
@@ -172,6 +169,7 @@ public:
     void _on_action_condition_type_popup_menu_item_selected(int id);
     void _on_action_condition_type_popup_menu_show(const godot::StringName& action_condition);
     void _delete_nodes_request(godot::TypedArray<godot::StringName> _nodes_to_delete); /* refactored */
+    void _change_task_type(const godot::StringName& class_name, const godot::StringName& task_name); /* refactored*/
 
     /* Getters and Setters */
     void set_editor_plugin(godot::EditorPlugin* editor_plugin);
