@@ -325,11 +325,11 @@ struct BTGraphEditorReadyTreeFixture : public BTGraphEditorFixture
         this->tree->add_task_by_ref(child21_task);
         this->tree->add_task_by_ref(child22_task);
         this->tree->connect_tasks(root_task,     child1_task);
-        this->tree->connect_tasks(root_task,     child2_task);
+        this->tree->connect_tasks(root_task,     child2_task, 1);
         this->tree->connect_tasks(child1_task,   child11_task);
-        this->tree->connect_tasks(child1_task,   child12_task);
+        this->tree->connect_tasks(child1_task,   child12_task, 1);
         this->tree->connect_tasks(child2_task,   child21_task);
-        this->tree->connect_tasks(child2_task,   child22_task);
+        this->tree->connect_tasks(child2_task,   child22_task, 1);
         this->editor->set_behaviour_tree(tree);
         this->root = graph_view->get_graph_node(root_task->get_name());
         this->child1 = graph_view->get_graph_node(child1_task->get_name());
@@ -397,6 +397,64 @@ TEST_SUITE("[editor]" "[plugin]" "BTGraphEditor")
         CHECK(graph_view->is_node_connected(child2->get_name(), 0, child21->get_name(), 0));
         CHECK(graph_view->is_node_connected(child2->get_name(), 0, child22->get_name(), 0));
     }
+    
+    TEST_CASE_FIXTURE(BTGraphEditorReadyTreeFixture, "Default graph arranges the nodes properly")
+    {
+        godot::Ref<BTGraphSortAlgorithm> graph_sort_algorithm = memnew(BTGraphSortAlgorithm);
+        godot::HashMap<godot::StringName, godot::Vector<godot::StringName>> parent_to_children_names;
+        parent_to_children_names[root_task->get_name()] = {child1_task->get_name(), child2_task->get_name()};
+        parent_to_children_names[child1_task->get_name()] = {child11_task->get_name(), child12_task->get_name()};
+        parent_to_children_names[child2_task->get_name()] = {child21_task->get_name(), child22_task->get_name()};
+        godot::HashMap<BTGraphNode*, godot::Vector<BTGraphNode*>> parent_to_children = graph_view->get_node_tree_map(parent_to_children_names);
+        
+        graph_sort_algorithm->set_root_node(this->graph_view->get_graph_node(root_task->get_name()));
+        graph_sort_algorithm->set_parent_to_children(parent_to_children);
+    
+        godot::HashMap<BTGraphNode*, godot::Vector2> result = graph_sort_algorithm->get_arranged_nodes_position();
+    
+        for (const auto& key_value : result)
+        {
+            CHECK_VECTORS_EQ(key_value.key->get_position_offset(), key_value.value);
+        }
+    }
+
+    TEST_CASE_FIXTURE(BTGraphEditorReadyTreeFixture, "Task change name")
+    {
+        editor->_on_node_double_clicked(root_task->get_name());
+        editor->_on_rename_edit_text_submitted("root3K");
+        BTGraphNode* root = graph_view->get_graph_node(root_task->get_name());
+        CHECK_EQ(root_task->get_custom_name(), "root3K");
+        godot::UtilityFunctions::print(root->get_title());
+        CHECK_EQ(root->get_title(), "root3K");
+    }
+
+    TEST_CASE_FIXTURE(BTGraphEditorReadyTreeFixture, "Task change class")
+    {
+        editor->_change_task_type("BTCondition", "root");
+
+        BTGraphNode* root = graph_view->get_graph_node(root_task->get_name());
+        godot::Ref<BTTask> new_task = tree->get_root_task();
+
+        CHECK_EQ(new_task->get_class(), "BTCondition");
+        CHECK_EQ(root->get_task_class_name(), godot::StringName("BTCondition"));
+    }
+
+    TEST_CASE_FIXTURE(BTGraphEditorReadyTreeFixture, "Task changing class doesn't change parents and children")
+    {
+        editor->_change_task_type("BTCondition", "child1");
+
+        BTGraphNode* root = graph_view->get_graph_node(root_task->get_name());
+        godot::Ref<BTTask> new_task = tree->get_root_task();
+        REQUIRE_EQ(new_task->get_child_count(), 2);
+        REQUIRE(graph_view->has_task_name(new_task->get_name()));
+        REQUIRE_NE(graph_view->get_graph_node(new_task->get_name()), nullptr);
+        CHECK_EQ(new_task->get_child(0), child11_task);
+        CHECK_EQ(new_task->get_child(1), child12_task);
+        CHECK_EQ(new_task->get_parent(), root_task);
+        CHECK_EQ(new_task->get_class(), "BTCondition");
+        CHECK_EQ(root->get_task_class_name(), godot::StringName("BTCondition"));
+    }
+    
 }
 
 TEST_SUITE("[editor]" "[plugin]" "[undo_redo]" "BTGraphEditor")
