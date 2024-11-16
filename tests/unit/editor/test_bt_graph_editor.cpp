@@ -424,35 +424,41 @@ TEST_SUITE("[editor]" "[plugin]" "BTGraphEditor")
         editor->_on_rename_edit_text_submitted("root3K");
         BTGraphNode* root = graph_view->get_graph_node(root_task->get_name());
         CHECK_EQ(root_task->get_custom_name(), "root3K");
-        godot::UtilityFunctions::print(root->get_title());
         CHECK_EQ(root->get_title(), "root3K");
     }
 
     TEST_CASE_FIXTURE(BTGraphEditorReadyTreeFixture, "Task change class")
     {
-        editor->_change_task_type("BTCondition", "root");
+        editor->_change_task_type("BTCondition", root_task->get_name());
 
-        BTGraphNode* root = graph_view->get_graph_node(root_task->get_name());
         godot::Ref<BTTask> new_task = tree->get_root_task();
+        REQUIRE_FALSE(graph_view->has_task_name(root_task->get_name()));
+        REQUIRE(graph_view->has_task_name(new_task->get_name()));
+
+        BTGraphNode* root = graph_view->get_graph_node(new_task->get_name());
 
         CHECK_EQ(new_task->get_class(), "BTCondition");
         CHECK_EQ(root->get_task_class_name(), godot::StringName("BTCondition"));
+        CHECK_EQ(graph_view->get_task_name(root->get_name()), new_task->get_name());
     }
 
     TEST_CASE_FIXTURE(BTGraphEditorReadyTreeFixture, "Task changing class doesn't change parents and children")
     {
-        editor->_change_task_type("BTCondition", "child1");
+        editor->_change_task_type("BTCondition", child1_task->get_name());
 
-        BTGraphNode* root = graph_view->get_graph_node(root_task->get_name());
-        godot::Ref<BTTask> new_task = tree->get_root_task();
+        godot::Ref<BTTask> new_task = tree->get_root_task()->get_child(0);
+        REQUIRE_FALSE(graph_view->has_task_name(child1_task->get_name()));
+        REQUIRE(graph_view->has_task_name(new_task->get_name()));
+
+        BTGraphNode* root = graph_view->get_graph_node(new_task->get_name());
+
         REQUIRE_EQ(new_task->get_child_count(), 2);
         REQUIRE(graph_view->has_task_name(new_task->get_name()));
-        REQUIRE_NE(graph_view->get_graph_node(new_task->get_name()), nullptr);
         CHECK_EQ(new_task->get_child(0), child11_task);
         CHECK_EQ(new_task->get_child(1), child12_task);
         CHECK_EQ(new_task->get_parent(), root_task);
         CHECK_EQ(new_task->get_class(), "BTCondition");
-        CHECK_EQ(root->get_task_class_name(), godot::StringName("BTCondition"));
+        CHECK_EQ(child1->get_task_class_name(), godot::StringName("BTCondition"));
     }
     
 }

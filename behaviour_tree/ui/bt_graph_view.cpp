@@ -16,9 +16,9 @@ BTGraphView::BTGraphView()
 
 BTGraphView::~BTGraphView()
 {
-    for (const godot::KeyValue<StringName, TaskNameToNode> key_value : this->saved_graphs)
+    for (const godot::KeyValue<StringName, TaskNameToNode>& key_value : this->saved_graphs)
     {
-        for (const godot::KeyValue<StringName, BTGraphNode*> name_node : key_value.value)
+        for (const godot::KeyValue<StringName, BTGraphNode*>& name_node : key_value.value)
         {
             memdelete(name_node.value);
         }
@@ -155,6 +155,14 @@ godot::StringName BTGraphView::get_task_name(const godot::StringName& graph_node
         }
     }
     ERR_FAIL_V_MSG("", "Cannot find graph node name: " + graph_node_name);
+}
+
+void BTGraphView::change_task_name(const godot::StringName& old_task_name, const godot::StringName& new_task_name)
+{
+    ERR_FAIL_COND_MSG(!(this->has_task_name(old_task_name)), "BTGraphView has no task_name named: " + old_task_name + ".");
+    BTGraphNode* node = this->task_name_to_node[old_task_name];
+    this->task_name_to_node.erase(old_task_name);
+    this->task_name_to_node.insert(new_task_name, node);
 }
 
 void BTGraphView::connect_task_nodes(const godot::StringName& parent_task_name, const godot::StringName& child_task_name)
@@ -316,4 +324,6 @@ void BTGraphView::_bind_methods()
     ClassDB::bind_method(D_METHOD("connect_task_nodes", "parent_task_name", "child_task_name"), &BTGraphView::connect_task_nodes);
     ClassDB::bind_method(D_METHOD("disconnect_task_nodes", "parent_task_name", "child_task_name"), &BTGraphView::disconnect_task_nodes);
     ClassDB::bind_method(D_METHOD("set_node_position", "task_name", "position"), &BTGraphView::set_node_position);
+    ClassDB::bind_method(D_METHOD("change_task_class_name", "task_name", "class_name"), &BTGraphView::change_task_class_name);
+    ClassDB::bind_method(D_METHOD("change_task_name", "old_task_name", "new_task_name"), &BTGraphView::change_task_name);
 }

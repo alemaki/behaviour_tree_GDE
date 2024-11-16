@@ -46,11 +46,7 @@ class BTGraphEditor : public godot::Node
 private:
     BTGraphView* graph_view = nullptr;
     godot::EditorPlugin* editor_plugin = nullptr;
-    godot::GraphEdit* graph_edit = nullptr;
     BehaviourTree* behaviour_tree = nullptr;
-
-    godot::HashMap<godot::StringName, BTGraphNode*> name_to_node;
-    godot::HashMap<godot::Ref<BTTask>, BTGraphNode*> task_to_node;
 
     godot::LineEdit* rename_edit = nullptr;
     godot::LineEdit* path_edit = nullptr;
@@ -74,25 +70,7 @@ private:
     godot::Vector<DragOperation> drag_buffer;
     bool drag_called;
 
-    godot::Vector<BTGraphNode*> copied_nodes;
-    godot::Vector<godot::Pair<BTGraphNode*, BTGraphNode*>> copied_connections;
-
     godot::HashSet<BehaviourTree*> saved_trees;
-    void delete_saved_trees();
-    
-/* TODO, make it not public? */
-public:
-    struct TreeArrangeUtils
-    {
-        godot::HashMap<BTGraphNode*, BTGraphNode*> left_neighbour;
-        godot::HashMap<BTGraphNode*, BTGraphNode*> right_neighbour;
-        godot::HashMap<BTGraphNode*, int> prelim;
-        godot::HashMap<BTGraphNode*, int> modifier;
-        int sibling_separation = 20;
-        int subtree_separation = 50;
-        int level_separation = 220;
-    };
-
 
 public:
     BTGraphEditor();
@@ -100,7 +78,7 @@ public:
 
 private:
     /* Setup Methods */
-    void _setup_graph_edit();
+    void _setup_graph_view();
     void _setup_task_names();
     void _setup_rename_edit();
     void _setup_path_edit();
@@ -109,40 +87,26 @@ private:
 
     /* Utility Methods */
     void connect_graph_node_signals(const godot::StringName& task_name);
-    BTGraphNode* new_graph_node();
-    BTGraphNodeSubtree* new_graph_node_subtree();
-    BTGraphNode* new_bt_graph_node_from_task(godot::Ref<BTTask> bt_task);
-    BTGraphNodeSubtree* new_bt_graph_node_subtree_from_task(godot::Ref<BTSubtree> bt_subtree);
-    godot::Array get_graph_nodes();
-    godot::Array get_sorted_by_y_children_of_parent(BTGraphNode* parent_graph_node);
-    int get_node_insert_index_by_y_in_children(BTGraphNode* parent_graph_node, BTGraphNode* graph_node);
-    void _extract_node_levels_into_stack(BTGraphNode* root_node, godot::Vector<godot::Pair<BTGraphNode*, int>>& stack, int current_level = 0);
 
     /* Node Management */
-    void insert_node(BTGraphNode* bt_graph_node);
-    void erase_node(BTGraphNode* bt_graph_node);
     void delete_nodes(const godot::Vector<StringName>& task_names_to_delete); /* refactored */
-    void clear_graph_nodes();
     void create_default_graph_nodes(); /* refactored */
     void set_root_node(const godot::StringName& task_name); /* refactored */
     void arrange_nodes(bool with_undo_redo = false); /* refactored */
     void color_root_node(); /* refactored */
-    void deselect_all_nodes();
-    void name_node(BTGraphNode* node);
+    //void deselect_all_nodes();
     void save_tree(); /* refactored */
     void load_tree(); /* refactored */
 
     /* Copy-pasta Handling */
-    void copy_nodes_request();
-    void paste_nodes_request();
-    void clear_copied_nodes();
+    // void copy_nodes_request();
+    // void paste_nodes_request();
+    // void clear_copied_nodes();
 
     static godot::Vector<StringName> bttask_array_to_names(godot::Array children);
     
 public:
     /* Connection Handling */
-    void _connect_nodes(BTGraphNode* parent, BTGraphNode* child);
-    void _disconnect_nodes(BTGraphNode* parent, BTGraphNode* child);
     void connection_request(godot::StringName _from_node, int from_port, godot::StringName _to_node, int to_port); /* refactored */
     void disconnection_request(godot::StringName _from_node, int from_port, godot::StringName _to_node, int to_port); /* refactored */
 
@@ -173,10 +137,6 @@ public:
 
     /* Getters and Setters */
     void set_editor_plugin(godot::EditorPlugin* editor_plugin);
-    _FORCE_INLINE_ godot::GraphEdit* get_graph_edit() const
-    {
-        return this->graph_edit;
-    }
     void set_behaviour_tree(BehaviourTree* new_tree); /* refactored */
     _FORCE_INLINE_ BehaviourTree* get_behaviour_tree() const
     {

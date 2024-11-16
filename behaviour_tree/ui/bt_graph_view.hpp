@@ -57,6 +57,7 @@ public:
     void delete_task_node(const godot::StringName& task_name);
     void change_task_class_name(const godot::StringName& task_name, const godot::StringName& task_class_name);
     godot::StringName get_task_name(const godot::StringName& graph_node_name);
+    void change_task_name(const godot::StringName& old_task_name, const godot::StringName& new_task_name);
 
     void connect_task_nodes(const godot::StringName& parent_task_name, const godot::StringName& child_task_name);
     void disconnect_task_nodes(const godot::StringName& parent_task_name, const godot::StringName& child_task_name);

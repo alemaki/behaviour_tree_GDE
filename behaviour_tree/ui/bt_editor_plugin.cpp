@@ -32,7 +32,7 @@ BTEditorPlugin::BTEditorPlugin()
     this->button_continer->add_child(this->add_new_subtree_button);
     this->button_continer->add_child(this->arrange_nodes_button);
 
-    this->main_container->add_child(this->graph_editor->get_graph_edit());
+    this->main_container->add_child(this->graph_editor->get_graph_view());
     this->main_container->add_child(this->button_continer);
 
     this->bottom_panel_button =
