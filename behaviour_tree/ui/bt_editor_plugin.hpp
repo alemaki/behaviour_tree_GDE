@@ -36,14 +36,13 @@ private:
 
     godot::Ref<BTEditorDebuggerPlugin> debugger_plugin = nullptr;
 
-private:
+public:
     void set_graph_editor(BTGraphEditor* graph_editor);
     _FORCE_INLINE_ BTGraphEditor* get_graph_editor()
     {
         return this->graph_editor;
     }
 
-public:
     BTEditorPlugin();
     ~BTEditorPlugin();
     virtual void _make_visible(bool visible) override;

@@ -20,6 +20,9 @@ BTGraphEditor::BTGraphEditor()
 BTGraphEditor::~BTGraphEditor()
 {
     //this->clear_copied_nodes();
+    memdelete(this->rename_edit);
+    memdelete(this->path_edit);
+    memdelete(this->main_popup_menu);
     memdelete(this->graph_view);
 }
 

@@ -286,32 +286,18 @@ struct BTGraphEditorReadyTreeFixture : public BTGraphEditorFixture
     BTGraphNode* child12 = nullptr;
     BTGraphNode* child21 = nullptr;
     BTGraphNode* child22 = nullptr;
+
     BTGraphEditorReadyTreeFixture()
     {
-        REQUIRE_NE(editor_plugin, nullptr);
-        this->undo_redo_manager = editor_plugin->get_undo_redo();
-        REQUIRE_NE(undo_redo_manager, nullptr);
+        this->editor->queue_free();
+        this->tree->queue_free(); /* Since they are created in the previous constructor just clear them up */
+
         this->editor = memnew(BTGraphEditor);
-        this->editor->set_editor_plugin(editor_plugin); /* Need it for the undo redo manager */
+        this->editor->set_editor_plugin(editor_plugin); 
         this->graph_view = this->editor->get_graph_view();
         REQUIRE_NE(this->graph_view, nullptr);
         this->initial_child_count = this->graph_view->get_child_count();
         create_default_graph();
-    }
-
-    ~BTGraphEditorReadyTreeFixture()
-    {
-        godot::UndoRedo* undo_redo = undo_redo_manager->get_history_undo_redo(undo_redo_manager->get_object_history_id(this->tree));
-        undo_redo->clear_history(false);
-
-        undo_redo = undo_redo_manager->get_history_undo_redo(undo_redo_manager->get_object_history_id(this->graph_view));
-        undo_redo->clear_history(false);
-
-        undo_redo = undo_redo_manager->get_history_undo_redo(godot::EditorUndoRedoManager::SpecialHistory::GLOBAL_HISTORY);
-        undo_redo->clear_history(false);
-
-        this->tree->queue_free();
-        this->editor->queue_free();
     }
 
     void create_default_graph()
