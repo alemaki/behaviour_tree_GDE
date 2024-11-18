@@ -69,7 +69,6 @@ struct BTGraphEditorFixture
         this->editor->queue_free();
     }
 
-
     void test_node_creation()
     {
         editor->_add_new_node_button_pressed();
@@ -289,19 +288,12 @@ struct BTGraphEditorReadyTreeFixture : public BTGraphEditorFixture
 
     BTGraphEditorReadyTreeFixture()
     {
-        this->editor->queue_free();
-        this->tree->queue_free(); /* Since they are created in the previous constructor just clear them up */
-
-        this->editor = memnew(BTGraphEditor);
-        this->editor->set_editor_plugin(editor_plugin); 
-        this->graph_view = this->editor->get_graph_view();
-        REQUIRE_NE(this->graph_view, nullptr);
-        this->initial_child_count = this->graph_view->get_child_count();
         create_default_graph();
     }
 
     void create_default_graph()
     {
+        BehaviourTree* old_tree = this->tree;
         this->tree = memnew(BehaviourTree);
         this->tree->add_task_by_ref(root_task);
         this->tree->add_task_by_ref(child1_task);
@@ -316,7 +308,7 @@ struct BTGraphEditorReadyTreeFixture : public BTGraphEditorFixture
         this->tree->connect_tasks(child1_task,   child12_task, 1);
         this->tree->connect_tasks(child2_task,   child21_task);
         this->tree->connect_tasks(child2_task,   child22_task, 1);
-        this->editor->set_behaviour_tree(tree);
+        this->editor->set_behaviour_tree(this->tree);
         this->root = graph_view->get_graph_node(root_task->get_name());
         this->child1 = graph_view->get_graph_node(child1_task->get_name());
         this->child2 = graph_view->get_graph_node(child2_task->get_name());
@@ -324,6 +316,59 @@ struct BTGraphEditorReadyTreeFixture : public BTGraphEditorFixture
         this->child12 = graph_view->get_graph_node(child12_task->get_name());
         this->child21 = graph_view->get_graph_node(child21_task->get_name());
         this->child22 = graph_view->get_graph_node(child22_task->get_name());
+        old_tree->queue_free(); /* Since it was created in the previous constructor just clear them up */
+    }
+
+    void test_task_name_change()
+    {
+        editor->_on_node_double_clicked(root_task->get_name());
+        editor->_on_rename_edit_text_submitted("root3K");
+        CHECK_EQ(root_task->get_custom_name(), "root3K");
+        CHECK_EQ(root->get_title(), "root3K");
+    }
+
+    void test_task_class_change()
+    {
+        editor->_change_task_type("BTCondition", root_task->get_name());
+
+        godot::Ref<BTTask> new_task = tree->get_root_task();
+        REQUIRE_FALSE(graph_view->has_task_name(root_task->get_name()));
+        REQUIRE(graph_view->has_task_name(new_task->get_name()));
+
+        BTGraphNode* root = graph_view->get_graph_node(new_task->get_name());
+
+        REQUIRE_NE(root, nullptr);
+        CHECK_EQ(new_task->get_class(), "BTCondition");
+        CHECK_EQ(root->get_task_class_name(), godot::StringName("BTCondition"));
+        CHECK_EQ(graph_view->get_task_name(root->get_name()), new_task->get_name());
+    }
+
+    void assert_task_changed(const godot::StringName& class_name, godot::Ref<BTTask> new_task, godot::Ref<BTTask> old_task)
+    {
+        REQUIRE(tree->has_task(new_task));
+        REQUIRE_FALSE(tree->has_task(old_task));
+
+        REQUIRE_FALSE(graph_view->has_task_name(old_task->get_name()));
+        REQUIRE(graph_view->has_task_name(new_task->get_name()));
+
+        BTGraphNode* root = graph_view->get_graph_node(new_task->get_name());
+
+        REQUIRE_EQ(old_task->get_child_count(), 0);
+        REQUIRE_NE(root, nullptr);
+        REQUIRE_EQ(new_task->get_child_count(), 2);
+        CHECK_EQ(new_task->get_child(0), child11_task);
+        CHECK_EQ(new_task->get_child(1), child12_task);
+        CHECK_EQ(new_task->get_parent(), root_task);
+        CHECK_EQ(new_task->get_class(), class_name);
+        CHECK_EQ(child1->get_task_class_name(), godot::StringName(class_name));
+    }
+
+    void test_task_class_change_keeps_connections()
+    {
+        editor->_change_task_type("BTCondition", child1_task->get_name());
+
+        godot::Ref<BTTask> new_task = tree->get_root_task()->get_child(0);
+        assert_task_changed("BTCondition", new_task, child1_task);
     }
 };
 
@@ -406,47 +451,36 @@ TEST_SUITE("[editor]" "[plugin]" "BTGraphEditor")
 
     TEST_CASE_FIXTURE(BTGraphEditorReadyTreeFixture, "Task change name")
     {
-        editor->_on_node_double_clicked(root_task->get_name());
-        editor->_on_rename_edit_text_submitted("root3K");
-        BTGraphNode* root = graph_view->get_graph_node(root_task->get_name());
-        CHECK_EQ(root_task->get_custom_name(), "root3K");
-        CHECK_EQ(root->get_title(), "root3K");
+        test_task_name_change();
     }
 
     TEST_CASE_FIXTURE(BTGraphEditorReadyTreeFixture, "Task change class")
     {
-        editor->_change_task_type("BTCondition", root_task->get_name());
-
-        godot::Ref<BTTask> new_task = tree->get_root_task();
-        REQUIRE_FALSE(graph_view->has_task_name(root_task->get_name()));
-        REQUIRE(graph_view->has_task_name(new_task->get_name()));
-
-        BTGraphNode* root = graph_view->get_graph_node(new_task->get_name());
-
-        CHECK_EQ(new_task->get_class(), "BTCondition");
-        CHECK_EQ(root->get_task_class_name(), godot::StringName("BTCondition"));
-        CHECK_EQ(graph_view->get_task_name(root->get_name()), new_task->get_name());
+        test_task_class_change();
     }
 
     TEST_CASE_FIXTURE(BTGraphEditorReadyTreeFixture, "Task changing class doesn't change parents and children")
     {
-        editor->_change_task_type("BTCondition", child1_task->get_name());
-
-        godot::Ref<BTTask> new_task = tree->get_root_task()->get_child(0);
-        REQUIRE_FALSE(graph_view->has_task_name(child1_task->get_name()));
-        REQUIRE(graph_view->has_task_name(new_task->get_name()));
-
-        BTGraphNode* root = graph_view->get_graph_node(new_task->get_name());
-
-        REQUIRE_EQ(new_task->get_child_count(), 2);
-        REQUIRE(graph_view->has_task_name(new_task->get_name()));
-        CHECK_EQ(new_task->get_child(0), child11_task);
-        CHECK_EQ(new_task->get_child(1), child12_task);
-        CHECK_EQ(new_task->get_parent(), root_task);
-        CHECK_EQ(new_task->get_class(), "BTCondition");
-        CHECK_EQ(child1->get_task_class_name(), godot::StringName("BTCondition"));
+        test_task_class_change_keeps_connections();
     }
-    
+
+    TEST_CASE_FIXTURE(BTGraphEditorReadyTreeFixture, "Test saving tree.")
+    {
+        godot::Vector2 old_position = root->get_position_offset();
+        graph_view->set_node_position(root_task->get_name(), old_position + godot::Vector2(-10, 0));
+        BehaviourTree* new_tree = memnew(BehaviourTree);
+        editor->set_behaviour_tree(new_tree);
+
+        CHECK_EQ(graph_view->get_connection_list().size(), 0);
+        CHECK_EQ(graph_view->get_child_count(), initial_child_count);
+
+        editor->set_behaviour_tree(tree);
+
+        CHECK_EQ(graph_view->get_connection_list().size(), 6);
+        CHECK_EQ(graph_view->get_child_count(), initial_child_count + tree->get_task_count());
+        CHECK_EQ(graph_view->get_graph_node(root_task->get_name())->get_position_offset(), old_position + godot::Vector2(-10, 0));
+        memdelete(new_tree);
+    }
 }
 
 TEST_SUITE("[editor]" "[plugin]" "[undo_redo]" "BTGraphEditor")
@@ -588,5 +622,39 @@ TEST_SUITE("[editor]" "[plugin]" "[undo_redo]" "BTGraphEditor")
         CHECK_EQ(parent_task->get_child(0), child_task2);
         CHECK_EQ(parent_task->get_child(1), child_task1);
 
+    }
+
+    TEST_CASE_FIXTURE(BTGraphEditorReadyTreeFixture, "Task change name")
+    {
+        test_task_name_change();
+
+        godot::UndoRedo* undo = get_undo(tree);
+        undo->undo();
+        
+        CHECK_EQ(root_task->get_custom_name(), "");
+        CHECK_EQ(root->get_title(), "");
+
+        godot::UndoRedo* redo = get_redo(tree);
+        redo->redo();
+
+        CHECK_EQ(root_task->get_custom_name(), "root3K");
+        CHECK_EQ(root->get_title(), "root3K");
+    }
+
+    TEST_CASE_FIXTURE(BTGraphEditorReadyTreeFixture, "Task change class")
+    {
+        test_task_class_change_keeps_connections();
+
+        godot::Ref<BTTask> new_task = tree->get_root_task()->get_child(0);
+
+        godot::UndoRedo* undo = get_undo(tree);
+        undo->undo();
+        
+        assert_task_changed("BTTask", child1_task, new_task);
+
+        godot::UndoRedo* redo = get_redo(tree);
+        redo->redo();
+
+        assert_task_changed("BTCondition", new_task, child1_task);
     }
 }

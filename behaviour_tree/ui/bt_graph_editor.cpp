@@ -150,12 +150,16 @@ void BTGraphEditor::connect_graph_node_signals(const godot::StringName& task_nam
     }
 }
 
+godot::String get_name_of_tree(BehaviourTree* tree)
+{
+    return godot::String("BehaviourTree_") + godot::itos(tree->get_instance_id());
+}
+
 void BTGraphEditor::save_tree()
 {
     ERR_FAIL_NULL(this->behaviour_tree);
-    godot::StringName behaviour_tree_save_name = "BehaviourTree_" + this->behaviour_tree->get_instance_id();
+    godot::StringName behaviour_tree_save_name = get_name_of_tree(this->behaviour_tree);
     this->graph_view->clear_and_save_graph(behaviour_tree_save_name);
-    
     this->saved_trees.insert(this->behaviour_tree);
 }
 
@@ -163,7 +167,7 @@ void BTGraphEditor::load_tree()
 {
     ERR_FAIL_NULL(this->behaviour_tree);
     ERR_FAIL_COND(!(this->saved_trees.has(this->behaviour_tree)));
-    godot::StringName behaviour_tree_save_name = "BehaviourTree_" + this->behaviour_tree->get_instance_id();
+    godot::StringName behaviour_tree_save_name = get_name_of_tree(this->behaviour_tree);
     this->graph_view->load_graph(behaviour_tree_save_name);
     this->color_root_node();
 }
@@ -235,6 +239,7 @@ void BTGraphEditor::create_default_graph_nodes()
     {
         godot::Ref<BTTask> task = tasks_array[i];
         this->graph_view->create_task_node(task->get_name(), task->get_class());
+        this->graph_view->set_task_node_title(task->get_name(), task->get_custom_name());
     }
 
     this->arrange_nodes();
