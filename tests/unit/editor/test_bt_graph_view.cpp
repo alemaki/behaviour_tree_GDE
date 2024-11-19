@@ -388,6 +388,38 @@ TEST_SUITE("[editor]" "BTGraphView")
         graph_view->set_root_task_name("task2");
         CHECK_EQ(task1->get_self_modulate(), godot::Color::named("WHITE"));
     }
+
+    TEST_CASE_FIXTURE(BTGraphViewFixture, "Get selected node task names")
+    {
+        create_default_graph();
+
+        godot::Vector<godot::StringName> selected_names = graph_view->get_selected_node_task_names();
+        REQUIRE(selected_names.size() == 0);
+
+        task1->set_selected(true);
+        task21->set_selected(true);
+        task213->set_selected(true);
+
+        selected_names = graph_view->get_selected_node_task_names();
+
+        REQUIRE(selected_names.size() == 3);
+        CHECK(selected_names.has("task1"));
+        CHECK(selected_names.has("task21"));
+        CHECK(selected_names.has("task213"));
+    }
+
+    TEST_CASE_FIXTURE(BTGraphViewFixture, "Deselect all nodes")
+    {
+        create_default_graph();
+        task1->set_selected(true);
+        task21->set_selected(true);
+        task213->set_selected(true);
+
+        graph_view->deselect_all_nodes();
+
+        godot::Vector<godot::StringName> selected_names = graph_view->get_selected_node_task_names();
+        REQUIRE(selected_names.size() == 0);
+    }
 }
 
 TEST_SUITE("[editor]" "[errors]" "BTGraphView")

@@ -734,67 +734,58 @@ void BTGraphEditor::_delete_nodes_request(godot::TypedArray<godot::StringName> _
 
 /* Copy-pasta Handling */
 
-// BTGraphNode* duplicate_graph_node(const BTGraphNode* node)
-// {
-//     /* Graph node is only a visual wrapper for task so no need to duplicate it. */
-//     BTGraphNode* copy_node = memnew(BTGraphNode);
-//     godot::Ref<BTTask> copy_task = node->get_task()->duplicate();
+BTGraphNode* duplicate_graph_node(const BTGraphNode* node)
+{
+    /* Graph node is only a visual wrapper for task so no need to duplicate it. */
+    BTGraphNode* copy_node = memnew(BTGraphNode);
+    godot::Ref<BTTask> copy_task = node->get_task()->duplicate();
 
-//     copy_task->clear_children();
+    copy_task->clear_children();
 
-//     copy_task->set_parent(nullptr);
-//     copy_node->set_task(copy_task);
-//     copy_node->set_position_offset(node->get_position_offset());
-//     return copy_node;
-// }
+    copy_task->set_parent(nullptr);
+    copy_node->set_task(copy_task);
+    copy_node->set_position_offset(node->get_position_offset());
+    return copy_node;
+}
 
 
-// void BTGraphEditor::copy_nodes_request()
-// {
-//     /* Copied/selected nodes might be deleted later by user. So create copies now while still valid. */
+void BTGraphEditor::copy_nodes_request()
+{
+    /* Copied/selected nodes might be deleted later by user. So create copies now while still valid. */
 
-//     godot::HashSet<BTGraphNode*> selected_nodes;
-//     for (godot::KeyValue<godot::Ref<BTTask>, BTGraphNode*> element : task_to_node)
-//     {
-//         ERR_FAIL_COND(element.value == nullptr);
-//         ERR_FAIL_COND(element.value->get_task().is_null());
-//         if (element.value->is_selected())
-//         {
-//             selected_nodes.insert(element.value);
-//         }
-//     }
+    godot::Vector<godot::StringName> selected_nodes = graph_view->get_selected_node_task_names();
 
-//     godot::HashMap<BTGraphNode*, BTGraphNode*> old_to_new;
+    godot::HashMap<BTGraphNode*, BTGraphNode*> old_to_new;
 
-//     for (BTGraphNode* node : selected_nodes)
-//     {
-//         BTGraphNode* copy_node = duplicate_graph_node(node);
-//         ERR_FAIL_NULL(copy_node);
-//         old_to_new.insert(node, copy_node);
-//     }
+    for (BTGraphNode* node : selected_nodes)
+    {
+        BTGraphNode* copy_node = duplicate_graph_node(node);
+        ERR_FAIL_NULL(copy_node);
+        old_to_new.insert(node, copy_node);
+    }
 
-//     this->clear_copied_nodes();
+    this->clear_copied_nodes();
 
-//     for (BTGraphNode* node : selected_nodes)
-//     {
-//         godot::Array children = node->get_task()->get_children();
-//         for (int i = 0, size = children.size(); i < size; i++)
-//         {
-//             ERR_FAIL_COND(!(task_to_node.has(godot::Ref<BTTask>(children[i]))));
-//             BTGraphNode* child_node = task_to_node[godot::Ref<BTTask>(children[i])];
-//             if (selected_nodes.has(child_node))
-//             {
-//                 /* Put new connections to be copied */
-//                 this->copied_connections.push_back({old_to_new[node], old_to_new[child_node]});
-//             }
-//         }
-//     }
+    for (BTGraphNode* node : selected_nodes)
+    {
+        godot::Array children = node->get_task()->get_children();
+        for (int i = 0, size = children.size(); i < size; i++)
+        {
+            ERR_FAIL_COND(!(task_to_node.has(godot::Ref<BTTask>(children[i]))));
+            BTGraphNode* child_node = task_to_node[godot::Ref<BTTask>(children[i])];
+            if (selected_nodes.has(child_node))
+            {
+                /* Put new connections to be copied */
+                this->copied_connections.push_back({old_to_new[node], old_to_new[child_node]});
+            }
+        }
+    }
 
-//     for (BTGraphNode* node : selected_nodes)
-//     {
-//         this->copied_nodes.push_back(old_to_new[node]);
-//     }
-// }
+    for (BTGraphNode* node : selected_nodes)
+    {
+        this->copied_nodes.push_back(old_to_new[node]);
+    }
+}
 
 // void BTGraphEditor::paste_nodes_request()
 // {

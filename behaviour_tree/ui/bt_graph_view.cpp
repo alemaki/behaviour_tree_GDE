@@ -315,6 +315,27 @@ void BTGraphView::set_root_task_name(const godot::StringName& name)
     this->root_task_name = name;
 }
 
+godot::Vector<godot::StringName> BTGraphView::get_selected_node_task_names() const
+{
+    godot::Vector<godot::StringName> result;
+    for (const godot::KeyValue<godot::StringName, BTGraphNode*> name_node : this->task_name_to_node)
+    {
+        if(name_node.value->is_selected())
+        {
+            result.push_back(name_node.key);
+        }
+    }
+    return result;
+}
+
+void BTGraphView::deselect_all_nodes() const
+{
+    for (const godot::KeyValue<godot::StringName, BTGraphNode*> name_node : this->task_name_to_node)
+    {
+        name_node.value->set_selected(false);
+    }
+}
+
 void BTGraphView::_bind_methods()
 {
     ClassDB::bind_method(D_METHOD("create_task_node", "task_name", "class_name"), &BTGraphView::create_task_node, DEFVAL(BTTask::get_class_static()));

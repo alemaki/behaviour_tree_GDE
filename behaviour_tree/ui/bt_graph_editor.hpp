@@ -99,9 +99,9 @@ private:
     void load_tree(); /* refactored */
 
     /* Copy-pasta Handling */
-    // void copy_nodes_request();
-    // void paste_nodes_request();
-    // void clear_copied_nodes();
+    void copy_nodes_request();
+    void paste_nodes_request();
+    void clear_copied_nodes();
 
     static godot::Vector<StringName> bttask_array_to_names(godot::Array children);
     

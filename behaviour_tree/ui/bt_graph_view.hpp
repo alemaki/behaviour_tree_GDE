@@ -88,6 +88,8 @@ public:
         return this->root_task_name;
     }
 
+    godot::Vector<godot::StringName> get_selected_node_task_names() const;
+    void deselect_all_nodes() const;
 protected:
     static void _bind_methods();
 };
