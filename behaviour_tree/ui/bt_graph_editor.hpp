@@ -72,6 +72,12 @@ private:
 
     godot::HashSet<BehaviourTree*> saved_trees;
 
+    struct CopiedTasks {
+        godot::Vector<godot::Ref<BTTask>> copied_tasks;
+        godot::HashMap<godot::Ref<BTTask>, godot::Ref<BTTask>> copied_connections;
+        godot::HashMap<godot::Ref<BTTask>, godot::Vector2> copied_positions;
+    } copied_tasks;
+
 public:
     BTGraphEditor();
     ~BTGraphEditor();

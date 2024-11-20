@@ -755,36 +755,47 @@ void BTGraphEditor::copy_nodes_request()
 
     godot::Vector<godot::StringName> selected_nodes = graph_view->get_selected_node_task_names();
 
-    godot::HashMap<BTGraphNode*, BTGraphNode*> old_to_new;
+    godot::HashMap<godot::Ref<BTTask>, godot::Ref<BTTask>> old_to_new;
+    godot::HashMap<godot::Ref<BTTask>, godot::Vector2> copied_positions;
 
-    for (BTGraphNode* node : selected_nodes)
+    for (const godot::StringName& task_name : selected_nodes)
     {
-        BTGraphNode* copy_node = duplicate_graph_node(node);
-        ERR_FAIL_NULL(copy_node);
-        old_to_new.insert(node, copy_node);
+        godot::Ref<BTTask> task = this->behaviour_tree->get_task_by_name(task_name);
+        ERR_FAIL_COND(task.is_null());
+        godot::Ref<BTTask> copy = task->duplicate();
+        old_to_new.insert(task, copy);
     }
 
     this->clear_copied_nodes();
 
-    for (BTGraphNode* node : selected_nodes)
+    godot::Vector<godot::Ref<BTTask>> copied_tasks;
+    godot::HashMap<godot::Ref<BTTask>, godot::Ref<BTTask>> parent_to_child_copied_connections;
+    godot::HashMap<godot::Ref<BTTask>, godot::Vector2> copied_positions;
+
+    for (const godot::KeyValue<godot::Ref<BTTask>, godot::Ref<BTTask>>& old_task_to_copy : old_to_new)
     {
-        godot::Array children = node->get_task()->get_children();
+        godot::Ref<BTTask> old = old_task_to_copy.key;
+        godot::Ref<BTTask> copy_task = old_task_to_copy.value;
+        godot::Array children = old->get_children();
         for (int i = 0, size = children.size(); i < size; i++)
         {
-            ERR_FAIL_COND(!(task_to_node.has(godot::Ref<BTTask>(children[i]))));
-            BTGraphNode* child_node = task_to_node[godot::Ref<BTTask>(children[i])];
-            if (selected_nodes.has(child_node))
+            godot::Ref<BTTask> old_child = children[i];
+            if (old_to_new.has(old_child))
             {
-                /* Put new connections to be copied */
-                this->copied_connections.push_back({old_to_new[node], old_to_new[child_node]});
+                godot::Ref<BTTask> new_child = old_to_new[old_child];
+                parent_to_child_copied_connections.insert(copy_task, new_child);
             }
         }
+        copied_tasks.push_back(copy_task);
+        godot::Vector2 postion_offset = this->graph_view->get_graph_node(old->get_name())->get_position_offset();
+        copied_positions.insert(copy_task, postion_offset);
     }
 
-    for (BTGraphNode* node : selected_nodes)
-    {
-        this->copied_nodes.push_back(old_to_new[node]);
-    }
+    this->copied_tasks = {
+        copied_tasks,
+        parent_to_child_copied_connections,
+        copied_positions
+    };
 }
 
 // void BTGraphEditor::paste_nodes_request()
