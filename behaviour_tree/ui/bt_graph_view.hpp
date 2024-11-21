@@ -90,6 +90,8 @@ public:
 
     godot::Vector<godot::StringName> get_selected_node_task_names() const;
     void deselect_all_nodes() const;
+    void set_task_node_selected(const godot::StringName& task_name, bool select) const;
+
 protected:
     static void _bind_methods();
 };

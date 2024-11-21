@@ -301,18 +301,18 @@ void BTGraphView::load_graph(const godot::StringName& name)
     this->saved_connection_lists.erase(name);
 }
 
-void BTGraphView::set_root_task_name(const godot::StringName& name)
+void BTGraphView::set_root_task_name(const godot::StringName& task_name)
 {
-    ERR_FAIL_COND_MSG(!(this->has_task_name(name)), "BTGraphView has no task_name named: " + name + ".");
+    ERR_FAIL_COND_MSG(!(this->has_task_name(task_name)), "BTGraphView has no task_name named: " + task_name + ".");
     if (!(this->root_task_name.is_empty()))
     {
         BTGraphNode* node = this->task_name_to_node[this->root_task_name];
         node->set_default_node_color();
     }
 
-    BTGraphNode* new_root = this->task_name_to_node[name];
+    BTGraphNode* new_root = this->task_name_to_node[task_name];
     new_root->set_self_modulate(godot::Color::named("BLUE"));
-    this->root_task_name = name;
+    this->root_task_name = task_name;
 }
 
 godot::Vector<godot::StringName> BTGraphView::get_selected_node_task_names() const
@@ -336,6 +336,13 @@ void BTGraphView::deselect_all_nodes() const
     }
 }
 
+void BTGraphView::set_task_node_selected(const godot::StringName& task_name, bool select) const
+{
+    ERR_FAIL_COND_MSG(!(this->has_task_name(task_name)), "BTGraphView has no task_name named: " + task_name + ".");
+    BTGraphNode* node = this->task_name_to_node[task_name];
+    node->set_selected(true);
+}
+
 void BTGraphView::_bind_methods()
 {
     ClassDB::bind_method(D_METHOD("create_task_node", "task_name", "class_name"), &BTGraphView::create_task_node, DEFVAL(BTTask::get_class_static()));
@@ -347,4 +354,6 @@ void BTGraphView::_bind_methods()
     ClassDB::bind_method(D_METHOD("set_node_position", "task_name", "position"), &BTGraphView::set_node_position);
     ClassDB::bind_method(D_METHOD("change_task_class_name", "task_name", "class_name"), &BTGraphView::change_task_class_name);
     ClassDB::bind_method(D_METHOD("change_task_name", "old_task_name", "new_task_name"), &BTGraphView::change_task_name);
+    ClassDB::bind_method(D_METHOD("deselect_all_nodes"), &BTGraphView::deselect_all_nodes);
+    ClassDB::bind_method(D_METHOD("set_task_node_selected", "task_name", "select"), &BTGraphView::set_task_node_selected);
 }

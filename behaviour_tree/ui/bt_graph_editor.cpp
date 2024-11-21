@@ -19,7 +19,7 @@ BTGraphEditor::BTGraphEditor()
 
 BTGraphEditor::~BTGraphEditor()
 {
-    //this->clear_copied_nodes();
+    //this->clear_copied_tasks();
     memdelete(this->rename_edit);
     memdelete(this->path_edit);
     memdelete(this->main_popup_menu);
@@ -34,8 +34,8 @@ void BTGraphEditor::_setup_graph_view()
     this->graph_view->call_deferred("connect", "connection_request", callable_mp(this, &BTGraphEditor::connection_request));
     this->graph_view->call_deferred("connect", "disconnection_request", callable_mp(this, &BTGraphEditor::disconnection_request));
     this->graph_view->call_deferred("connect", "delete_nodes_request", callable_mp(this, &BTGraphEditor::_delete_nodes_request));
-    //this->graph_view->call_deferred("connect", "copy_nodes_request", callable_mp(this, &BTGraphEditor::copy_nodes_request));
-    //this->graph_view->call_deferred("connect", "paste_nodes_request", callable_mp(this, &BTGraphEditor::paste_nodes_request));
+    this->graph_view->call_deferred("connect", "copy_nodes_request", callable_mp(this, &BTGraphEditor::copy_nodes_request));
+    this->graph_view->call_deferred("connect", "paste_nodes_request", callable_mp(this, &BTGraphEditor::paste_nodes_request));
 }
 
 void BTGraphEditor::_setup_task_names()
@@ -755,127 +755,143 @@ void BTGraphEditor::copy_nodes_request()
 
     godot::Vector<godot::StringName> selected_nodes = graph_view->get_selected_node_task_names();
 
-    godot::HashMap<godot::Ref<BTTask>, godot::Ref<BTTask>> old_to_new;
+    godot::HashSet<godot::Ref<BTTask>> copied_tasks;
     godot::HashMap<godot::Ref<BTTask>, godot::Vector2> copied_positions;
+    godot::HashMap<godot::Ref<BTTask>, godot::Vector<godot::Ref<BTTask>>> parent_to_children_copied_connections;
 
     for (const godot::StringName& task_name : selected_nodes)
     {
         godot::Ref<BTTask> task = this->behaviour_tree->get_task_by_name(task_name);
         ERR_FAIL_COND(task.is_null());
-        godot::Ref<BTTask> copy = task->duplicate();
-        old_to_new.insert(task, copy);
+
+        copied_tasks.insert(task);
+
+        godot::Vector2 postion_offset = this->graph_view->get_graph_node(task->get_name())->get_position_offset();
+        copied_positions.insert(task, postion_offset);
     }
 
-    this->clear_copied_nodes();
-
-    godot::Vector<godot::Ref<BTTask>> copied_tasks;
-    godot::HashMap<godot::Ref<BTTask>, godot::Ref<BTTask>> parent_to_child_copied_connections;
-    godot::HashMap<godot::Ref<BTTask>, godot::Vector2> copied_positions;
-
-    for (const godot::KeyValue<godot::Ref<BTTask>, godot::Ref<BTTask>>& old_task_to_copy : old_to_new)
+    for (godot::Ref<BTTask> task : copied_tasks)
     {
-        godot::Ref<BTTask> old = old_task_to_copy.key;
-        godot::Ref<BTTask> copy_task = old_task_to_copy.value;
-        godot::Array children = old->get_children();
+        godot::Vector<godot::Ref<BTTask>> copy_children;
+        godot::Array children = task->get_children();
         for (int i = 0, size = children.size(); i < size; i++)
         {
-            godot::Ref<BTTask> old_child = children[i];
-            if (old_to_new.has(old_child))
+            godot::Ref<BTTask> child = children[i];
+            if (copied_tasks.has(child))
             {
-                godot::Ref<BTTask> new_child = old_to_new[old_child];
-                parent_to_child_copied_connections.insert(copy_task, new_child);
+                copy_children.push_back(child);
             }
         }
-        copied_tasks.push_back(copy_task);
-        godot::Vector2 postion_offset = this->graph_view->get_graph_node(old->get_name())->get_position_offset();
-        copied_positions.insert(copy_task, postion_offset);
+        if (copy_children.size() > 0)
+        {
+            parent_to_children_copied_connections.insert(task, copy_children);
+        }
     }
 
-    this->copied_tasks = {
+    this->clear_copied_tasks();
+
+    this->copy_info = {
         copied_tasks,
-        parent_to_child_copied_connections,
+        parent_to_children_copied_connections,
         copied_positions
     };
 }
 
-// void BTGraphEditor::paste_nodes_request()
-// {
-//     if (this->copied_nodes.size() == 0)
-//     {
-//         return;
-//     }
+void BTGraphEditor::paste_nodes_request()
+{
+    if (this->copy_info.copied_tasks.size() == 0)
+    {
+        return;
+    }
 
-//     godot::HashSet<BTGraphNode*> pasted_nodes;
-//     godot::HashMap<BTGraphNode*, BTGraphNode*> copied_to_pasted;
-//     for (BTGraphNode* copied_node : this->copied_nodes)
-//     {
-//         ERR_FAIL_COND(copied_node == nullptr);
-//         ERR_FAIL_COND(copied_node->get_task().is_null());
+    godot::HashMap<godot::Ref<BTTask>, godot::Ref<BTTask>> copied_to_pasted;
+    godot::HashMap<godot::Ref<BTTask>, godot::Vector<godot::Ref<BTTask>>> pasted_to_pasted_children_connections;
+
+    for (godot::Ref<BTTask> task : copy_info.copied_tasks)
+    {
+        godot::Ref<BTTask> copy = task->duplicate();
+        copied_to_pasted.insert(task, copy);
+    }
+
+    for (const godot::KeyValue<godot::Ref<BTTask>, godot::Vector<godot::Ref<BTTask>>>& task_copy_to_children : copy_info.copied_connections)
+    {
+        godot::Vector<godot::Ref<BTTask>> pasted_children;
+        godot::Ref<BTTask> old = task_copy_to_children.key;
+        godot::Ref<BTTask> pasted_task = copied_to_pasted[old];
+
+        for (godot::Ref<BTTask> old_child : task_copy_to_children.value)
+        {
+            pasted_children.push_back(copied_to_pasted[old_child]);
+        }
+        pasted_to_pasted_children_connections.insert(pasted_task, pasted_children);
+    }
+
+    EditorUndoRedoManager* undo_redo_manager = this->editor_plugin->get_undo_redo();
+
+    undo_redo_manager->create_action("Paste copied nodes");
+
+    /* Paste all nodes first so connections can be created later. */
+    for (const godot::KeyValue<godot::Ref<BTTask>, godot::Ref<BTTask>>& old_to_paste : copied_to_pasted)
+    {
+        // TODO: Extract logic for adding new node to the graph.
+        godot::Ref<BTTask> task_to_paste = old_to_paste.value;
+        godot::StringName task_custom_name = task_to_paste->get_custom_name();
+        godot::StringName task_name = task_to_paste->get_name();
+
+        undo_redo_manager->add_do_method(this->behaviour_tree, "add_task_by_ref", task_to_paste);
+        undo_redo_manager->add_do_method(this->graph_view, "create_task_node", task_name);
+        undo_redo_manager->add_do_method(this->graph_view, "set_task_node_title", task_name, task_custom_name);
+        undo_redo_manager->add_do_method(this->graph_view, "change_task_class_name", task_name, task_to_paste->get_class());
+        undo_redo_manager->add_do_method(this->graph_view, "set_node_position", task_name, copy_info.copied_positions[old_to_paste.key]);
+        undo_redo_manager->add_do_method(this, "connect_graph_node_signals", task_name);
+    }
+
+    undo_redo_manager->add_do_method(this->graph_view, "deselect_all_nodes");
+
+    for (const godot::KeyValue<godot::Ref<BTTask>, godot::Ref<BTTask>>& old_to_paste : copied_to_pasted)
+    {
+        /* Select pasted nodes for easy interaction */
+        undo_redo_manager->add_do_method(this->graph_view, "set_task_node_selected", old_to_paste.value->get_name(), true);
+    }
+
+    for (const godot::KeyValue<godot::Ref<BTTask>, godot::Vector<godot::Ref<BTTask>>>& pasted_to_pasted_children : pasted_to_pasted_children_connections)
+    {
+        godot::Ref<BTTask> pasted = pasted_to_pasted_children.key;
+        const godot::Vector<godot::Ref<BTTask>>& pasted_children = pasted_to_pasted_children.value;
         
-//         BTGraphNode* pasted_node = duplicate_graph_node(copied_node);
-//         ERR_FAIL_NULL(pasted_node);
-//         pasted_nodes.insert(pasted_node);
-//         copied_to_pasted.insert(copied_node, pasted_node);
+        for (int i = 0; i < pasted_children.size(); i++)
+        {
+            godot::Ref<BTTask> pasted_child;
+            undo_redo_manager->add_do_method(this->behaviour_tree, "connect_tasks", pasted, pasted_child, i);
+            undo_redo_manager->add_undo_method(this->behaviour_tree, "disconnect_tasks", pasted, pasted_child);
         
-//         // TODO: make signals disconnect on removal. 
-//         // this->connect_graph_node_signals(pasted_node);
-//     }
+            undo_redo_manager->add_do_method(this->graph_view, "connect_task_nodes", pasted->get_name(), pasted_child->get_name());
+            undo_redo_manager->add_undo_method(this->graph_view, "disconnect_task_nodes", pasted->get_name(), pasted_child->get_name());
+        }
+    }
 
-//     EditorUndoRedoManager* undo_redo_manager = this->editor_plugin->get_undo_redo();
+    /* Add undo node from graph */
+    for (const godot::KeyValue<godot::Ref<BTTask>, godot::Ref<BTTask>>& old_to_paste : copied_to_pasted)
+    {
+        godot::Ref<BTTask> task_to_paste = old_to_paste.value;
+        godot::StringName task_name = task_to_paste->get_name();
 
-//     undo_redo_manager->create_action("Paste copied nodes");
+        undo_redo_manager->add_undo_method(this->graph_view, "delete_task_node", task_name);
+        undo_redo_manager->add_undo_method(this->behaviour_tree, "remove_task_by_ref", task_to_paste);
+        undo_redo_manager->add_undo_method(this, "color_root_node");
+    }
 
-//     for (BTGraphNode* pasted_node : pasted_nodes)
-//     {
-//         // TODO: Extract logic for adding new node to the graph.
-//         undo_redo_manager->add_do_method(this->behaviour_tree, "add_task_by_ref", pasted_node->get_task());
-//         undo_redo_manager->add_do_method(this->graph_edit, "add_child", pasted_node);
-//         undo_redo_manager->add_do_method(this, "name_node", pasted_node);
-//         undo_redo_manager->add_do_method(this, "insert_node", pasted_node);
-
-//         pasted_node->set_position_offset(pasted_node->get_position_offset() + Vector2(100, 100));
-//     }
-
-//     undo_redo_manager->add_do_method(this, "deselect_all_nodes");
-//     for (BTGraphNode* pasted_node : pasted_nodes)
-//     {
-//         /* Select pasted nodes for easy interaction */
-//         undo_redo_manager->add_do_method(pasted_node, "set_selected", true);
-//     }
-
-//     for (godot::Pair<BTGraphNode*, BTGraphNode*> copied_connection : this->copied_connections)
-//     {
-//         BTGraphNode* pasted_parent_node = copied_to_pasted[copied_connection.first];
-//         BTGraphNode* pasted_child_node = copied_to_pasted[copied_connection.second];
-
-//         undo_redo_manager->add_do_method(this, "_connect_nodes", pasted_parent_node, pasted_child_node);
-//         undo_redo_manager->add_undo_method(this, "_disconnect_nodes", pasted_parent_node, pasted_child_node);
-//     }
-
-//     /* Add undo node from graph */
-//     for (BTGraphNode* pasted_node : pasted_nodes)
-//     {
-//         undo_redo_manager->add_undo_method(this, "erase_node", pasted_node);
-//         undo_redo_manager->add_undo_method(this->graph_edit, "remove_child", pasted_node);
-//         undo_redo_manager->add_undo_method(this->behaviour_tree, "remove_task_by_ref", pasted_node->get_task());
-//     }
-
-//     undo_redo_manager->add_do_method(this, "color_root_node");
+    undo_redo_manager->add_do_method(this, "color_root_node");
     
-//     undo_redo_manager->commit_action();
-// }
+    undo_redo_manager->commit_action();
+}
 
-// void BTGraphEditor::clear_copied_nodes()
-// {
-//     this->copied_connections.clear();
-//     /* Clear old copied nodes */
-//     for (BTGraphNode* old_copy : this->copied_nodes)
-//     {
-//         ERR_FAIL_NULL(old_copy);
-//         memdelete(old_copy);
-//     }
-//     this->copied_nodes.clear();
-// }
+void BTGraphEditor::clear_copied_tasks()
+{
+    this->copy_info.copied_connections.clear();
+    this->copy_info.copied_tasks.clear();
+    this->copy_info.copied_positions.clear();
+}
 
 
 /* Connection Handling */
@@ -1074,9 +1090,9 @@ void BTGraphEditor::_bind_methods()
     ClassDB::bind_method(D_METHOD("_delete_nodes_request", "nodes_to_delete"), &BTGraphEditor::_delete_nodes_request);
 
     // Copy Paste Handling
-    // ClassDB::bind_method(D_METHOD("copy_nodes_request"), &BTGraphEditor::copy_nodes_request);
-    // ClassDB::bind_method(D_METHOD("paste_nodes_request"), &BTGraphEditor::paste_nodes_request);
-    // ClassDB::bind_method(D_METHOD("clear_copied_nodes"), &BTGraphEditor::clear_copied_nodes);
+    ClassDB::bind_method(D_METHOD("copy_nodes_request"), &BTGraphEditor::copy_nodes_request);
+    ClassDB::bind_method(D_METHOD("paste_nodes_request"), &BTGraphEditor::paste_nodes_request);
+    ClassDB::bind_method(D_METHOD("clear_copied_tasks"), &BTGraphEditor::clear_copied_tasks);
 
     // Connection Handling
     ClassDB::bind_method(D_METHOD("connection_request", "from_node", "from_port", "to_node", "to_port"), &BTGraphEditor::connection_request);

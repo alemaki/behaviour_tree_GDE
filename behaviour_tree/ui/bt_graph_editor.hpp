@@ -72,17 +72,18 @@ private:
 
     godot::HashSet<BehaviourTree*> saved_trees;
 
-    struct CopiedTasks {
-        godot::Vector<godot::Ref<BTTask>> copied_tasks;
-        godot::HashMap<godot::Ref<BTTask>, godot::Ref<BTTask>> copied_connections;
-        godot::HashMap<godot::Ref<BTTask>, godot::Vector2> copied_positions;
-    } copied_tasks;
-
 public:
     BTGraphEditor();
     ~BTGraphEditor();
 
+    struct CopyInfo {
+        godot::HashSet<godot::Ref<BTTask>> copied_tasks;
+        godot::HashMap<godot::Ref<BTTask>, godot::Vector<godot::Ref<BTTask>>> copied_connections;
+        godot::HashMap<godot::Ref<BTTask>, godot::Vector2> copied_positions;
+    };
 private:
+    CopyInfo copy_info;
+
     /* Setup Methods */
     void _setup_graph_view();
     void _setup_task_names();
@@ -107,7 +108,7 @@ private:
     /* Copy-pasta Handling */
     void copy_nodes_request();
     void paste_nodes_request();
-    void clear_copied_nodes();
+    void clear_copied_tasks();
 
     static godot::Vector<StringName> bttask_array_to_names(godot::Array children);
     
