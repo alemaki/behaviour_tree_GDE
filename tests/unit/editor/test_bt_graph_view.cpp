@@ -396,9 +396,9 @@ TEST_SUITE("[editor]" "BTGraphView")
         godot::Vector<godot::StringName> selected_names = graph_view->get_selected_node_task_names();
         REQUIRE(selected_names.size() == 0);
 
-        task1->set_selected(true);
-        task21->set_selected(true);
-        task213->set_selected(true);
+        graph_view->set_task_node_selected("task1", true);
+        graph_view->set_task_node_selected("task21", true);
+        graph_view->set_task_node_selected("task213", true);
 
         selected_names = graph_view->get_selected_node_task_names();
 
@@ -406,19 +406,25 @@ TEST_SUITE("[editor]" "BTGraphView")
         CHECK(selected_names.has("task1"));
         CHECK(selected_names.has("task21"));
         CHECK(selected_names.has("task213"));
+        CHECK(task1->is_selected());
+        CHECK(task21->is_selected());
+        CHECK(task213->is_selected());
     }
 
     TEST_CASE_FIXTURE(BTGraphViewFixture, "Deselect all nodes")
     {
         create_default_graph();
-        task1->set_selected(true);
-        task21->set_selected(true);
-        task213->set_selected(true);
+        graph_view->set_task_node_selected("task1", true);
+        graph_view->set_task_node_selected("task21", true);
+        graph_view->set_task_node_selected("task213", true);
 
         graph_view->deselect_all_nodes();
 
         godot::Vector<godot::StringName> selected_names = graph_view->get_selected_node_task_names();
         REQUIRE(selected_names.size() == 0);
+        CHECK_FALSE(task1->is_selected());
+        CHECK_FALSE(task21->is_selected());
+        CHECK_FALSE(task213->is_selected());
     }
 }
 

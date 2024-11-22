@@ -370,6 +370,45 @@ struct BTGraphEditorReadyTreeFixture : public BTGraphEditorFixture
         godot::Ref<BTTask> new_task = tree->get_root_task()->get_child(0);
         assert_task_changed("BTCondition", new_task, child1_task);
     }
+
+    void test_copy_nodes_request()
+    {
+        graph_view->set_task_node_selected(child1_task->get_name(), true);
+        graph_view->set_task_node_selected(child2_task->get_name(), true);
+
+        editor->copy_nodes_request();
+        const BTGraphEditor::CopyInfo& copy_info = editor->get_copy_info();
+        CHECK_EQ(copy_info.copied_tasks.size(), 2);
+        CHECK(copy_info.copied_tasks.has(child1_task));
+        CHECK(copy_info.copied_tasks.has(child2_task));
+        CHECK_EQ(copy_info.copied_positions.size(), 2);
+        CHECK(copy_info.copied_positions.has(child1_task));
+        CHECK(copy_info.copied_positions.has(child2_task));
+        CHECK_EQ(copy_info.copied_connections.size(), 0);
+    }
+
+    void test_copy_nodes_copies_connections()
+    {
+        graph_view->set_task_node_selected(child1_task->get_name(), true);
+        graph_view->set_task_node_selected(child2_task->get_name(), true);
+        graph_view->set_task_node_selected(child11_task->get_name(), true);
+        graph_view->set_task_node_selected(child12_task->get_name(), true);
+        graph_view->set_task_node_selected(child21_task->get_name(), true);
+        graph_view->set_task_node_selected(child22_task->get_name(), true);
+
+        editor->copy_nodes_request();
+        const BTGraphEditor::CopyInfo& copy_info = editor->get_copy_info();
+
+        CHECK_EQ(copy_info.copied_tasks.size(), 6);
+        CHECK_EQ(copy_info.copied_positions.size(), 6);
+        REQUIRE_EQ(copy_info.copied_connections.size(), 2);
+        REQUIRE(copy_info.copied_connections.has(child1_task));
+        REQUIRE(copy_info.copied_connections.has(child2_task));
+        CHECK_EQ(copy_info.copied_connections[child1_task][0], child11_task);
+        CHECK_EQ(copy_info.copied_connections[child1_task][1], child12_task);
+        CHECK_EQ(copy_info.copied_connections[child2_task][0], child21_task);
+        CHECK_EQ(copy_info.copied_connections[child2_task][1], child22_task);
+    }
 };
 
 TEST_SUITE("[editor]" "[plugin]" "BTGraphEditor")
@@ -481,6 +520,17 @@ TEST_SUITE("[editor]" "[plugin]" "BTGraphEditor")
         CHECK_EQ(graph_view->get_graph_node(root_task->get_name())->get_position_offset(), old_position + godot::Vector2(-10, 0));
         memdelete(new_tree);
     }
+
+    TEST_CASE_FIXTURE(BTGraphEditorReadyTreeFixture, "Copy tasks")
+    {
+        test_copy_nodes_request();
+    }
+
+    TEST_CASE_FIXTURE(BTGraphEditorReadyTreeFixture, "Copy tasks with connections")
+    {
+        test_copy_nodes_copies_connections();
+    }
+
 }
 
 TEST_SUITE("[editor]" "[plugin]" "[undo_redo]" "BTGraphEditor")

@@ -734,21 +734,6 @@ void BTGraphEditor::_delete_nodes_request(godot::TypedArray<godot::StringName> _
 
 /* Copy-pasta Handling */
 
-BTGraphNode* duplicate_graph_node(const BTGraphNode* node)
-{
-    /* Graph node is only a visual wrapper for task so no need to duplicate it. */
-    BTGraphNode* copy_node = memnew(BTGraphNode);
-    godot::Ref<BTTask> copy_task = node->get_task()->duplicate();
-
-    copy_task->clear_children();
-
-    copy_task->set_parent(nullptr);
-    copy_node->set_task(copy_task);
-    copy_node->set_position_offset(node->get_position_offset());
-    return copy_node;
-}
-
-
 void BTGraphEditor::copy_nodes_request()
 {
     /* Copied/selected nodes might be deleted later by user. So create copies now while still valid. */
