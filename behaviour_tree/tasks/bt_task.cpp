@@ -7,6 +7,11 @@ BTTask::BTTask()
     this->parent = nullptr;
     this->status = Status::FRESH;
     this->custom_name = "";
+    this->set_default_name();
+}
+
+void BTTask::set_default_name()
+{
     this->set_name(this->get_class_static() + godot::String("_") + godot::itos(this->get_instance_id()));
 }
 
@@ -224,6 +229,15 @@ void BTTask:: _exit()
 BTTask::Status BTTask::_tick(double delta)
 {
     return Status::FAILURE;
+}
+
+godot::Ref<BTTask> BTTask::copy() const
+{
+    godot::Ref<BTTask> new_task = this->duplicate(false);
+    new_task->set_parent(nullptr);
+    new_task->_set_children(godot::Array());
+    new_task->set_default_name();
+    return new_task;
 }
 
 godot::Ref<BTTask> BTTask::clone() const

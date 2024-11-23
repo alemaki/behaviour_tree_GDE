@@ -409,6 +409,33 @@ struct BTGraphEditorReadyTreeFixture : public BTGraphEditorFixture
         CHECK_EQ(copy_info.copied_connections[child2_task][0], child21_task);
         CHECK_EQ(copy_info.copied_connections[child2_task][1], child22_task);
     }
+
+    void test_paste_nodes_request()
+    {
+        graph_view->set_task_node_selected(child1_task->get_name(), true);
+        graph_view->set_task_node_selected(child2_task->get_name(), true);
+        editor->copy_nodes_request();
+        editor->paste_nodes_request();
+        
+        REQUIRE_EQ(graph_view->get_child_count(), initial_child_count + 7 + 2);
+        REQUIRE_EQ(tree->get_task_count(), 7 + 2);
+        godot::Ref<BTTask> new_task1 = this->tree->get_task(8);
+        godot::Ref<BTTask> new_task2 = this->tree->get_task(9);
+        REQUIRE(new_task1.is_valid());
+        REQUIRE(new_task2.is_valid());
+        REQUIRE_NE(new_task1->get_name(), child1_task->get_name());
+        REQUIRE_NE(new_task2->get_name(), child2_task->get_name());
+        CHECK_EQ(new_task1->get_custom_name(), child1_task->get_custom_name());
+        CHECK_EQ(new_task2->get_custom_name(), child2_task->get_custom_name());
+        CHECK_EQ(new_task1->get_class(), child1_task->get_class());
+        CHECK_EQ(new_task2->get_class(), child2_task->get_class());
+        REQUIRE(graph_view->has_task_name(new_task1->get_name()));
+        REQUIRE(graph_view->has_task_name(new_task2->get_name()));
+        CHECK_EQ(graph_view->get_graph_node(new_task1->get_name())->get_title(), child1->get_title());
+        CHECK_EQ(graph_view->get_graph_node(new_task2->get_name())->get_title(), child2->get_title());
+        CHECK_EQ(graph_view->get_graph_node(new_task1->get_name())->get_task_class_name(), child1->get_task_class_name());
+        CHECK_EQ(graph_view->get_graph_node(new_task2->get_name())->get_task_class_name(), child2->get_task_class_name());
+    }
 };
 
 TEST_SUITE("[editor]" "[plugin]" "BTGraphEditor")
@@ -529,6 +556,11 @@ TEST_SUITE("[editor]" "[plugin]" "BTGraphEditor")
     TEST_CASE_FIXTURE(BTGraphEditorReadyTreeFixture, "Copy tasks with connections")
     {
         test_copy_nodes_copies_connections();
+    }
+
+    TEST_CASE_FIXTURE(BTGraphEditorReadyTreeFixture, "Paste tasks")
+    {
+        test_paste_nodes_request();
     }
 
 }

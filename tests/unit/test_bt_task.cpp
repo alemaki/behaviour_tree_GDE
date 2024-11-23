@@ -12,7 +12,7 @@
 
 TEST_SUITE("BTTaskTests")
 {
-
+    // TODO: extensive testing on clone and copy.
     TEST_CASE("Test basic functionality")
     {
         godot::Ref<BTTask> task = memnew(BTTask);

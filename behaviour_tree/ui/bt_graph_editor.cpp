@@ -794,7 +794,7 @@ void BTGraphEditor::paste_nodes_request()
 
     for (godot::Ref<BTTask> task : copy_info.copied_tasks)
     {
-        godot::Ref<BTTask> copy = task->duplicate();
+        godot::Ref<BTTask> copy = task->copy();
         copied_to_pasted.insert(task, copy);
     }
 

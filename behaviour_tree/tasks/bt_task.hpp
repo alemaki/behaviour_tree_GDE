@@ -31,6 +31,7 @@ private:
     godot::Ref<Blackboard> blackboard = nullptr;
     godot::Vector<godot::Ref<BTTask>> children = {};
 
+    void set_default_name();
 protected:
     virtual void _setup();
     virtual void _enter();
@@ -84,6 +85,7 @@ public:
     virtual BTTask::Status execute(double delta);
     virtual void abort();
 
+    virtual godot::Ref<BTTask> copy() const;
     virtual godot::Ref<BTTask> clone() const;
 
     void initialize(godot::Node* actor, godot::Ref<Blackboard> blackboard);
