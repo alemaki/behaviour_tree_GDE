@@ -436,6 +436,48 @@ struct BTGraphEditorReadyTreeFixture : public BTGraphEditorFixture
         CHECK_EQ(graph_view->get_graph_node(new_task1->get_name())->get_task_class_name(), child1->get_task_class_name());
         CHECK_EQ(graph_view->get_graph_node(new_task2->get_name())->get_task_class_name(), child2->get_task_class_name());
     }
+
+    void test_paste_nodes_with_connections_request()
+    {
+        graph_view->set_task_node_selected(root_task->get_name(), true);
+        graph_view->set_task_node_selected(child1_task->get_name(), true);
+        graph_view->set_task_node_selected(child2_task->get_name(), true);
+        graph_view->set_task_node_selected(child11_task->get_name(), true);
+        graph_view->set_task_node_selected(child12_task->get_name(), true);
+        graph_view->set_task_node_selected(child21_task->get_name(), true);
+        graph_view->set_task_node_selected(child22_task->get_name(), true);
+        editor->copy_nodes_request();
+        editor->paste_nodes_request();
+        
+        REQUIRE_EQ(graph_view->get_child_count(), initial_child_count + 7 + 7);
+        REQUIRE_EQ(tree->get_task_count(), 7 + 7);
+        REQUIRE_EQ(graph_view->get_connection_list().size(), 6 + 6);
+        godot::Ref<BTTask> new_root = this->tree->get_task(8);
+        godot::Ref<BTTask> new_task1 = this->tree->get_task(9);
+        godot::Ref<BTTask> new_task2 = this->tree->get_task(10);
+        godot::Ref<BTTask> new_task11 = this->tree->get_task(11);
+        godot::Ref<BTTask> new_task12 = this->tree->get_task(12);
+        godot::Ref<BTTask> new_task21 = this->tree->get_task(13);
+        godot::Ref<BTTask> new_task22 = this->tree->get_task(14);
+        REQUIRE_EQ(new_root->get_child_count(), 2);
+        REQUIRE_EQ(new_task1->get_child_count(), 2);
+        REQUIRE_EQ(new_task2->get_child_count(), 2);
+        REQUIRE_EQ(new_task22->get_child_count(), 0);
+        REQUIRE_EQ(new_task11->get_child_count(), 0);
+        CHECK_EQ(new_root->get_child(0), new_task1);
+        CHECK_EQ(new_root->get_child(1), new_task2);
+        CHECK_EQ(new_task1->get_child(0), new_task11);
+        CHECK_EQ(new_task1->get_child(1), new_task12);
+        CHECK_EQ(new_task2->get_child(0), new_task21);
+        CHECK_EQ(new_task2->get_child(1), new_task22);
+
+        CHECK(graph_view->is_node_connected(graph_view->get_graph_node(new_root->get_name())->get_name(), 0, graph_view->get_graph_node(new_task1->get_name())->get_name(), 0));
+        CHECK(graph_view->is_node_connected(graph_view->get_graph_node(new_root->get_name())->get_name(), 0, graph_view->get_graph_node(new_task2->get_name())->get_name(), 0));
+        CHECK(graph_view->is_node_connected(graph_view->get_graph_node(new_task1->get_name())->get_name(), 0, graph_view->get_graph_node(new_task11->get_name())->get_name(), 0));
+        CHECK(graph_view->is_node_connected(graph_view->get_graph_node(new_task1->get_name())->get_name(), 0, graph_view->get_graph_node(new_task12->get_name())->get_name(), 0));
+        CHECK(graph_view->is_node_connected(graph_view->get_graph_node(new_task2->get_name())->get_name(), 0, graph_view->get_graph_node(new_task21->get_name())->get_name(), 0));
+        CHECK(graph_view->is_node_connected(graph_view->get_graph_node(new_task2->get_name())->get_name(), 0, graph_view->get_graph_node(new_task22->get_name())->get_name(), 0));
+    }
 };
 
 TEST_SUITE("[editor]" "[plugin]" "BTGraphEditor")
@@ -561,6 +603,11 @@ TEST_SUITE("[editor]" "[plugin]" "BTGraphEditor")
     TEST_CASE_FIXTURE(BTGraphEditorReadyTreeFixture, "Paste tasks")
     {
         test_paste_nodes_request();
+    }
+
+    TEST_CASE_FIXTURE(BTGraphEditorReadyTreeFixture, "Paste tasks with connections")
+    {
+        test_paste_nodes_with_connections_request();
     }
 
 }

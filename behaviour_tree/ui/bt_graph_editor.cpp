@@ -846,7 +846,7 @@ void BTGraphEditor::paste_nodes_request()
         
         for (int i = 0; i < pasted_children.size(); i++)
         {
-            godot::Ref<BTTask> pasted_child;
+            godot::Ref<BTTask> pasted_child = pasted_children[i];
             undo_redo_manager->add_do_method(this->behaviour_tree, "connect_tasks", pasted, pasted_child, i);
             undo_redo_manager->add_undo_method(this->behaviour_tree, "disconnect_tasks", pasted, pasted_child);
         

@@ -234,6 +234,7 @@ BTTask::Status BTTask::_tick(double delta)
 godot::Ref<BTTask> BTTask::copy() const
 {
     godot::Ref<BTTask> new_task = this->duplicate(false);
+    ERR_FAIL_COND_V(new_task.is_null(), nullptr);
     new_task->set_parent(nullptr);
     new_task->_set_children(godot::Array());
     new_task->set_default_name();
