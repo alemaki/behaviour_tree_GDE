@@ -304,7 +304,7 @@ void BTGraphView::load_graph(const godot::StringName& name)
 void BTGraphView::set_root_task_name(const godot::StringName& task_name)
 {
     ERR_FAIL_COND_MSG(!(this->has_task_name(task_name)), "BTGraphView has no task_name named: " + task_name + ".");
-    if (!(this->root_task_name.is_empty()))
+    if (!(this->root_task_name.is_empty()) && this->task_name_to_node.has(this->root_task_name))
     {
         BTGraphNode* node = this->task_name_to_node[this->root_task_name];
         node->set_default_node_color();

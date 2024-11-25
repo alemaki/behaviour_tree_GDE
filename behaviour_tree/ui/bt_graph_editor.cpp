@@ -169,6 +169,7 @@ void BTGraphEditor::load_tree()
     ERR_FAIL_COND(!(this->saved_trees.has(this->behaviour_tree)));
     godot::StringName behaviour_tree_save_name = get_name_of_tree(this->behaviour_tree);
     this->graph_view->load_graph(behaviour_tree_save_name);
+    this->saved_trees.erase(this->behaviour_tree);
     this->color_root_node();
 }
 
@@ -200,7 +201,7 @@ void BTGraphEditor::delete_nodes(const godot::Vector<StringName>& task_names_to_
 
         /* add node first when undoing so connections can form. No need to disconnect them later because deleting will remove connection.*/
         undo_redo_manager->add_undo_method(this->graph_view, "create_task_node", task_to_remove_name, task_to_remove->get_class_static());
-        undo_redo_manager->add_undo_method(this->graph_view, "set_node_positon", task_to_remove_name, node_to_delete->get_position_offset());
+        undo_redo_manager->add_undo_method(this->graph_view, "set_node_position", task_to_remove_name, node_to_delete->get_position_offset());
         undo_redo_manager->add_undo_method(this->graph_view, "set_task_node_title", task_to_remove_name, task_to_remove->get_custom_name());
 
         for (int j = 0; j < task_children.size(); j++)
@@ -234,12 +235,12 @@ void BTGraphEditor::delete_nodes(const godot::Vector<StringName>& task_names_to_
 void BTGraphEditor::create_default_graph_nodes()
 {
     godot::Array tasks_array = this->behaviour_tree->get_tasks();
-
     for (int i = 0; i < tasks_array.size(); i++)
     {
         godot::Ref<BTTask> task = tasks_array[i];
         this->graph_view->create_task_node(task->get_name(), task->get_class());
         this->graph_view->set_task_node_title(task->get_name(), task->get_custom_name());
+        this->connect_graph_node_signals(task->get_name());
     }
 
     this->arrange_nodes();
@@ -339,6 +340,7 @@ void BTGraphEditor::arrange_nodes(bool with_undo_redo)
 
 void BTGraphEditor::color_root_node()
 {
+    ERR_FAIL_NULL(this->behaviour_tree);
     godot::Ref<BTTask> root = this->behaviour_tree->get_root_task();
     if (root.is_null())
     {
@@ -564,7 +566,6 @@ void BTGraphEditor::_on_node_deselected(const godot::StringName& _task_name)
 void BTGraphEditor::_on_node_double_clicked(const godot::StringName& task_name)
 {
     ERR_FAIL_COND(!(this->graph_view->has_task_name(task_name)));
-
     this->last_double_clicked_node = task_name;
     BTGraphNode* clicked_node = this->graph_view->get_graph_node(task_name);
     this->rename_edit->set_text(clicked_node->get_title());
@@ -1009,7 +1010,7 @@ void BTGraphEditor::set_editor_plugin(godot::EditorPlugin* editor_plugin)
 void BTGraphEditor::set_behaviour_tree(BehaviourTree* new_tree)
 {
     ERR_FAIL_COND(new_tree == nullptr);
-    if (this->behaviour_tree != nullptr)
+    if (this->behaviour_tree && !this->saved_trees.has(this->behaviour_tree))
     {
         this->save_tree();
     }

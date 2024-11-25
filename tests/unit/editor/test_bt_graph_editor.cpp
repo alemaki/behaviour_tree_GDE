@@ -512,6 +512,7 @@ TEST_SUITE("[editor]" "[plugin]" "BTGraphEditor")
         test_node_moving();
     }
 
+    //TODO: test deletion undo redo
     TEST_CASE_FIXTURE(BTGraphEditorFixture, "Test node deletion")
     {
         test_node_deletion();

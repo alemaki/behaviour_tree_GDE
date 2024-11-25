@@ -32,9 +32,6 @@ private:
 
 public:
     BTGraphNode();
-    void set_task(godot::Ref<BTTask> task) {ERR_FAIL();}; // currently disabled
-    godot::Ref<BTTask> get_task() const {ERR_FAIL_COND_V(true, godot::Ref<BTTask>(nullptr));}; // currently disabled
-
     virtual void set_task_class_name(const godot::StringName& task_class_name);
     _FORCE_INLINE_ godot::StringName get_task_class_name()
     {
