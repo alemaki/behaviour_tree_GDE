@@ -216,6 +216,49 @@ struct BTGraphEditorFixture
         CHECK_EQ(parent_task->get_child(1), child_task1);
     }
 
+    void assert_node_before_deletion()
+    {
+        godot::Ref<BTTask> parent_task = tree->get_task(1);
+        godot::Ref<BTTask> node1_task = tree->get_task(2);
+        godot::Ref<BTTask> node11_task = tree->get_task(3);
+        godot::Ref<BTTask> node12_task = tree->get_task(4);
+
+        BTGraphNode* parent = graph_view->get_graph_node(parent_task->get_name());
+        BTGraphNode* node1 = graph_view->get_graph_node(node1_task->get_name());
+        BTGraphNode* node11 = graph_view->get_graph_node(node11_task->get_name());
+        BTGraphNode* node12 = graph_view->get_graph_node(node12_task->get_name());
+
+        REQUIRE_NE(parent, nullptr);
+        REQUIRE_NE(node1, nullptr);
+        REQUIRE_NE(node11, nullptr);
+        REQUIRE_NE(node12, nullptr);
+        CHECK_VECTORS_EQ(graph_view->get_graph_node(node1_task->get_name())->get_position_offset(), godot::Vector2(0, 1));
+        REQUIRE_EQ(graph_view->get_connection_list().size(), 3);
+        REQUIRE_EQ(parent_task->get_child_count(), 1);
+        CHECK_EQ(parent_task->get_child(0), node1_task);
+        CHECK_EQ(node1_task->get_child(0), node11_task);
+        CHECK_EQ(node1_task->get_child(1), node12_task);
+        CHECK(graph_view->is_node_connected(parent->get_name(), 0, node1->get_name(), 0));
+        CHECK(graph_view->is_node_connected(node1->get_name(), 0, node11->get_name(), 0));
+        CHECK(graph_view->is_node_connected(node1->get_name(), 0, node12->get_name(), 0));
+    }
+
+    void assert_node_deleted(godot::Ref<BTTask> deleted_task)
+    {
+        godot::Ref<BTTask> parent_task = tree->get_task(1);
+        godot::Ref<BTTask> node11_task = tree->get_task(3);
+        godot::Ref<BTTask> node12_task = tree->get_task(4);
+
+        CHECK_EQ(tree->get_task_count(), 3);
+        CHECK_FALSE(tree->has_task(deleted_task));
+        CHECK_EQ(graph_view->get_connection_list().size(), 0);
+        CHECK_EQ(graph_view->get_child_count(), initial_child_count + 3);
+        CHECK_EQ(parent_task->get_child_count(), 0);
+        CHECK_EQ(deleted_task->get_child_count(), 0);
+        CHECK(node11_task->get_parent().is_null());
+        CHECK(node12_task->get_parent().is_null());
+    }
+
     void test_node_deletion()
     {
         editor->_add_new_node_button_pressed();
@@ -226,45 +269,29 @@ struct BTGraphEditorFixture
         REQUIRE_EQ(graph_view->get_child_count(), initial_child_count + 4);
 
         
-        BTGraphNode* parent = get_graph_node(0);
-        BTGraphNode* node1 = get_graph_node(1);
-        BTGraphNode* node11 = get_graph_node(2);
-        BTGraphNode* node12 = get_graph_node(3);
-
-        REQUIRE_NE(parent, nullptr);
-        REQUIRE_NE(node1, nullptr);
-        REQUIRE_NE(node11, nullptr);
-        REQUIRE_NE(node12, nullptr);
-
         godot::Ref<BTTask> parent_task = tree->get_task(1);
         godot::Ref<BTTask> node1_task = tree->get_task(2);
         godot::Ref<BTTask> node11_task = tree->get_task(3);
         godot::Ref<BTTask> node12_task = tree->get_task(4);
 
+        REQUIRE_NE(graph_view->get_graph_node(parent_task->get_name()), nullptr);
+        REQUIRE_NE(graph_view->get_graph_node(node1_task->get_name()), nullptr);
+        REQUIRE_NE(graph_view->get_graph_node(node11_task->get_name()), nullptr);
+        REQUIRE_NE(graph_view->get_graph_node(node12_task->get_name()), nullptr);
+
         graph_view->set_node_position(node1_task->get_name(), godot::Vector2(0, 1));
 
-        editor->connection_request(parent->get_name(), 0, node1->get_name(), 0);
-        editor->connection_request(node1->get_name(), 0, node11->get_name(), 0);
-        editor->connection_request(node1->get_name(), 0, node12->get_name(), 0);
+        editor->connection_request(graph_view->get_graph_node(parent_task->get_name())->get_name(), 0, graph_view->get_graph_node(node1_task->get_name())->get_name(), 0);
+        editor->connection_request(graph_view->get_graph_node(node1_task->get_name())->get_name(), 0, graph_view->get_graph_node(node11_task->get_name())->get_name(), 0);
+        editor->connection_request(graph_view->get_graph_node(node1_task->get_name())->get_name(), 0, graph_view->get_graph_node(node12_task->get_name())->get_name(), 0);
 
-        REQUIRE_EQ(graph_view->get_connection_list().size(), 3);
-        REQUIRE_EQ(parent_task->get_child_count(), 1);
-        CHECK_EQ(parent_task->get_child(0), node1_task);
-        CHECK_EQ(node1_task->get_child(0), node11_task);
-        CHECK_EQ(node1_task->get_child(1), node12_task);
+        assert_node_before_deletion();
 
         godot::TypedArray<godot::StringName> nodes_to_delete;
-        nodes_to_delete.push_back(node1->get_name());
+        nodes_to_delete.push_back(graph_view->get_graph_node(node1_task->get_name())->get_name());
         editor->_delete_nodes_request(nodes_to_delete);
 
-        CHECK_EQ(tree->get_task_count(), 3);
-        CHECK_FALSE(tree->has_task(node1_task));
-        CHECK_EQ(graph_view->get_connection_list().size(), 0);
-        CHECK_EQ(graph_view->get_child_count(), initial_child_count + 3);
-        CHECK_EQ(parent_task->get_child_count(), 0);
-        CHECK_EQ(node1_task->get_child_count(), 0);
-        CHECK(node11_task->get_parent().is_null());
-        CHECK(node12_task->get_parent().is_null());
+        assert_node_deleted(node1_task);
     }
 };
 
@@ -512,7 +539,6 @@ TEST_SUITE("[editor]" "[plugin]" "BTGraphEditor")
         test_node_moving();
     }
 
-    //TODO: test deletion undo redo
     TEST_CASE_FIXTURE(BTGraphEditorFixture, "Test node deletion")
     {
         test_node_deletion();
@@ -787,4 +813,21 @@ TEST_SUITE("[editor]" "[plugin]" "[undo_redo]" "BTGraphEditor")
 
         assert_task_changed("BTCondition", new_task, child1_task);
     }
+
+    TEST_CASE_FIXTURE(BTGraphEditorFixture, "Test node deletion")
+    {
+        test_node_deletion();
+
+        godot::UndoRedo* undo = get_undo(tree);
+        undo->undo();
+
+        assert_node_before_deletion();
+        godot::Ref<BTTask> node1_task = tree->get_task(2);
+
+        godot::UndoRedo* redo = get_redo(tree);
+        redo->redo();
+
+        assert_node_deleted(node1_task);
+    }
+
 }
