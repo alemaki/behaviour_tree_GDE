@@ -48,7 +48,7 @@ void BTGraphNode::_setup_icon_label()
 
 void BTGraphNode::evaluate_icon()
 {
-    godot::String icon_path = "res://gdextension/behaviour_tree/icons/";
+    godot::String icon_path = "res://gdextension/behaviour_tree_GDE/icons/";
     godot::String extension = ".png";
     godot::Ref<godot::Texture2D> icon_texture;
     
@@ -68,7 +68,7 @@ void BTGraphNode::evaluate_icon()
     }
     else
     {
-        icon_texture = godot::ResourceLoader::get_singleton()->load("res://gdextension/behaviour_tree/icons/BTDefault.png");
+        icon_texture = godot::ResourceLoader::get_singleton()->load(icon_path + "BTDefault.png");
     }
     
     this->icon->set_texture(icon_texture);

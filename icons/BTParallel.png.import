@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://xokqqxyo58m2"
-path="res://.godot/imported/BTParallel.png-86232b9c15c15393b9733967381bcf7d.ctex"
+path="res://.godot/imported/BTParallel.png-7e4b6207ad4d3a46067c195fb9907cff.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://gdextension/behaviour_tree/icons/BTParallel.png"
-dest_files=["res://.godot/imported/BTParallel.png-86232b9c15c15393b9733967381bcf7d.ctex"]
+source_file="res://gdextension/behaviour_tree_GDE/icons/BTParallel.png"
+dest_files=["res://.godot/imported/BTParallel.png-7e4b6207ad4d3a46067c195fb9907cff.ctex"]
 
 [params]
 

@@ -9,9 +9,6 @@
 #include <godot_cpp/classes/engine.hpp>
 #include <godot_cpp/classes/scene_tree.hpp>
 
-godot::SceneTree* get_scene_tree();
-godot::Node* get_scene_root();
-
 namespace utils
 {   
 

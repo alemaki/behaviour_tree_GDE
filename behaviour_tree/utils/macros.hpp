@@ -5,8 +5,6 @@
 #include <godot_cpp/core/math.hpp>
 #include <godot_cpp/core/class_db.hpp>
 
-
-
 /* GETTERS AND SETTERS */
 #define CREATE_GETTER_SETTER(type, name, member) /*****************************************************************************************************************************/\
     void set_##name(type value) { this->member = value; }                                                                                                                       \

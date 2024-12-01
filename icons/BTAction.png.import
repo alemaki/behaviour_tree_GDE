@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cfhehpdxrabp3"
-path="res://.godot/imported/BTAction.png-befe7c65268d9574beeb7da3a36c6e98.ctex"
+path="res://.godot/imported/BTAction.png-79300d25d8f0b412cfff662cb5af1c1b.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://gdextension/behaviour_tree/icons/BTAction.png"
-dest_files=["res://.godot/imported/BTAction.png-befe7c65268d9574beeb7da3a36c6e98.ctex"]
+source_file="res://gdextension/behaviour_tree_GDE/icons/BTAction.png"
+dest_files=["res://.godot/imported/BTAction.png-79300d25d8f0b412cfff662cb5af1c1b.ctex"]
 
 [params]
 

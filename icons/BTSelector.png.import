@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://c3c2s3pkaqk2j"
-path="res://.godot/imported/BTSelector.png-201784bed720dd21a3e9d485a04cc685.ctex"
+path="res://.godot/imported/BTSelector.png-cbfef1174846043bda0c5f33817f3a89.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://gdextension/behaviour_tree/icons/BTSelector.png"
-dest_files=["res://.godot/imported/BTSelector.png-201784bed720dd21a3e9d485a04cc685.ctex"]
+source_file="res://gdextension/behaviour_tree_GDE/icons/BTSelector.png"
+dest_files=["res://.godot/imported/BTSelector.png-cbfef1174846043bda0c5f33817f3a89.ctex"]
 
 [params]
 

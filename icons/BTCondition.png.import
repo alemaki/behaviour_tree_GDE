@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cml3fr2hp5axk"
-path="res://.godot/imported/BTCondition.png-ab2c6b9e675f432d22640df374b43f4b.ctex"
+path="res://.godot/imported/BTCondition.png-9a05f4c17aeb2446380a9d4e437fecb6.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://gdextension/behaviour_tree/icons/BTCondition.png"
-dest_files=["res://.godot/imported/BTCondition.png-ab2c6b9e675f432d22640df374b43f4b.ctex"]
+source_file="res://gdextension/behaviour_tree_GDE/icons/BTCondition.png"
+dest_files=["res://.godot/imported/BTCondition.png-9a05f4c17aeb2446380a9d4e437fecb6.ctex"]
 
 [params]
 

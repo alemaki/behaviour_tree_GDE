@@ -1,16 +1,5 @@
 #include "utils.hpp" 
 
-
-godot::SceneTree* get_scene_tree()
-{
-    return godot::Object::cast_to<godot::SceneTree>(godot::Engine::get_singleton()->get_main_loop());
-}
-
-godot::Node* get_scene_root()
-{
-    return get_scene_tree()->get_current_scene();
-}
-
 namespace utils
 {
 

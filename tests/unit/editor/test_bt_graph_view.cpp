@@ -1,12 +1,10 @@
 #define DOCTEST_CONFIG_NO_EXCEPTIONS_BUT_WITH_ALL_ASSERTS
-#include <doctest.h>
 
-#include "tests/test_utils/test_utils.hpp"
+#include "tests/test_utils/test_macros.hpp"
 
 #include "behaviour_tree/ui/bt_graph_view.hpp"
 #include "behaviour_tree/ui/bt_graph_node.hpp"
 #include "behaviour_tree/ui/bt_graph_node_subtree.hpp"
-#include "tests/test_utils/signal_watcher.hpp"
 
 struct BTGraphViewFixture
 {

@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cluy2lywwaid6"
-path="res://.godot/imported/BTProbability.png-f0f4287aae1483af78e540ceaba99261.ctex"
+path="res://.godot/imported/BTProbability.png-800048cf8d0764f216ab84affb434ccd.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://gdextension/behaviour_tree/icons/BTProbability.png"
-dest_files=["res://.godot/imported/BTProbability.png-f0f4287aae1483af78e540ceaba99261.ctex"]
+source_file="res://gdextension/behaviour_tree_GDE/icons/BTProbability.png"
+dest_files=["res://.godot/imported/BTProbability.png-800048cf8d0764f216ab84affb434ccd.ctex"]
 
 [params]
 
