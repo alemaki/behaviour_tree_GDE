@@ -5,3 +5,4 @@
 [submodule "tests/test_utils"]
 	path = tests/test_utils
 	url = https://github.com/alemaki/test_utils_GDE.git
+	branch = main
