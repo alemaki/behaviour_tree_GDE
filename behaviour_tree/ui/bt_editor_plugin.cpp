@@ -40,8 +40,6 @@ BTEditorPlugin::BTEditorPlugin()
                                     this->bottom_panel_button_name);
 
 
-    //this->debugger_panel = memnew(BTDebuggerPanel);
-    //this->add_control_to_bottom_panel(this->debugger_panel, "BT Debugger");
     this->debugger_plugin = godot::Ref<BTEditorDebuggerPlugin>(memnew(BTEditorDebuggerPlugin));
 
     this->add_debugger_plugin(this->debugger_plugin);

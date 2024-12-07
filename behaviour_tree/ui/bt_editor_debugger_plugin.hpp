@@ -4,7 +4,9 @@
 #include <godot_cpp/classes/editor_debugger_plugin.hpp>
 #include <godot_cpp/classes/editor_debugger_session.hpp>
 #include <godot_cpp/classes/label.hpp>
+#include <godot_cpp/classes/encoded_object_as_id.hpp>
 #include <godot_cpp/templates/vector.hpp>
+#include <godot_cpp/templates/hash_set.hpp>
 
 #include "behaviour_tree/tasks/bt_task.hpp"
 
@@ -12,68 +14,36 @@ class BTEditorDebuggerPlugin : public godot::EditorDebuggerPlugin
 {
     GDCLASS(BTEditorDebuggerPlugin, godot::EditorDebuggerPlugin);
 
+    struct NodeInfo
+    {
+        BTTask::Status status = BTTask::Status::FRESH;
+        godot::StringName name;
+        godot::StringName custom_name;
+        godot::StringName class_name;
+        godot::Ref<godot::EncodedObjectAsID> parent;
+        godot::Vector<godot::Ref<godot::EncodedObjectAsID>> children;
+    };
+
 private:
-    godot::Vector<godot::Ref<BTTask>> trees;
+    godot::StringName last_registered_tree_name;
+    godot::HashMap<godot::StringName, godot::Ref<godot::EncodedObjectAsID>> tree_to_root_id;
+    godot::HashMap<godot::Ref<godot::EncodedObjectAsID>, NodeInfo> tasks;
+
+private:
+    bool register_tree_root(godot::Ref<godot::EncodedObjectAsID> node_id, int32_t p_session_id);
+    bool register_tree(const Array& p_data, int32_t p_session_id);
+    bool register_task(const Array& p_data, int32_t p_session_id);
 
 public:
+    virtual bool _has_capture(const String &p_capture) const override;
+    virtual bool _capture(const String &p_message, const Array &p_data, int32_t p_session_id) override;
+    virtual void _setup_session(int32_t p_session_id) override;
 
-    virtual bool _has_capture(const String &p_capture) const override
-    {
-        return p_capture == "bt_debug";
-    }
-
-    virtual bool _capture(const String &p_message, const Array &p_data, int32_t p_session_id) override
-    {
-        if (p_message == "bt_debug:register_tree")
-        {
-            ERR_FAIL_COND_V(p_data.size() < 1, false);
-            godot::Ref<BTTask> root = p_data[0];
-
-            godot::Ref<godot::EditorDebuggerSession> session = get_session(p_session_id);
-            if (session.is_valid())
-            {
-                godot::UtilityFunctions::printt(session);
-                // if (godot::Label *label = Object::cast_to<godot::Label>(session->get_session_tab("BT Debugger")))
-                // {
-                //     label->set_text("Tree ID: " + String::num_int64(p_data[0].get_instance_id()));
-                // }
-            }
-
-            return true;
-        }
-        return false;
-    }
-
-    virtual void _setup_session(int32_t p_session_id) override
-    {
-        godot::Label *label = memnew(godot::Label);
-        label->set_text("BT Debugger Initialized");
-        label->set_name("BT Debugger"); // This name is used as the tab title in the session UI
-
-        godot::Ref<godot::EditorDebuggerSession> session = get_session(p_session_id);
-
-        if (session.is_valid())
-        {
-            session->add_session_tab(label);
-            session->call_deferred("connect", "started", callable_mp(this, &BTEditorDebuggerPlugin::on_session_started));
-            session->call_deferred("connect", "stopped", callable_mp(this, &BTEditorDebuggerPlugin::on_session_stopped));
-        }
-    }
-
-    void on_session_started()
-    {
-        godot::UtilityFunctions::print("Debugger session started");
-    }
-
-    void on_session_stopped()
-    {
-        godot::UtilityFunctions::print("Debugger session stopped");
-    }
+    void on_session_started();
+    void on_session_stopped();
 
 protected:
     static void _bind_methods(){};
 };
-
-
 
 #endif /* BT_EDITOR_DEBUGGER_PLUGIN_HPP */
