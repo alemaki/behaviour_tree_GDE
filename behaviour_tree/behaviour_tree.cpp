@@ -218,10 +218,15 @@ godot::Ref<BTTask> BehaviourTree::instantiate(Node* actor, godot::Ref<Blackboard
         return nullptr;
     }
     godot::Ref<BTTask> task = this->root_task->clone();
-    if (task != nullptr)
+    if (task.is_valid())
     {
         task->initialize(actor, blackboard);
-        BTEdtiorDebuggerMessages::register_tree(task);
+        if (true)
+        {
+            BTEdtiorDebuggerMessages::register_tree(this->get_name());
+            BTEdtiorDebuggerMessages::register_root_task(task);
+            BTEdtiorDebuggerMessages::debug_tree(this->get_name());
+        }
     }
     return task;
 }

@@ -13,7 +13,8 @@ private:
 public:
     static bool can_send_message();
     static void register_tree(godot::StringName tree_name);
-    static void register_tree_task(godot::Ref<BTTask> root);
+    static void register_root_task(godot::Ref<BTTask> root);
+    static void debug_tree(godot::StringName tree_name);
 };
 
 #endif /* BT_EDITOR_DEBUGGER_MESSAGES_HPP */

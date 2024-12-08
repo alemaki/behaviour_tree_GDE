@@ -239,7 +239,14 @@ void BTGraphEditor::create_default_graph_nodes()
     {
         godot::Ref<BTTask> task = tasks_array[i];
         this->graph_view->create_task_node(task->get_name(), task->get_class());
-        this->graph_view->set_task_node_title(task->get_name(), task->get_custom_name());
+        if (godot::Ref<BTSubtree>(task).is_valid())
+        {
+            this->graph_view->set_task_node_title(task->get_name(), godot::Ref<BTSubtree>(task)->get_file_path());
+        }
+        else
+        {
+            this->graph_view->set_task_node_title(task->get_name(), task->get_custom_name());
+        }
         this->connect_graph_node_signals(task->get_name());
     }
 
