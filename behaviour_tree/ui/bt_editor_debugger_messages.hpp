@@ -7,13 +7,13 @@
 class BTEdtiorDebuggerMessages
 {
 private:
-    static void send_message_register_tree(godot::StringName tree_name);
-    static void send_message_register_tree_task(godot::Ref<BTTask> root);
+    static void send_message_register_tree(godot::StringName tree_name, godot::Ref<BTTask> root);
+    static void send_message_register_tree_task(godot::Ref<BTTask> task);
+    static void register_root_task(godot::StringName tree_name, godot::Ref<BTTask> root);
 
 public:
     static bool can_send_message();
-    static void register_tree(godot::StringName tree_name);
-    static void register_root_task(godot::Ref<BTTask> root);
+    static void register_tree(godot::StringName tree_name, godot::Ref<BTTask> root);
     static void debug_tree(godot::StringName tree_name);
 };
 

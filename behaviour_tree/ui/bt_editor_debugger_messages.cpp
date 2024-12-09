@@ -6,35 +6,43 @@ bool BTEdtiorDebuggerMessages::can_send_message()
     return !(godot::Engine::get_singleton()->is_editor_hint());
 }
 
-void BTEdtiorDebuggerMessages::send_message_register_tree(godot::StringName tree_name)
+void BTEdtiorDebuggerMessages::send_message_register_tree(godot::StringName tree_name, godot::Ref<BTTask> root)
 {
-    godot::Array arr;
-    arr.push_back(tree_name);
-    godot::EngineDebugger::get_singleton()->send_message("bt_debug:register_tree", arr);
+    godot::EngineDebugger::get_singleton()->send_message("bt_debug:register_tree", godot::Array::make(tree_name, root->get_name()));
 }
 
-void BTEdtiorDebuggerMessages::register_tree(godot::StringName tree_name)
+void BTEdtiorDebuggerMessages::register_tree(godot::StringName tree_name, godot::Ref<BTTask> root)
 {
     ERR_FAIL_COND(tree_name.is_empty());
+    ERR_FAIL_COND(root.is_null());
     if (!(BTEdtiorDebuggerMessages::can_send_message()))
     {
         return;
     }
-    BTEdtiorDebuggerMessages::send_message_register_tree(tree_name);
+    root->set_default_name();
+    BTEdtiorDebuggerMessages::send_message_register_tree(tree_name, root);
+
+    BTEdtiorDebuggerMessages::register_root_task(tree_name, root);
 }
 
 void BTEdtiorDebuggerMessages::send_message_register_tree_task(godot::Ref<BTTask> task)
 {
     godot::Array arr;
-    arr.push_back(task);
     arr.push_back(task->get_name());
     arr.push_back(task->get_custom_name());
     arr.push_back(task->get_class());
-    arr.push_back(task->get_parent());
+    if (task->get_parent().is_null())
+    {
+        arr.push_back("");
+    }
+    else
+    {
+        arr.push_back(task->get_parent()->get_name());
+    }
     godot::EngineDebugger::get_singleton()->send_message("bt_debug:register_task", arr);
 }
 
-void BTEdtiorDebuggerMessages::register_root_task(godot::Ref<BTTask> root)
+void BTEdtiorDebuggerMessages::register_root_task(godot::StringName tree_name, godot::Ref<BTTask> root)
 {
     ERR_FAIL_COND(root.is_null());
     if (!(BTEdtiorDebuggerMessages::can_send_message()))
@@ -45,12 +53,10 @@ void BTEdtiorDebuggerMessages::register_root_task(godot::Ref<BTTask> root)
     tasks.push_back(root);
     int current_task_index = 0;
 
-    godot::UtilityFunctions::print(root);
-    godot::UtilityFunctions::print(root->get_children());
-
     while (tasks.size() > current_task_index)
     {
         godot::Ref<BTTask> task = tasks[current_task_index];
+        task->set_default_name();
         current_task_index++;
         BTEdtiorDebuggerMessages::send_message_register_tree_task(task);
 
@@ -68,7 +74,5 @@ void  BTEdtiorDebuggerMessages::debug_tree(godot::StringName tree_name)
     {
         return;
     }
-    godot::Array arr;
-    arr.push_back(tree_name);
-    godot::EngineDebugger::get_singleton()->send_message("bt_debug:debug_tree", arr);
+    godot::EngineDebugger::get_singleton()->send_message("bt_debug:debug_tree", godot::Array::make(tree_name));
 }
