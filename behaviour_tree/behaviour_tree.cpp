@@ -223,8 +223,7 @@ godot::Ref<BTTask> BehaviourTree::instantiate(Node* actor, godot::Ref<Blackboard
         task->initialize(actor, blackboard);
         if (true)
         {
-            BTEdtiorDebuggerMessages::register_tree(this->get_name());
-            BTEdtiorDebuggerMessages::register_root_task(task);
+            BTEdtiorDebuggerMessages::register_tree(this->get_name(), task);
             BTEdtiorDebuggerMessages::debug_tree(this->get_name());
         }
     }

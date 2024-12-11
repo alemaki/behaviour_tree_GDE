@@ -7,12 +7,11 @@ BTTask::BTTask()
     this->parent = nullptr;
     this->status = Status::FRESH;
     this->custom_name = "";
-    this->set_default_name();
 }
 
 void BTTask::set_default_name()
 {
-    this->set_name(this->get_class_static() + godot::String("_") + godot::itos(this->get_instance_id()));
+    this->set_name(this->get_class() + godot::String("_") + godot::uitos(this->get_instance_id()));
 }
 
 void BTTask::set_parent(godot::Ref<BTTask> parent)
@@ -237,7 +236,6 @@ godot::Ref<BTTask> BTTask::copy() const
     ERR_FAIL_COND_V(new_task.is_null(), nullptr);
     new_task->set_parent(nullptr);
     new_task->_set_children(godot::Array());
-    new_task->set_default_name();
     return new_task;
 }
 

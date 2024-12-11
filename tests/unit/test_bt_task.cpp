@@ -246,7 +246,7 @@ TEST_SUITE("BTTaskTests")
 
         CHECK_NE(cloned_task, task_prob);
         CHECK_EQ(cloned_task->get_class(), task_prob->get_class());
-        CHECK_EQ(static_cast<BTProbability*>(cloned_task.ptr())->get_run_chance(), task_prob->get_run_chance());
+        CHECK_EQ(godot::Ref<BTProbability>(cloned_task)->get_run_chance(), task_prob->get_run_chance());
     }
 
     TEST_CASE("Test cloning children")

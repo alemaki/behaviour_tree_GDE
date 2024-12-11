@@ -238,6 +238,7 @@ void BTGraphEditor::create_default_graph_nodes()
     for (int i = 0; i < tasks_array.size(); i++)
     {
         godot::Ref<BTTask> task = tasks_array[i];
+        task->set_default_name();
         this->graph_view->create_task_node(task->get_name(), task->get_class());
         if (godot::Ref<BTSubtree>(task).is_valid())
         {
@@ -437,6 +438,7 @@ void BTGraphEditor::_add_new_node_button_pressed()
 {
     int id = this->behaviour_tree->get_valid_id();
     godot::Ref<BTTask> new_task = memnew(BTTask);
+    new_task->set_default_name();
     godot::StringName task_custom_name = godot::itos(id);
     godot::StringName task_name = new_task->get_name();
     
@@ -464,6 +466,7 @@ void BTGraphEditor::_add_new_subtree_node_button_pressed()
     int id = this->behaviour_tree->get_valid_id();
 
     godot::Ref<BTSubtree> new_task = memnew(BTSubtree);
+    new_task->set_default_name();
     godot::StringName task_custom_name = godot::itos(id);
     godot::StringName task_name = new_task->get_name();
 
@@ -803,6 +806,7 @@ void BTGraphEditor::paste_nodes_request()
     for (godot::Ref<BTTask> task : copy_info.copied_tasks)
     {
         godot::Ref<BTTask> copy = task->copy();
+        copy->set_default_name();
         copied_to_pasted.insert(task, copy);
     }
 
