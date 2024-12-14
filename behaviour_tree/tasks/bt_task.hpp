@@ -30,6 +30,7 @@ private:
     godot::Node* actor = nullptr;
     godot::Ref<Blackboard> blackboard = nullptr;
     godot::Vector<godot::Ref<BTTask>> children = {};
+    bool debugging = false;
 
 protected:
     virtual void _setup();
@@ -40,6 +41,7 @@ protected:
 public:
     BTTask();
 
+    CREATE_GETTER_SETTER_BOOL_DEFAULT(debugging);
     CREATE_GETTER_SETTER_STRING_DEFAULT(custom_name);
     CREATE_GETTER_SETTER_DEFAULT(godot::Node*, actor);
     CREATE_GETTER_SETTER_DEFAULT(godot::Ref<Blackboard>, blackboard);

@@ -343,6 +343,27 @@ void BTGraphView::set_task_node_selected(const godot::StringName& task_name, boo
     node->set_selected(true);
 }
 
+void BTGraphView::set_task_status(const godot::StringName& task_name, BTTask::Status status) const
+{
+    ERR_FAIL_COND_MSG(!(this->has_task_name(task_name)), "BTGraphView has no task_name named: " + task_name + ".");
+    BTGraphNode* node = this->task_name_to_node[task_name];
+    switch (status)
+    {
+        case BTTask::Status::FRESH:
+            node->set_border_color(godot::Color::named("WHITE"));
+            break;
+        case BTTask::Status::RUNNING:
+            node->set_border_color(godot::Color::named("YELLOW"));
+            break;
+        case BTTask::Status::FAILURE:
+            node->set_border_color(godot::Color::named("RED"));
+            break;
+        case BTTask::Status::SUCCESS:
+            node->set_border_color(godot::Color::named("GREEN"));
+            break;
+    }
+}
+
 void BTGraphView::_bind_methods()
 {
     ClassDB::bind_method(D_METHOD("create_task_node", "task_name", "class_name"), &BTGraphView::create_task_node, DEFVAL(BTTask::get_class_static()));

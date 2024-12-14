@@ -32,14 +32,15 @@ private:
     godot::HashMap<godot::StringName, TaskInfo> task_name_to_info;
 
 private:
-    void register_tree(const Array& p_data);
-    void register_task(const Array& p_data);
-    void debug_tree(const Array& p_data, int32_t p_session_id);
+    void register_tree(const godot::Array& p_data);
+    void register_task(const godot::Array& p_data);
+    void debug_tree(const godot::Array& p_data, int32_t p_session_id);
+    void task_status_change(const godot::Array &p_data, int32_t p_session_id);
 
 public:
     ~BTEditorDebuggerPlugin();
     virtual bool _has_capture(const String &p_capture) const override;
-    virtual bool _capture(const String &p_message, const Array &p_data, int32_t p_session_id) override;
+    virtual bool _capture(const String &p_message, const godot::Array &p_data, int32_t p_session_id) override;
     virtual void _setup_session(int32_t p_session_id) override;
 
     void on_session_started();

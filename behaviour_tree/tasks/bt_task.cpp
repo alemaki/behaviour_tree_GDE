@@ -1,5 +1,6 @@
 #include "bt_task.hpp"
 #include <godot_cpp/variant/utility_functions.hpp>
+#include "behaviour_tree/ui/bt_editor_debugger_messages.hpp"
 
 BTTask::BTTask()
 {
@@ -189,6 +190,10 @@ BTTask::Status BTTask::execute(double delta)
 	}
 
 	this->status = this->_tick(delta);
+    if (this->debugging)
+    {
+        BTEdtiorDebuggerMessages::task_status_change(this, this->status);
+    }
 
 	if (this->status != RUNNING)
     {

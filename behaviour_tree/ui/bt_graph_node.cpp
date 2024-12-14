@@ -21,6 +21,13 @@ void BTGraphNode::_set_default_properties()
 {
     this->set_resizable(false);
     this->set_custom_minimum_size(godot::Size2(100, 30));
+
+    border_rect = memnew(godot::ColorRect);
+    border_rect->set_custom_minimum_size(godot::Size2(110, 40));
+    border_rect->set_anchors_preset(godot::Control::PRESET_FULL_RECT);
+    border_rect->set_mouse_filter(godot::Control::MOUSE_FILTER_IGNORE);
+    border_rect->set_visible(false);
+    add_child(border_rect);
 }
 
 void BTGraphNode::_setup_connections_ui()
@@ -99,9 +106,18 @@ void BTGraphNode::set_default_node_color()
     this->set_self_modulate(godot::Color::named("WHITE"));
 }
 
+void BTGraphNode::set_border_color(const godot::Color& color)
+{
+    ERR_FAIL_NULL(this->border_rect);
+    this->border_rect->set_color(color);
+    this->border_rect->set_visible(true);
+}
+
 void BTGraphNode::_bind_methods()
 {
     using namespace godot;
+
+    ClassDB::bind_method(D_METHOD("set_border", "color"), &BTGraphNode::set_border_color);
 
     BIND_GETTER_SETTER_PROPERTY_DEFAULT(BTGraphNode, STRING_NAME, task_class_name);
 

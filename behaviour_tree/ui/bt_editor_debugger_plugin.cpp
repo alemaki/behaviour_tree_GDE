@@ -65,6 +65,7 @@ void BTEditorDebuggerPlugin::debug_tree(const godot::Array &p_data, int32_t p_se
 
     BTGraphView* graph_view = memnew(BTGraphView);
     this->tree_tab_container->add_child(graph_view);
+    this->tree_to_tab_index[tree_name] = this->tree_tab_container->get_child_count() - 1;
 
     const TaskInfo& root = this->task_name_to_info[this->tree_to_root_name[tree_name]];
     godot::HashMap<godot::StringName, godot::Vector<godot::StringName>> parent_to_child_names;
@@ -98,6 +99,23 @@ void BTEditorDebuggerPlugin::debug_tree(const godot::Array &p_data, int32_t p_se
     graph_view->queue_redraw();
 }
 
+void BTEditorDebuggerPlugin::task_status_change(const godot::Array &p_data, int32_t p_session_id)
+{
+    ERR_FAIL_NULL(this->tree_tab_container);
+    ERR_FAIL_COND(p_data.size() != 2);
+    godot::StringName task_name = p_data[0];
+    ERR_FAIL_COND(!this->task_name_to_info.has(task_name));
+    BTTask::Status status = static_cast<BTTask::Status>((int)p_data[1]);
+
+    TaskInfo& task_info = this->task_name_to_info.get(task_name);
+    task_info.status = status;
+
+    int graph_view_idx = this->tree_to_tab_index[task_info.tree_name];
+    BTGraphView* graph_view = godot::Object::cast_to<BTGraphView>(this->tree_tab_container->get_child(graph_view_idx));
+    ERR_FAIL_NULL(graph_view);
+    graph_view->set_task_status(task_name, status);
+}
+
 bool BTEditorDebuggerPlugin::_has_capture(const String &p_capture) const
 {
     return p_capture == "bt_debug";
@@ -118,6 +136,11 @@ bool BTEditorDebuggerPlugin::_capture(const String &p_message, const godot::Arra
     else if (p_message == "bt_debug:debug_tree")
     {
         this->debug_tree(p_data, p_session_id);
+        return true;
+    }
+    else if (p_message == "bt_debug:task_status_change")
+    {
+        this->task_status_change(p_data, p_session_id);
         return true;
     }
     

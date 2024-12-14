@@ -15,6 +15,7 @@ private:
     godot::String description;
     godot::RBMap<int, godot::Ref<BTTask>> task_map; // Using rb_map for back method
     godot::Ref<BTTask> root_task = nullptr;
+    bool debug_allowed = false;
 
 private:
     godot::Dictionary get_task_map();
@@ -22,6 +23,7 @@ private:
 
 public:
     CREATE_GETTER_SETTER_STRING_DEFAULT(description);
+    CREATE_GETTER_SETTER_BOOL_DEFAULT(debug_allowed);
 
     void set_root_task(godot::Ref<BTTask> task);
     _FORCE_INLINE_ godot::Ref<BTTask> get_root_task() const

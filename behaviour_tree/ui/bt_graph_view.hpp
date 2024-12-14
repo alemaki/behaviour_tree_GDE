@@ -92,6 +92,8 @@ public:
     void deselect_all_nodes() const;
     void set_task_node_selected(const godot::StringName& task_name, bool select) const;
 
+    void set_task_status(const godot::StringName& task_name, BTTask::Status) const;
+
 protected:
     static void _bind_methods();
 };

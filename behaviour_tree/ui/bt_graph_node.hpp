@@ -7,6 +7,7 @@
 #include <godot_cpp/classes/label.hpp>
 #include <godot_cpp/classes/texture_rect.hpp>
 #include <godot_cpp/classes/h_box_container.hpp>
+#include <godot_cpp/classes/color_rect.hpp>
 
 #include "behaviour_tree/utils/macros.hpp"
 
@@ -19,6 +20,7 @@ protected:
     godot::Label* task_type_label = nullptr;
     godot::TextureRect* icon = nullptr;
     godot::StringName task_class_name;
+    godot::ColorRect* border_rect = nullptr;
 
 private:
     void _on_gui_input(const godot::Ref<godot::InputEvent>& event);
@@ -39,6 +41,8 @@ public:
     }
 
     virtual void set_default_node_color();
+
+    void set_border_color(const godot::Color& color);
 
 protected:
     static void _bind_methods();

@@ -221,7 +221,7 @@ godot::Ref<BTTask> BehaviourTree::instantiate(Node* actor, godot::Ref<Blackboard
     if (task.is_valid())
     {
         task->initialize(actor, blackboard);
-        if (true)
+        if (this->debug_allowed)
         {
             BTEdtiorDebuggerMessages::register_tree(this->get_name(), task);
             BTEdtiorDebuggerMessages::debug_tree(this->get_name());
@@ -259,4 +259,5 @@ void BehaviourTree::_bind_methods()
 
     BIND_GETTER_SETTER_PROPERTY_DEFAULT(BehaviourTree, STRING, description);
     BIND_GETTER_SETTER_PROPERTY_OBJECT_NO_HINT(BehaviourTree, root_task);
+    BIND_GETTER_SETTER_PROPERTY_BOOL_DEFAULT(BehaviourTree, debug_allowed);
 }
