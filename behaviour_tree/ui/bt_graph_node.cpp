@@ -3,6 +3,7 @@
 #include <godot_cpp/variant/utility_functions.hpp>
 #include <godot_cpp/classes/editor_interface.hpp>
 #include <godot_cpp/classes/resource_loader.hpp>
+#include <godot_cpp/classes/theme.hpp>
 
 #include "behaviour_tree/tasks/bt_action.hpp"
 #include "behaviour_tree/tasks/bt_condition.hpp"
@@ -13,21 +14,105 @@ BTGraphNode::BTGraphNode()
     this->_setup_connections_ui();
     this->_setup_icon_label();
     this->_set_default_properties();
-
+    this->ensure_theme();
     this->call_deferred("connect", "gui_input", callable_mp(this, &BTGraphNode::_on_gui_input));
+}
+
+void BTGraphNode::ensure_theme()
+{
+    static godot::Ref<godot::Theme> new_theme;
+    if (new_theme.is_null())
+    {
+        new_theme.instantiate();
+        new_theme->add_type("BTGraphNode");
+    }
+    if (this->get_theme().is_null()) {
+        this->set_theme(new_theme);
+    }
+}
+
+godot::Ref<godot::StyleBoxFlat> BTGraphNode::get_style_for_status_panel(const BTTask::Status status)
+{
+    static godot::Ref<godot::StyleBoxFlat> style_running;
+    static godot::Ref<godot::StyleBoxFlat> style_success;
+    static godot::Ref<godot::StyleBoxFlat> style_failure;
+
+    if (!style_running.is_valid()) {
+        style_running.instantiate();
+        style_running->set_border_color(godot::Color(1.0, 1.0, 0.0));
+        style_running->set_border_width_all(10);
+        style_running->set_bg_color(godot::Color::hex(0x2e2e2e));
+        style_running->set_border_width(godot::SIDE_TOP, 0);
+    }
+
+    if (!style_success.is_valid()) {
+        style_success.instantiate();
+        style_success->set_border_color(godot::Color(0.0, 1.0, 0.0));
+        style_success->set_border_width_all(10);
+        style_success->set_bg_color(godot::Color::hex(0x2e2e2e));
+        style_success->set_border_width(godot::SIDE_TOP, 0);
+    }
+
+    if (!style_failure.is_valid()) {
+        style_failure.instantiate();
+        style_failure->set_border_color(godot::Color(1.0, 0.0, 0.0));
+        style_failure->set_border_width_all(10);
+        style_failure->set_bg_color(godot::Color::hex(0x2e2e2e));
+        style_failure->set_border_width(godot::SIDE_TOP, 0);
+    }
+
+    switch (status)
+    {
+        case BTTask::Status::RUNNING: return style_running;
+        case BTTask::Status::SUCCESS: return style_success;
+        case BTTask::Status::FAILURE: return style_failure;
+        default: return godot::Ref<godot::StyleBoxFlat>();
+    }
+}
+
+godot::Ref<godot::StyleBoxFlat> BTGraphNode::get_style_for_status_titlebar(const BTTask::Status status)
+{
+    static godot::Ref<godot::StyleBoxFlat> style_running;
+    static godot::Ref<godot::StyleBoxFlat> style_success;
+    static godot::Ref<godot::StyleBoxFlat> style_failure;
+
+    if (!style_running.is_valid()) {
+        style_running.instantiate();
+        style_running->set_border_color(godot::Color(1.0, 1.0, 0.0));
+        style_running->set_border_width_all(10);
+        style_running->set_bg_color(godot::Color::hex(0x565656));
+        style_running->set_border_width(godot::SIDE_BOTTOM, 0);
+    }
+
+    if (!style_success.is_valid()) {
+        style_success.instantiate();
+        style_success->set_border_color(godot::Color(0.0, 1.0, 0.0));
+        style_success->set_border_width_all(10);
+        style_success->set_bg_color(godot::Color::hex(0x565656));
+        style_success->set_border_width(godot::SIDE_BOTTOM, 0);
+    }
+
+    if (!style_failure.is_valid()) {
+        style_failure.instantiate();
+        style_failure->set_border_color(godot::Color(1.0, 0.0, 0.0));
+        style_failure->set_border_width_all(10);
+        style_failure->set_bg_color(godot::Color::hex(0x565656));
+        style_failure->set_border_width(godot::SIDE_BOTTOM, 0);
+    }
+
+    switch (status)
+    {
+        case BTTask::Status::RUNNING: return style_running;
+        case BTTask::Status::SUCCESS: return style_success;
+        case BTTask::Status::FAILURE: return style_failure;
+        default: return godot::Ref<godot::StyleBoxFlat>();
+    }
 }
 
 void BTGraphNode::_set_default_properties()
 {
     this->set_resizable(false);
     this->set_custom_minimum_size(godot::Size2(100, 30));
-
-    border_rect = memnew(godot::ColorRect);
-    border_rect->set_custom_minimum_size(godot::Size2(110, 40));
-    border_rect->set_anchors_preset(godot::Control::PRESET_FULL_RECT);
-    border_rect->set_mouse_filter(godot::Control::MOUSE_FILTER_IGNORE);
-    border_rect->set_visible(false);
-    add_child(border_rect);
 }
 
 void BTGraphNode::_setup_connections_ui()
@@ -106,18 +191,32 @@ void BTGraphNode::set_default_node_color()
     this->set_self_modulate(godot::Color::named("WHITE"));
 }
 
-void BTGraphNode::set_border_color(const godot::Color& color)
+void BTGraphNode::set_graph_node_task_status(const BTTask::Status status)
 {
-    ERR_FAIL_NULL(this->border_rect);
-    this->border_rect->set_color(color);
-    this->border_rect->set_visible(true);
+    if (status == BTTask::Status::FRESH)
+    {
+        return;
+    }
+    godot::Ref<godot::StyleBoxFlat> panel_style = BTGraphNode::get_style_for_status_panel(status);
+    godot::Ref<godot::StyleBoxFlat> titlebar_style = BTGraphNode::get_style_for_status_titlebar(status);
+
+    if (panel_style.is_valid() && titlebar_style.is_valid())
+    {
+        this->add_theme_stylebox_override("panel", panel_style);
+        this->add_theme_stylebox_override("titlebar", titlebar_style);
+    }
+    else
+    {
+        this->remove_theme_stylebox_override("frame");
+        this->remove_theme_stylebox_override("frame");
+    }
 }
 
 void BTGraphNode::_bind_methods()
 {
     using namespace godot;
 
-    ClassDB::bind_method(D_METHOD("set_border", "color"), &BTGraphNode::set_border_color);
+    ClassDB::bind_method(D_METHOD("set_graph_node_task_status", "status"), &BTGraphNode::set_graph_node_task_status);
 
     BIND_GETTER_SETTER_PROPERTY_DEFAULT(BTGraphNode, STRING_NAME, task_class_name);
 

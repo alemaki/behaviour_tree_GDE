@@ -2,10 +2,7 @@
 
 BTEditorDebuggerPlugin::~BTEditorDebuggerPlugin()
 {
-    if (this->tree_tab_container)
-    {
-        memdelete(this->tree_tab_container);
-    }
+    godot::UtilityFunctions::print("Succesfully freed BTEditorDebuggerPlugin.");
 }
 
 void BTEditorDebuggerPlugin::register_tree(const godot::Array& p_data)
@@ -165,10 +162,10 @@ void BTEditorDebuggerPlugin::_setup_session(int32_t p_session_id)
 
 void BTEditorDebuggerPlugin::on_session_started()
 {
-    godot::UtilityFunctions::print("Debugger session started");
+
 }
 
 void BTEditorDebuggerPlugin::on_session_stopped()
 {
-    godot::UtilityFunctions::print("Debugger session stopped");
+    
 }

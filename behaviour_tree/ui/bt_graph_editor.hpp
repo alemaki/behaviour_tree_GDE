@@ -101,7 +101,6 @@ private:
     void set_root_node(const godot::StringName& task_name); 
     void arrange_nodes(bool with_undo_redo = false); 
     void color_root_node(); 
-    //void deselect_all_nodes();
     void save_tree(); 
     void load_tree(); 
 

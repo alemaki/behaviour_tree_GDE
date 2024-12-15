@@ -347,21 +347,7 @@ void BTGraphView::set_task_status(const godot::StringName& task_name, BTTask::St
 {
     ERR_FAIL_COND_MSG(!(this->has_task_name(task_name)), "BTGraphView has no task_name named: " + task_name + ".");
     BTGraphNode* node = this->task_name_to_node[task_name];
-    switch (status)
-    {
-        case BTTask::Status::FRESH:
-            node->set_border_color(godot::Color::named("WHITE"));
-            break;
-        case BTTask::Status::RUNNING:
-            node->set_border_color(godot::Color::named("YELLOW"));
-            break;
-        case BTTask::Status::FAILURE:
-            node->set_border_color(godot::Color::named("RED"));
-            break;
-        case BTTask::Status::SUCCESS:
-            node->set_border_color(godot::Color::named("GREEN"));
-            break;
-    }
+    node->set_graph_node_task_status(status);
 }
 
 void BTGraphView::_bind_methods()

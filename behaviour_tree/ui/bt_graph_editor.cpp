@@ -357,19 +357,6 @@ void BTGraphEditor::color_root_node()
     graph_view->set_root_task_name(root->get_name());
 }
 
-// void BTGraphEditor::deselect_all_nodes()
-// {
-//     for (godot::KeyValue<godot::Ref<BTTask>, BTGraphNode*> element : task_to_node)
-//     {
-//         ERR_CONTINUE(element.value == nullptr);
-//         ERR_CONTINUE(element.value->get_task().is_null());
-//         if (element.value->is_selected())
-//         {
-//             element.value->set_selected(false);
-//         }
-//     }
-// }
-
 /* Drag and Drop */
 
 void BTGraphEditor::_node_dragged(const godot::Vector2 &_from, const godot::Vector2 &_to, const godot::StringName& task_name)

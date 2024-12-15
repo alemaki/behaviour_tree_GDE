@@ -7,8 +7,9 @@
 #include <godot_cpp/classes/label.hpp>
 #include <godot_cpp/classes/texture_rect.hpp>
 #include <godot_cpp/classes/h_box_container.hpp>
-#include <godot_cpp/classes/color_rect.hpp>
+#include <godot_cpp/classes/style_box_flat.hpp>
 
+#include "behaviour_tree/tasks/bt_task.hpp"
 #include "behaviour_tree/utils/macros.hpp"
 
 class BTGraphNode : public godot::GraphNode
@@ -20,7 +21,10 @@ protected:
     godot::Label* task_type_label = nullptr;
     godot::TextureRect* icon = nullptr;
     godot::StringName task_class_name;
-    godot::ColorRect* border_rect = nullptr;
+
+private:
+    static godot::Ref<godot::StyleBoxFlat> get_style_for_status_panel(const BTTask::Status status);
+    static godot::Ref<godot::StyleBoxFlat> get_style_for_status_titlebar(const BTTask::Status status);
 
 private:
     void _on_gui_input(const godot::Ref<godot::InputEvent>& event);
@@ -31,6 +35,7 @@ private:
     void _setup_icon_label();
 
     void evaluate_icon();
+    void ensure_theme();
 
 public:
     BTGraphNode();
@@ -42,7 +47,7 @@ public:
 
     virtual void set_default_node_color();
 
-    void set_border_color(const godot::Color& color);
+    void set_graph_node_task_status(const BTTask::Status status);
 
 protected:
     static void _bind_methods();
