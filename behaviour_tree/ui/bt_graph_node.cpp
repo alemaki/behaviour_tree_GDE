@@ -31,6 +31,17 @@ void BTGraphNode::ensure_theme()
     }
 }
 
+godot::Color status_to_color(BTTask::Status status)
+{
+    switch (status)
+    {
+        case BTTask::Status::RUNNING: return godot::Color::named("YELLOW");
+        case BTTask::Status::SUCCESS: return godot::Color::named("GREEN");
+        case BTTask::Status::FAILURE: return godot::Color::named("RED");
+        default: return godot::Color::named("WHITE");
+    }
+}
+
 godot::Ref<godot::StyleBoxFlat> create_status_style(const godot::Color& border_color, const godot::Color& bg_color, godot::Side side_to_remove)
 {
     godot::Ref<godot::StyleBoxFlat> style;
@@ -51,9 +62,9 @@ godot::Ref<godot::StyleBoxFlat> BTGraphNode::get_style_for_status_panel(const BT
     static godot::Ref<godot::StyleBoxFlat> style_failure;
 
     if (!style_running.is_valid()) {
-        style_running = create_status_style(godot::Color(1.0, 1.0, 0.0), godot::Color::hex(0x2e2e2e), godot::SIDE_TOP);
-        style_success = create_status_style(godot::Color(0.0, 1.0, 0.0), godot::Color::hex(0x2e2e2e), godot::SIDE_TOP);
-        style_failure = create_status_style(godot::Color(1.0, 0.0, 0.0), godot::Color::hex(0x2e2e2e), godot::SIDE_TOP);
+        style_running = create_status_style(status_to_color(BTTask::Status::RUNNING), godot::Color::hex(0x2e2e2e), godot::SIDE_TOP);
+        style_success = create_status_style(status_to_color(BTTask::Status::SUCCESS), godot::Color::hex(0x2e2e2e), godot::SIDE_TOP);
+        style_failure = create_status_style(status_to_color(BTTask::Status::FAILURE), godot::Color::hex(0x2e2e2e), godot::SIDE_TOP);
     }
 
     switch (status)
@@ -72,9 +83,9 @@ godot::Ref<godot::StyleBoxFlat> BTGraphNode::get_style_for_status_titlebar(const
     static godot::Ref<godot::StyleBoxFlat> style_failure;
 
     if (!style_running.is_valid()) {
-        style_running = create_status_style(godot::Color(1.0, 1.0, 0.0), godot::Color::hex(0x565656), godot::SIDE_BOTTOM);
-        style_success = create_status_style(godot::Color(0.0, 1.0, 0.0), godot::Color::hex(0x565656), godot::SIDE_BOTTOM);
-        style_failure = create_status_style(godot::Color(1.0, 0.0, 0.0), godot::Color::hex(0x565656), godot::SIDE_BOTTOM);
+        style_running = create_status_style(status_to_color(BTTask::Status::RUNNING), godot::Color::hex(0x565656), godot::SIDE_BOTTOM);
+        style_success = create_status_style(status_to_color(BTTask::Status::SUCCESS), godot::Color::hex(0x565656), godot::SIDE_BOTTOM);
+        style_failure = create_status_style(status_to_color(BTTask::Status::FAILURE), godot::Color::hex(0x565656), godot::SIDE_BOTTOM);
     }
 
     switch (status)
@@ -184,9 +195,11 @@ void BTGraphNode::set_graph_node_task_status(const BTTask::Status status)
     }
     else
     {
-        this->remove_theme_stylebox_override("frame");
-        this->remove_theme_stylebox_override("frame");
+        this->remove_theme_stylebox_override("panel");
+        this->remove_theme_stylebox_override("titlebar");
     }
+    this->set_slot_color_left(0, status_to_color(status));
+    this->set_slot_color_right(0, status_to_color(status));
 }
 
 void BTGraphNode::_bind_methods()
