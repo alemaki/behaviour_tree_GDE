@@ -39,11 +39,14 @@ public:
     godot::HashMap<BTGraphNode*, int> modifier;
     int sibling_separation = 20;
     int subtree_separation = 50;
-    int level_separation = 220;
+    int level_separation = 260;
     //TODO: fix magic numbers.
 
     CREATE_GETTER_SETTER_DEFAULT(BTGraphNode*, root_node);
     CREATE_GETTER_SETTER_DEFAULT(ParentToChildrenMap, parent_to_children);
+    CREATE_GETTER_SETTER_POSITIVE_DEFAULT(int, sibling_separation);
+    CREATE_GETTER_SETTER_POSITIVE_DEFAULT(int, subtree_separation);
+    CREATE_GETTER_SETTER_POSITIVE_DEFAULT(int, level_separation);
 
     bool init_tree_utils();
     bool has_left_sibling(BTGraphNode* node);
