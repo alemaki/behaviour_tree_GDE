@@ -10,9 +10,6 @@ class State : public godot::Node
 public:
     void add_enter_callable(const godot::Callable& callable);
     void add_exit_callable(const godot::Callable& callable);
-
-    void _ready() override;
-
 protected:
     static void _bind_methods();
 };
