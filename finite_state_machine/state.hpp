@@ -3,9 +3,20 @@
 
 #include <godot_cpp/classes/node.hpp>
 
+#ifndef FSM_FORWARD
+#define FSM_FORWARD
+class FSM;
+#endif /* FSM_FORWARD */
+
 class State : public godot::Node
 {
     GDCLASS(State, godot::Node);
+
+    friend FSM;
+
+private:
+    void _enter();
+    void _exit();
 
 public:
     void add_enter_callable(const godot::Callable& callable);

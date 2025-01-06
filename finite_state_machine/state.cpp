@@ -1,5 +1,15 @@
 #include "state.hpp"
 
+void State::_enter()
+{
+    this->emit_signal("entered");
+}
+
+void State::_exit()
+{
+    this->emit_signal("exited");
+}
+
 void State::add_enter_callable(const godot::Callable& callable)
 {
     ERR_FAIL_COND(!callable.is_valid());

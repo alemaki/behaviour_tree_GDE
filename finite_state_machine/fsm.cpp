@@ -1,67 +1,54 @@
 #include "fsm.hpp"
 #include "behaviour_tree/utils/macros.hpp"
 
-void FSM::add_state(const godot::String& state)
+State* FSM::create_state()
 {
-    this->states.insert(state);
+    State* new_state = memnew(State);
+    this->add_child(new_state);
+    return new_state;
 }
 
-bool FSM::transition_to(const godot::String& state)
+bool FSM::transition_to_state(State* state)
 {
-    if (this->can_transition_to(state))
+    ERR_FAIL_NULL(state);
+    if (this->can_transition_to_state(state))
     {
+        this->current_state->_exit();
         current_state = state;
+        this->current_state->_enter();
         return true;
     }
     return false;
 }
 
-void FSM::_ready()
+void FSM::initialize()
 {
-    this->current_state = this->initial_state;
-    if (this->current_state == "")
+    ERR_FAIL_NULL_MSG(this->initial_state, godot::String(this->get_name()) + ": initial state was not set.");
+    bool initial_state_is_child = false;
+    const godot::Array& children = this->get_children();
+    for (int i = 0, size = children.size(); i < size; i++)
     {
-        godot::UtilityFunctions::printerr(this->get_name(), ": initial state was not set.");
+        State* state = godot::Object::cast_to<State>(children[i]);
+        ERR_CONTINUE_MSG(state == nullptr, "FSM has non-state child.");
+        this->states.insert(state);
+        if(state == this->initial_state)
+        {
+            initial_state_is_child = true;
+        }
+    }
+
+    if (initial_state_is_child)
+    {
+        this->current_state = initial_state;
+    }
+    else
+    {
+        godot::UtilityFunctions::printerr(this->get_name(), ": initial state is not child of FSM.");
         ERR_FAIL_COND(this->states.size() == 0);
         this->current_state = this->states.begin().operator*();
     }
-}
 
-void FSM::set_initial_state(const godot::String& state)
-{
-    if (!(this->states.has(state)))
-    {
-        this->add_state(state);
-    }
-    this->initial_state = state;
-    if (this->current_state == "")
-    {
-        this->current_state = state;
-    }
-}
-
-void FSM::set_states(const godot::Array& states)
-{
-    this->states.clear();
-    
-    int size = states.size();
-    for (int i = 0; i < size; i++)
-    {
-        this->states.insert(states[i]);
-    }
-}
-
-godot::Array FSM::get_states() const
-{
-    godot::Array result;
-    result.resize(this->states.size());
-    int i = 0;
-    for (godot::String state : this->states)
-    {
-        result[i] = state;
-        i++;
-    }
-    return result;
+    this->current_state->_enter();
 }
 
 void FSM::_bind_methods()
@@ -69,11 +56,10 @@ void FSM::_bind_methods()
     using namespace godot;
 
     ClassDB::bind_method(D_METHOD("get_state"), &FSM::get_state);
-    ClassDB::bind_method(D_METHOD("add_state", "state"), &FSM::add_state);
-    ClassDB::bind_method(D_METHOD("transition_to", "state"), &FSM::transition_to);
-    ClassDB::bind_method(D_METHOD("can_transition_to", "state"), &FSM::transition_to);
+    ClassDB::bind_method(D_METHOD("create_state", "state_name"), &FSM::create_state);
+    ClassDB::bind_method(D_METHOD("transition_to_state", "state"), &FSM::transition_to_state);
+    ClassDB::bind_method(D_METHOD("can_transition_to_state", "state"), &FSM::can_transition_to_state);
+    ClassDB::bind_method(D_METHOD("initialize"), &FSM::initialize);
 
-    
-    BIND_GETTER_SETTER_PROPERTY_DEFAULT(FSM, ARRAY, states);
     BIND_GETTER_SETTER_PROPERTY_DEFAULT(FSM, STRING, initial_state);
 }
