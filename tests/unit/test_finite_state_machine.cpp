@@ -2,18 +2,23 @@
 #include <doctest.h>
 
 #include "finite_state_machine/fsm.hpp"
+#include "tests/test_utils/test_macros.hpp"
 
 struct FSMFixture
 {
     FSM* fsm;
-    FSMFixture() : fsm(memnew(FSM))
+    State* idle;
+    State* running;
+    FSMFixture()
     {
-        fsm->add_state("idle");
-        fsm->set_initial_state("idle");
+        fsm = memnew(FSM);
+        idle = fsm->create_state();
+        running = fsm->create_state();
+        fsm->set_initial_state(idle);
     }
     ~FSMFixture()
     {
-        memdelete(this->fsm);
+        memdelete(fsm);
     }
 };
 
@@ -21,57 +26,60 @@ TEST_SUITE("FSM")
 {
     TEST_CASE_FIXTURE(FSMFixture, "Set and get initial state")
     {
-        CHECK_EQ(fsm->get_state(), "idle");
+        fsm->initialize();
+
+        CHECK_EQ(fsm->get_state(), idle);
     }
 
     TEST_CASE_FIXTURE(FSMFixture, "Add state and transition to valid state")
     {
-        fsm->add_state("running");
+        fsm->initialize();
 
-        CHECK(fsm->transition_to("running"));
-        CHECK_EQ(fsm->get_state(), "running");
+        CHECK(fsm->transition_to_state(running));
+        CHECK_EQ(fsm->get_state(), running);
     }
 
     TEST_CASE_FIXTURE(FSMFixture, "Fail to transition to invalid state")
     {
-        fsm->add_state("running");
+        State* jumping = memnew(State);
 
-        CHECK_FALSE(fsm->transition_to("jumping"));
-        CHECK_EQ(fsm->get_state(), "idle");
+        fsm->initialize();
+
+        CHECK_FALSE(fsm->transition_to_state(jumping));
+        CHECK_EQ(fsm->get_state(), idle);
+
+        memdelete(jumping);
     }
 
-    TEST_CASE_FIXTURE(FSMFixture, "Set and get states")
+    TEST_CASE_FIXTURE(FSMFixture, "Initialize FSM and verify state set")
     {
-        godot::Array states;
-        states.push_back("jumping");
-        states.push_back("running");
-        states.push_back("idle");
+        State* jumping = fsm->create_state();
+        State* running = fsm->create_state();
 
-        fsm->set_states(states);
+        fsm->initialize();
+        CHECK_EQ(fsm->get_state(), idle);
 
-        godot::Array stored_states = fsm->get_states();
-        CHECK_EQ(stored_states.size(), 3);
-        CHECK(stored_states.has("jumping"));
-        CHECK(stored_states.has("running"));
-        CHECK(stored_states.has("idle"));
+        CHECK(fsm->transition_to_state(running));
+        CHECK_EQ(fsm->get_state(), running);
+
+        CHECK(fsm->transition_to_state(jumping));
+        CHECK_EQ(fsm->get_state(), jumping);
     }
 
-    TEST_CASE_FIXTURE(FSMFixture, "Transition after setting transitions via array")
+    TEST_CASE_FIXTURE(FSMFixture, "State emits enter and exit signals")
     {
-        godot::Array states;
-        states.push_back("jumping");
-        states.push_back("running");
-        states.push_back("idle");
+        State* running = fsm->create_state();
+        SignalWatcher::watch_signals(running);
 
-        fsm->set_states(states);
+        fsm->initialize();
 
-        CHECK(fsm->transition_to("running"));
-        CHECK_EQ(fsm->get_state(), "running");
+        CHECK(fsm->transition_to_state(running));
+        CHECK_EQ(fsm->get_state(), running);
+        CHECK(SignalWatcher::signal_emitted(running, "entered"));
+        CHECK_EQ(SignalWatcher::get_signal_emitted_count(running, "entered"), 1);
 
-        CHECK(fsm->transition_to("jumping"));
-        CHECK_EQ(fsm->get_state(), "jumping");
-
-        CHECK_FALSE(fsm->transition_to("nothing"));
-        CHECK_EQ(fsm->get_state(), "jumping");
+        CHECK(fsm->transition_to_state(idle));
+        CHECK(SignalWatcher::signal_emitted(running, "exited"));
+        CHECK_EQ(SignalWatcher::get_signal_emitted_count(running, "exited"), 1);
     }
 }

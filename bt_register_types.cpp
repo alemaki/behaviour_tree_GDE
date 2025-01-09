@@ -11,9 +11,7 @@
 #include <godot_cpp/core/defs.hpp>
 #include <godot_cpp/godot.hpp>
 
-#include "behaviour/actions/bt_transition_fsm.hpp"
 #include "behaviour/conditions/bt_check_value.hpp"
-#include "behaviour/conditions/bt_check_fsm_state.hpp"
 #include "behaviour_tree/behaviour_tree.hpp"
 #include "behaviour_tree/tasks/bt_action.hpp"
 #include "behaviour_tree/tasks/bt_composite.hpp"
@@ -43,6 +41,7 @@
 #include "behaviour_tree/ui/bt_graph_view.hpp"
 #include "blackboard/blackboard.hpp"
 #include "finite_state_machine/fsm.hpp"
+#include "finite_state_machine/state.hpp"
 
 #include "tests/test_utils/test_runner.hpp"
 
@@ -79,12 +78,11 @@ void initialize_behaviour_tree_module(ModuleInitializationLevel p_level)
 
 		ClassDB::register_class<BTSubtree>();
 
+		ClassDB::register_class<State>();
 		ClassDB::register_class<FSM>();
 
-		ClassDB::register_class<BTTransitionFSM>();
 
 		ClassDB::register_class<BTCheckValue>();
-		ClassDB::register_class<BTCheckFSMState>();
 		
 		ClassDB::register_internal_class<BTAlwaysRun>();
 		

@@ -10,7 +10,7 @@ State* FSM::create_state()
 
 bool FSM::transition_to_state(State* state)
 {
-    ERR_FAIL_NULL(state);
+    ERR_FAIL_NULL_V(state, false);
     if (this->can_transition_to_state(state))
     {
         this->current_state->_exit();
@@ -56,7 +56,7 @@ void FSM::_bind_methods()
     using namespace godot;
 
     ClassDB::bind_method(D_METHOD("get_state"), &FSM::get_state);
-    ClassDB::bind_method(D_METHOD("create_state", "state_name"), &FSM::create_state);
+    ClassDB::bind_method(D_METHOD("create_state"), &FSM::create_state);
     ClassDB::bind_method(D_METHOD("transition_to_state", "state"), &FSM::transition_to_state);
     ClassDB::bind_method(D_METHOD("can_transition_to_state", "state"), &FSM::can_transition_to_state);
     ClassDB::bind_method(D_METHOD("initialize"), &FSM::initialize);
