@@ -1,8 +1,7 @@
 #define DOCTEST_CONFIG_NO_EXCEPTIONS_BUT_WITH_ALL_ASSERTS
-#include <doctest.h>
+#include "tests/test_utils/test_macros.hpp"
 
 #include "finite_state_machine/fsm.hpp"
-#include "tests/test_utils/test_macros.hpp"
 
 struct FSMFixture
 {

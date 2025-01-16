@@ -21,6 +21,7 @@ private:
 public:
     void add_enter_callable(const godot::Callable& callable);
     void add_exit_callable(const godot::Callable& callable);
+
 protected:
     static void _bind_methods();
 };

@@ -13,8 +13,8 @@ class FSM : public godot::Node
     GDCLASS(FSM, godot::Node);
 
 private: 
-    State* initial_state;
-    State* current_state;
+    State* initial_state = nullptr;
+    State* current_state = nullptr;
 
     godot::HashSet<State*> states;
 
