@@ -47,30 +47,30 @@
 
 /* BINDINGS */
 #define BIND_GETTER_SETTER(class, name, parameter) /***************************************************************************************************************************/\
-    ClassDB::bind_method(D_METHOD("set_" #name, #parameter), &class::set_##name);                                                                                               \
-    ClassDB::bind_method(D_METHOD("get_" #name), &class::get_##name)
+    godot::ClassDB::bind_method(godot::D_METHOD("set_" #name, #parameter), &class::set_##name);                                                                                               \
+    godot::ClassDB::bind_method(godot::D_METHOD("get_" #name), &class::get_##name)
 
 #define BIND_GETTER_SETTER_DEFAULT(class, name) /******************************************************************************************************************************/\
     BIND_GETTER_SETTER(class, name, name)
 
 #define BIND_GETTER_SETTER_BOOL(class, name, parameter) /**********************************************************************************************************************/\
-    ClassDB::bind_method(D_METHOD("set_" #name, #parameter), &class::set_##name);                                                                                               \
-    ClassDB::bind_method(D_METHOD("is_" #name), &class::is_##name)
+    godot::ClassDB::bind_method(godot::D_METHOD("set_" #name, #parameter), &class::set_##name);                                                                                               \
+    godot::ClassDB::bind_method(godot::D_METHOD("is_" #name), &class::is_##name)
 
 #define BIND_GETTER_SETTER_BOOL_DEFAULT(class, name) /*************************************************************************************************************************/\
     BIND_GETTER_SETTER_BOOL(class, name, name)
 
 #define BIND_PROPERTY(name, variant_type, member) /****************************************************************************************************************************/\
-    ADD_PROPERTY(PropertyInfo(Variant::variant_type, #member), "set_" #name, "get_" #name)
+    ADD_PROPERTY(godot::PropertyInfo(godot::Variant::variant_type, #member), "set_" #name, "get_" #name)
 
 #define BIND_PROPERTY_DEFAULT(variant_type, member) /**************************************************************************************************************************/\
     BIND_PROPERTY(member, variant_type, member)
 
 #define BIND_PROPERTY_BOOL(name, member) /*************************************************************************************************************************************/\
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, #member), "set_" #name, "is_" #name)
+    ADD_PROPERTY(godot::PropertyInfo(godot::Variant::BOOL, #member), "set_" #name, "is_" #name)
 
 #define BIND_PROPERTY_BOOL_DEFAULT(member) /***********************************************************************************************************************************/\
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, #member), "set_" #member, "is_" #member)
+    ADD_PROPERTY(godot::PropertyInfo(godot::Variant::BOOL, #member), "set_" #member, "is_" #member)
 
 #define BIND_GETTER_SETTER_PROPERTY(class, name, parameter, variant_type, member) /********************************************************************************************/\
     BIND_GETTER_SETTER(class, name, parameter);                                                                                                                                 \
@@ -87,7 +87,7 @@
     BIND_GETTER_SETTER_PROPERTY_BOOL(class, member, member, member)
 
 #define BIND_PROPERTY_OBJECT(name, member, property_hint, hint_str, property_usage, property_class) /**************************************************************************/\
-    ADD_PROPERTY(PropertyInfo(Variant::OBJECT, #member, property_hint, hint_str, property_usage, #property_class), "set_" #name, "get_" #name)
+    ADD_PROPERTY(godot::PropertyInfo(godot::Variant::OBJECT, #member, godot::PropertyHint::property_hint, hint_str, godot::PropertyUsageFlags::property_usage, #property_class), "set_" #name, "get_" #name)
 
 #define BIND_PROPERTY_OBJECT_DEFAULT(member, property_hint, hint_str, property_usage, property_class) /************************************************************************/\
     BIND_PROPERTY_OBJECT(member, member, property_hint, hint_str, property_usage, property_class)
@@ -106,51 +106,5 @@
 #define BIND_GETTER_SETTER_PROPERTY_OBJECT_NO_HINT(class, member) /************************************************************************************************************/\
     BIND_GETTER_SETTER_DEFAULT(class, member);                                                                                                                                  \
     BIND_PROPERTY_OBJECT_NO_HINT(member)
-
-// include bt_task after so it can use definitions for getter_setter
-#include "behaviour_tree/tasks/bt_task.hpp"
-
-#define TASK_FAIL() /**********************************************************************************************************************************************************/\
-    return BTTask::Status::FAILURE
-
-#define TASK_SUCCEED() /*******************************************************************************************************************************************************/\
-    return BTTask::Status::SUCCESS
-
-#define TASK_FAIL_COND(condition) /********************************************************************************************************************************************/\
-    if (condition)                                                                                                                                                              \
-    {                                                                                                                                                                           \
-        return BTTask::Status::FAILURE;                                                                                                                                         \
-    }                                                                                                                                                                           \
-    else ((void)0)
-
-#define TASK_SUCCEED_COND(condition) /*****************************************************************************************************************************************/\
-    if (condition)                                                                                                                                                              \
-    {                                                                                                                                                                           \
-        return BTTask::Status::SUCCESS;                                                                                                                                         \
-    }                                                                                                                                                                           \
-    else ((void)0)
-
-#define TASK_FAIL_COND_MSG(condition, message) /*******************************************************************************************************************************/\
-    if (condition)                                                                                                                                                              \
-    {                                                                                                                                                                           \
-        godot::UtilityFunctions::printerr(this->get_custom_name(), ": ", message);                                                                                              \
-        return BTTask::Status::FAILURE;                                                                                                                                         \
-    }                                                                                                                                                                           \
-    else ((void)0)
-
-#define TASK_COMPLAIN_COND(condition, message) /*******************************************************************************************************************************/\
-    if ((condition) && (this->is_complain_enabled()))                                                                                                                           \
-    {                                                                                                                                                                           \
-        godot::UtilityFunctions::printerr(this->get_custom_name(), ": ", message);                                                                                              \
-    }                                                                                                                                                                           \
-    else ((void)0)
-
-#define TASK_FAIL_COND_COMP(condition) /***************************************************************************************************************************************/\
-    TASK_COMPLAIN_COND(condition, #condition);                                                                                                                                  \
-    TASK_FAIL_COND(condition)
-
-#define TASK_FAIL_COND_COMP_MSG(condition, message) /**************************************************************************************************************************/\
-    TASK_COMPLAIN_COND(condition, message);                                                                                                                                     \
-    TASK_FAIL_COND(condition)
 
 #endif /* BT_MACROS */
