@@ -83,8 +83,9 @@ public:
         return this->children.find(child);
     }
     bool has_running_child() const;
-    virtual BTTask::Status execute(double delta);
-    virtual void abort();
+
+    BTTask::Status execute(double delta);
+    void abort();
 
     virtual godot::Ref<BTTask> copy() const;
     virtual godot::Ref<BTTask> clone() const;
