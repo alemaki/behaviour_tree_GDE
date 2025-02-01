@@ -96,7 +96,6 @@ public:
 
 protected:
     static void _bind_methods();
-
 };
 
 VARIANT_ENUM_CAST(BTTask::Status);
