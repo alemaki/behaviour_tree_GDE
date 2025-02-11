@@ -133,7 +133,7 @@ VARIANT_ENUM_CAST(BTTask::Status);
 #define TASK_FAIL_COND_MSG(condition, message) /*******************************************************************************************************************************/\
     if (condition)                                                                                                                                                              \
     {                                                                                                                                                                           \
-        godot::UtilityFunctions::printerr(this->get_custom_name(), ": ", message);                                                                                              \
+        ::godot::_err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Method/function failed.", this->get_custom_name() + godot::String(": ") + message);                        \
         return BTTask::Status::FAILURE;                                                                                                                                         \
     }                                                                                                                                                                           \
     else ((void)0)
@@ -141,7 +141,7 @@ VARIANT_ENUM_CAST(BTTask::Status);
 #define TASK_COMPLAIN_COND(condition, message) /*******************************************************************************************************************************/\
     if ((condition) && (this->is_complain_enabled()))                                                                                                                           \
     {                                                                                                                                                                           \
-        godot::UtilityFunctions::printerr(this->get_custom_name(), ": ", message);                                                                                              \
+        ::godot::_err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Method/function failed.", this->get_custom_name() + godot::String(": ") + message);                        \
     }                                                                                                                                                                           \
     else ((void)0)
 
