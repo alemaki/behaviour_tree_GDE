@@ -1,9 +1,4 @@
-/* godot-cpp integration testing project.
- *
- * This is free and unencumbered software released into the public domain.
- */
-
-#include "register_types.h"
+#include "bt_register_types.h"
 
 #include <gdextension_interface.h>
 
@@ -43,13 +38,13 @@
 #include "finite_state_machine/fsm.hpp"
 #include "finite_state_machine/state.hpp"
 
-#include "tests/test_utils/test_runner.hpp"
-
 
 using namespace godot;
 
 void initialize_behaviour_tree_module(ModuleInitializationLevel p_level)
 {
+	::initialize_cpp_test_module(p_level);
+
 	if (p_level == MODULE_INITIALIZATION_LEVEL_SCENE)
 	{
 		ClassDB::register_class<Blackboard>();
@@ -101,18 +96,8 @@ void initialize_behaviour_tree_module(ModuleInitializationLevel p_level)
 	}
 }
 
-void initialize_test_module(ModuleInitializationLevel p_level)
-{
-    if (p_level == MODULE_INITIALIZATION_LEVEL_SCENE)
-	{
-		ClassDB::register_class<TestRunner>();
-	}
-}
-
 void uninitialize_behaviour_tree_module(ModuleInitializationLevel p_level)
 {
-	if (p_level != MODULE_INITIALIZATION_LEVEL_SCENE)
-	{
-		return;
-	}
+	::uninitialize_cpp_test_module(p_level);
+	/* nothing to do */
 }
