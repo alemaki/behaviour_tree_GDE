@@ -69,17 +69,17 @@ TEST_SUITE("FSM")
     TEST_CASE_FIXTURE(FSMFixture, "State emits enter and exit signals")
     {
         State* running = fsm->create_state();
-        SignalWatcher::watch_signals(running);
+        SignalObserver::watch_signals(running);
 
         fsm->initialize();
 
         CHECK(fsm->transition_to_state(running));
         CHECK_EQ(fsm->get_state(), running);
-        CHECK(SignalWatcher::signal_emitted(running, "entered"));
-        CHECK_EQ(SignalWatcher::get_signal_emitted_count(running, "entered"), 1);
+        CHECK(SignalObserver::signal_emitted(running, "entered"));
+        CHECK_EQ(SignalObserver::get_signal_emitted_count(running, "entered"), 1);
 
         CHECK(fsm->transition_to_state(idle));
-        CHECK(SignalWatcher::signal_emitted(running, "exited"));
-        CHECK_EQ(SignalWatcher::get_signal_emitted_count(running, "exited"), 1);
+        CHECK(SignalObserver::signal_emitted(running, "exited"));
+        CHECK_EQ(SignalObserver::get_signal_emitted_count(running, "exited"), 1);
     }
 }
