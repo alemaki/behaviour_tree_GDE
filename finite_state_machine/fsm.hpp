@@ -12,7 +12,7 @@ class FSM : public godot::Node
 {
     GDCLASS(FSM, godot::Node);
 
-private: 
+private:
     State* initial_state = nullptr;
     State* current_state = nullptr;
 
@@ -25,9 +25,11 @@ public:
     {
         return this->current_state;
     }
-    
+
     State* create_state();
     bool transition_to_state(State* state);
+
+    void process_state(double delta)  const;
 
     _FORCE_INLINE_ bool can_transition_to_state(State* state) const
     {

@@ -13,12 +13,18 @@ bool FSM::transition_to_state(State* state)
     ERR_FAIL_NULL_V(state, false);
     if (this->can_transition_to_state(state))
     {
-        this->current_state->_exit();
-        current_state = state;
-        this->current_state->_enter();
+        this->current_state->_exit_state();
+        this->current_state = state;
+        this->current_state->_enter_state();
         return true;
     }
     return false;
+}
+
+void FSM::process_state(double delta) const
+{
+    ERR_FAIL_NULL(this->current_state);
+    this->current_state->_process_state(delta);
 }
 
 void FSM::initialize()
@@ -48,7 +54,7 @@ void FSM::initialize()
         this->current_state = this->states.begin().operator*();
     }
 
-    this->current_state->_enter();
+    this->current_state->_enter_state();
 }
 
 void FSM::_bind_methods()

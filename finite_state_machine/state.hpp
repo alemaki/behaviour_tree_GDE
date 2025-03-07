@@ -11,16 +11,20 @@ class FSM;
 class State : public godot::Node
 {
     GDCLASS(State, godot::Node);
-
     friend FSM;
 
 private:
-    void _enter();
-    void _exit();
+    godot::TypedArray<godot::Callable> process_callables;
+
+private:
+    void _enter_state();
+    void _process_state(double delta) const;
+    void _exit_state();
 
 public:
-    void add_enter_callable(const godot::Callable& callable);
-    void add_exit_callable(const godot::Callable& callable);
+    State* add_enter_callable(const godot::Callable& callable);
+    State* add_process_callable(const godot::Callable& callable);
+    State* add_exit_callable(const godot::Callable& callable);
 
 protected:
     static void _bind_methods();
