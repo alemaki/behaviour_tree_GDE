@@ -1,4 +1,5 @@
 #include "state.hpp"
+#include <godot_cpp/variant/utility_functions.hpp>
 
 void State::_enter_state()
 {
@@ -15,13 +16,7 @@ void State::_process_state(double delta) const
             /* TODO: error? remove? */
             continue;
         }
-
-        godot::Object *target = callable.get_object();
-        /* TODO: remove otherwise? */
-        if (target && !target->is_queued_for_deletion())
-        {
-            callable.call(delta);
-        }
+        callable.call(delta);
     }
 }
 

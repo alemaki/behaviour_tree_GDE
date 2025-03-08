@@ -10,7 +10,7 @@
 #include <godot_cpp/classes/scene_tree.hpp>
 
 namespace utils
-{   
+{
 
 template<typename T>
 T* load_scene_node(const godot::String& scene_path)
