@@ -3,7 +3,7 @@
 #include "behaviour_tree/ui/bt_editor_debugger_messages.hpp"
 
 godot::Dictionary BehaviourTree::get_task_map()
-{ 
+{
     godot::Dictionary dict;
     for (const godot::KeyValue<int, godot::Ref<BTTask>>& element : task_map)
     {
@@ -93,7 +93,7 @@ void BehaviourTree::detach_task(int id)
     {
         task->get_parent()->remove_child(task);
     }
-    
+
     task->clear_children();
 }
 
@@ -233,7 +233,7 @@ godot::Ref<BTTask> BehaviourTree::instantiate(Node* actor, godot::Ref<Blackboard
 void BehaviourTree::_bind_methods()
 {
     using namespace godot;
-    
+
     ClassDB::bind_method(D_METHOD("get_valid_id"), &BehaviourTree::get_valid_id);
     ClassDB::bind_method(D_METHOD("get_task_id", "task"), &BehaviourTree::get_task_id);
     ClassDB::bind_method(D_METHOD("get_task", "id"), &BehaviourTree::get_task);

@@ -34,7 +34,7 @@
 class BTEditorPlugin;
 #endif /* BT_EDITOR_PLUGIN_FORWARD */
 
-/*  For testing purposes, BTGraphEditor will be a node for now. 
+/*  For testing purposes, BTGraphEditor will be a node for now.
     For some reason the memdelete(BTGraphEditor) when BTGraphEditor is an object causes segfault in the engine.
     ->queue_free() on the nodes manages to escape that.  TODO: investigate later. */
 class BTGraphEditor : public godot::Node
@@ -55,8 +55,8 @@ private:
 
     godot::PopupMenu* action_condition_type_popup_menu = nullptr;
 
-    godot::StringName last_double_clicked_node = "";
-    godot::StringName last_right_clicked_node = "";
+    BTGraphNode* last_double_clicked_node = nullptr;
+    BTGraphNode* last_right_clicked_node = nullptr;
 
     godot::Vector<godot::StringName> composite_names;
     godot::Vector<godot::StringName> decorator_names;
@@ -96,16 +96,16 @@ private:
     void connect_graph_node_signals(const godot::StringName& task_name);
 
     /* Node Management */
-    void delete_nodes(const godot::Vector<StringName>& task_names_to_delete); 
-    void create_default_graph_nodes(); 
-    void set_root_node(const godot::StringName& task_name); 
-    void arrange_nodes(bool with_undo_redo = false); 
-    void color_root_node(); 
-    void save_tree(); 
-    void load_tree(); 
+    void delete_nodes(const godot::Vector<StringName>& task_names_to_delete);
+    void create_default_graph_nodes();
+    void set_root_node(const BTGraphNode* task_name);
+    void arrange_nodes(bool with_undo_redo = false);
+    void color_root_node();
+    void save_tree();
+    void load_tree();
 
     static godot::Vector<StringName> bttask_array_to_names(godot::Array children);
-    
+
 public:
     /* Copy-pasta Handling */
     void copy_nodes_request();
@@ -113,50 +113,50 @@ public:
     void clear_copied_tasks();
 
     /* Connection Handling */
-    void connection_request(godot::StringName _from_node, int from_port, godot::StringName _to_node, int to_port); 
-    void disconnection_request(godot::StringName _from_node, int from_port, godot::StringName _to_node, int to_port); 
+    void connection_request(godot::StringName _from_node, int from_port, godot::StringName _to_node, int to_port);
+    void disconnection_request(godot::StringName _from_node, int from_port, godot::StringName _to_node, int to_port);
 
     /* Drag and Drop */
-    void _node_dragged(const godot::Vector2 &_from, const godot::Vector2 &_to, const godot::StringName& task_name); 
-    void _move_nodes(); 
+    void _node_dragged(const godot::Vector2 &_from, const godot::Vector2 &_to, const BTGraphNode* graph_node);
+    void _move_nodes();
 
     /* Event Handlers */
-    void _add_new_node_button_pressed(); 
-    void _add_new_subtree_node_button_pressed(); 
-    void _arrange_nodes_button_pressed(); 
+    void _add_new_node_button_pressed();
+    void _add_new_subtree_node_button_pressed();
+    void _arrange_nodes_button_pressed();
     void _on_rename_edit_text_submitted(const godot::String& new_text);
     void _on_rename_edit_focus_exited();
     void _on_path_edit_text_submitted(const godot::String& new_path);
     void _on_path_edit_focus_exited();
-    void _on_node_selected(const godot::StringName& task_name); 
-    void _on_node_deselected(const godot::StringName& task_name); 
-    void _on_node_double_clicked(const godot::StringName& task_name); 
-    void _on_node_right_clicked(const godot::StringName& task_name); 
-    void _on_node_subtree_double_clicked(const godot::StringName& task_name); 
-    void _on_node_subtree_right_clicked(const godot::StringName& task_name); 
+    void _on_node_selected(const BTGraphNode* graph_node);
+    void _on_node_deselected(const BTGraphNode* graph_node);
+    void _on_node_double_clicked(BTGraphNode* graph_node);
+    void _on_node_right_clicked(BTGraphNode* graph_node);
+    void _on_node_subtree_double_clicked(BTGraphNode* graph_node);
+    void _on_node_subtree_right_clicked(const BTGraphNode* graph_node);
     void _on_main_popup_menu_item_selected(int id);
     void _on_task_type_popup_menu_item_selected(int id);
     void _on_action_condition_type_popup_menu_item_selected(int id);
     void _on_action_condition_type_popup_menu_show(const godot::StringName& action_condition);
-    void _delete_nodes_request(godot::TypedArray<godot::StringName> _nodes_to_delete); 
+    void _delete_nodes_request(godot::TypedArray<godot::StringName> _nodes_to_delete);
     void _change_task_type(const godot::StringName& class_name, const godot::StringName& task_name); /* refactored*/
 
     /* Getters and Setters */
     void set_editor_plugin(godot::EditorPlugin* editor_plugin);
-    void set_behaviour_tree(BehaviourTree* new_tree); 
+    void set_behaviour_tree(BehaviourTree* new_tree);
     _FORCE_INLINE_ BehaviourTree* get_behaviour_tree() const
     {
-        return this->behaviour_tree; 
+        return this->behaviour_tree;
     }
 
     _FORCE_INLINE_ BTGraphView* get_graph_view() const
     {
-        return this->graph_view; 
+        return this->graph_view;
     }
 
     _FORCE_INLINE_ const CopyInfo& get_copy_info() const
     {
-        return this->copy_info; 
+        return this->copy_info;
     }
 
 protected:

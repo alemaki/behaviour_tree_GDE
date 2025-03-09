@@ -15,7 +15,7 @@ class BTTask : public godot::Resource
     GDCLASS(BTTask, godot::Resource);
 
 public:
-    enum Status 
+    enum Status
     {
         FRESH,
         RUNNING,

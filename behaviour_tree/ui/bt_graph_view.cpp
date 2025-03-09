@@ -33,7 +33,7 @@ void BTGraphView::detach_graph_nodes()
 
         /* item_rect_changed signal still linger even after removal of the node. */
         godot::TypedArray<godot::Dictionary> connected_signals = key_value.value->get_signal_connection_list("item_rect_changed");
-        
+
         for (int i = 0; i < connected_signals.size(); i++)
         {
             Dictionary connection_info = connected_signals[i];
@@ -160,16 +160,17 @@ godot::StringName BTGraphView::get_task_name(const godot::StringName& graph_node
 void BTGraphView::change_task_name(const godot::StringName& old_task_name, const godot::StringName& new_task_name)
 {
     ERR_FAIL_COND_MSG(!(this->has_task_name(old_task_name)), "BTGraphView has no task_name named: " + old_task_name + ".");
-    BTGraphNode* node = this->task_name_to_node[old_task_name];
+    ERR_FAIL_COND_MSG(new_task_name.is_empty(), "BTGraphView cannot have empty named tasks.");
+    BTGraphNode* graph_node = this->task_name_to_node[old_task_name];
     this->task_name_to_node.erase(old_task_name);
-    this->task_name_to_node.insert(new_task_name, node);
+    this->task_name_to_node.insert(new_task_name, graph_node);
 }
 
 void BTGraphView::connect_task_nodes(const godot::StringName& parent_task_name, const godot::StringName& child_task_name)
 {
     ERR_FAIL_COND_MSG(!(this->has_task_name(parent_task_name)), "BTGraphView has no parent task_name named: " + parent_task_name + ".");
     ERR_FAIL_COND_MSG(!(this->has_task_name(child_task_name)), "BTGraphView has no child task_name named: " + child_task_name + ".");
-    
+
     godot::StringName parent_node_name = this->task_name_to_node[parent_task_name]->get_name();
     godot::StringName child_node_name = this->task_name_to_node[child_task_name]->get_name();
 
@@ -181,7 +182,7 @@ void BTGraphView::disconnect_task_nodes(const godot::StringName& parent_task_nam
 {
     ERR_FAIL_COND_MSG(!(this->has_task_name(parent_task_name)), "BTGraphView has no parent task_name named: " + parent_task_name + ".");
     ERR_FAIL_COND_MSG(!(this->has_task_name(child_task_name)), "BTGraphView has no child task_name named: " + child_task_name + ".");
-    
+
     godot::StringName parent_node_name = this->task_name_to_node[parent_task_name]->get_name();
     godot::StringName child_node_name = this->task_name_to_node[child_task_name]->get_name();
 
@@ -207,7 +208,7 @@ struct GraphNodeComparatorByY {
 
 godot::Vector<StringName> BTGraphView::sorted_task_names_by_y(const godot::Vector<StringName>& task_names)
 {
-    
+
     for (const godot::StringName& task_name : task_names)
     {
         ERR_FAIL_COND_V_MSG(!(this->has_task_name(task_name)), {}, "BTGraphView has no task_name named: " + task_name + ".");
@@ -237,7 +238,7 @@ godot::HashMap<BTGraphNode*, godot::Vector<BTGraphNode*>> BTGraphView::get_node_
         ERR_FAIL_COND_V_MSG(!(this->has_task_name(key_value.key)), {}, "BTGraphView has no task_name named: " + key_value.key + ".");
         BTGraphNode* parent = this->task_name_to_node[key_value.key];
         parent_to_children.insert(parent, {});
-        
+
         for (const godot::StringName& child_name: key_value.value)
         {
             ERR_FAIL_COND_V_MSG(!(this->has_task_name(child_name)), {}, "BTGraphView has no task_name named: " + child_name + ".");

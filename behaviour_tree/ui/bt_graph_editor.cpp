@@ -130,23 +130,23 @@ void BTGraphEditor::_fill_action_condition_type_popup_menu(const godot::StringNa
 
 /* Utility Methods */
 
-void BTGraphEditor::connect_graph_node_signals(const godot::StringName& task_name)
+void BTGraphEditor::connect_graph_node_signals(const godot::StringName &task_name)
 {
-    BTGraphNode* node = this->graph_view->get_graph_node(task_name);
+    BTGraphNode *node = this->graph_view->get_graph_node(task_name);
     ERR_FAIL_COND(node == nullptr);
-    node->call_deferred("connect", "dragged", callable_mp(this, &BTGraphEditor::_node_dragged).bind(task_name));
-    node->call_deferred("connect", "node_selected", callable_mp(this, &BTGraphEditor::_on_node_selected).bind(task_name));
-    node->call_deferred("connect", "node_deselected", callable_mp(this, &BTGraphEditor::_on_node_deselected).bind(task_name));
+    node->call_deferred("connect", "dragged", callable_mp(this, &BTGraphEditor::_node_dragged).bind(node));
+    node->call_deferred("connect", "node_selected", callable_mp(this, &BTGraphEditor::_on_node_selected).bind(node));
+    node->call_deferred("connect", "node_deselected", callable_mp(this, &BTGraphEditor::_on_node_deselected).bind(node));
 
     if (godot::Object::cast_to<BTGraphNodeSubtree>(node) != nullptr)
     {
-        node->call_deferred("connect", "double_clicked", callable_mp(this, &BTGraphEditor::_on_node_subtree_double_clicked).bind(task_name));
-        node->call_deferred("connect", "right_clicked", callable_mp(this, &BTGraphEditor::_on_node_subtree_right_clicked).bind(task_name));
+        node->call_deferred("connect", "double_clicked", callable_mp(this, &BTGraphEditor::_on_node_subtree_double_clicked).bind(node));
+        node->call_deferred("connect", "right_clicked", callable_mp(this, &BTGraphEditor::_on_node_subtree_right_clicked).bind(node));
     }
     else
     {
-        node->call_deferred("connect", "double_clicked", callable_mp(this, &BTGraphEditor::_on_node_double_clicked).bind(task_name));
-        node->call_deferred("connect", "right_clicked", callable_mp(this, &BTGraphEditor::_on_node_right_clicked).bind(task_name));
+        node->call_deferred("connect", "double_clicked", callable_mp(this, &BTGraphEditor::_on_node_double_clicked).bind(node));
+        node->call_deferred("connect", "right_clicked", callable_mp(this, &BTGraphEditor::_on_node_right_clicked).bind(node));
     }
 }
 
@@ -266,8 +266,10 @@ void BTGraphEditor::create_default_graph_nodes()
     this->color_root_node();
 }
 
-void BTGraphEditor::set_root_node(const godot::StringName& task_name)
+void BTGraphEditor::set_root_node(const BTGraphNode* graph_node)
 {
+    ERR_FAIL_NULL(graph_node);
+    const godot::StringName task_name = this->graph_view->get_task_name(graph_node->get_name());
     godot::Ref<BTTask> current_root = this->behaviour_tree->get_root_task();
     ERR_FAIL_COND(current_root.is_null());
 
@@ -359,8 +361,10 @@ void BTGraphEditor::color_root_node()
 
 /* Drag and Drop */
 
-void BTGraphEditor::_node_dragged(const godot::Vector2 &_from, const godot::Vector2 &_to, const godot::StringName& task_name)
+void BTGraphEditor::_node_dragged(const godot::Vector2 &_from, const godot::Vector2 &_to, const BTGraphNode* graph_node)
 {
+    ERR_FAIL_NULL(graph_node);
+    const godot::StringName task_name = this->graph_view->get_task_name(graph_node->get_name());
     this->drag_buffer.push_back({_from, _to, task_name});
     if (!this->drag_called)
     {
@@ -381,12 +385,13 @@ void BTGraphEditor::_move_nodes()
     godot::EditorUndoRedoManager* undo_redo = this->editor_plugin->get_undo_redo();
 
     godot::HashSet<godot::Ref<BTTask>> sorted_parents;
-        
+
     undo_redo->create_action("Move node(s)");
 
     for (DragOperation operation : this->drag_buffer)
     {
-        godot::StringName task_name =operation.task_name;
+        godot::StringName task_name = operation.task_name;
+        ERR_FAIL_NULL(this->behaviour_tree->get_task_by_name(task_name));
         godot::Ref<BTTask> parent = this->behaviour_tree->get_task_by_name(task_name)->get_parent();
         if (!parent.is_valid())
         {
@@ -425,10 +430,10 @@ void BTGraphEditor::_add_new_node_button_pressed()
 {
     int id = this->behaviour_tree->get_valid_id();
     godot::Ref<BTTask> new_task = memnew(BTTask);
-    new_task->set_default_name();
+    new_task->set_default_name(); //TODO: make so there is noo need to set default name for task when creating
     godot::StringName task_custom_name = godot::itos(id);
     godot::StringName task_name = new_task->get_name();
-    
+
     new_task->set_custom_name(task_custom_name);
 
     godot::EditorUndoRedoManager* undo_redo_manager = this->editor_plugin->get_undo_redo();
@@ -484,12 +489,13 @@ void BTGraphEditor::_arrange_nodes_button_pressed()
 
 void BTGraphEditor::_on_rename_edit_text_submitted(const godot::String& new_text)
 {
-    ERR_FAIL_COND(this->last_double_clicked_node.is_empty());
+    ERR_FAIL_NULL(this->last_double_clicked_node);
     ERR_FAIL_COND_EDMSG(new_text == "", "Name of node must not be empty.");
 
-    BTGraphNode* node = this->graph_view->get_graph_node(last_double_clicked_node);
+    BTGraphNode* node = this->last_double_clicked_node;
+    godot::StringName task_name = this->graph_view->get_task_name(node->get_name());
     const godot::String& old_text = node->get_title();
-    godot::Ref<BTTask> task = this->behaviour_tree->get_task_by_name(last_double_clicked_node);
+    godot::Ref<BTTask> task = this->behaviour_tree->get_task_by_name(task_name);
 
     godot::EditorUndoRedoManager* undo_redo_manager = this->editor_plugin->get_undo_redo();
 
@@ -513,12 +519,13 @@ void BTGraphEditor::_on_rename_edit_focus_exited()
 
 void BTGraphEditor::_on_path_edit_text_submitted(const godot::String& new_path)
 {
-    ERR_FAIL_COND(this->last_double_clicked_node.is_empty());
-    BTGraphNodeSubtree* node = godot::Object::cast_to<BTGraphNodeSubtree>(this->graph_view->get_graph_node(last_double_clicked_node));
+    ERR_FAIL_COND(this->last_double_clicked_node);
+    BTGraphNodeSubtree* node = godot::Object::cast_to<BTGraphNodeSubtree>(last_double_clicked_node);
     ERR_FAIL_NULL(node);
     ERR_FAIL_COND_EDMSG(new_path == "", "Path must not be empty.");
 
-    godot::Ref<BTSubtree> subtree_task = this->behaviour_tree->get_task_by_name(last_double_clicked_node);
+    godot::StringName task_name = this->graph_view->get_task_name(node->get_name());
+    godot::Ref<BTSubtree> subtree_task = this->behaviour_tree->get_task_by_name(task_name);
     const godot::String& old_path = subtree_task->get_file_path();
 
     godot::EditorUndoRedoManager* undo_redo_manager = this->editor_plugin->get_undo_redo();
@@ -529,7 +536,7 @@ void BTGraphEditor::_on_path_edit_text_submitted(const godot::String& new_path)
     undo_redo_manager->add_do_method(this->behaviour_tree, "set_root_task", this->behaviour_tree->get_root_task());
     undo_redo_manager->add_do_method(subtree_task.ptr(), "set_file_path", new_path);
     undo_redo_manager->add_do_method(node, "set_file_path", new_path);
-    
+
     undo_redo_manager->add_undo_method(subtree_task.ptr(), "set_file_path", old_path);
     undo_redo_manager->add_undo_method(node, "set_file_path", old_path);
     undo_redo_manager->add_undo_method(this->behaviour_tree, "set_root_task", this->behaviour_tree->get_root_task());
@@ -544,27 +551,33 @@ void BTGraphEditor::_on_path_edit_focus_exited()
     this->path_edit->set_visible(false);
 }
 
-void BTGraphEditor::_on_node_selected(const godot::StringName& task_name)
+void BTGraphEditor::_on_node_selected(const BTGraphNode* graph_node)
 {
+    ERR_FAIL_NULL(graph_node);
+    const godot::StringName task_name = this->graph_view->get_task_name(graph_node->get_name());
     godot::Ref<BTTask> task = this->behaviour_tree->get_task_by_name(task_name);
     ERR_FAIL_COND(task.is_null());
     godot::EditorInterface* editor_interface = godot::EditorInterface::get_singleton();
     editor_interface->inspect_object(task.ptr());
 }
 
-void BTGraphEditor::_on_node_deselected(const godot::StringName& _task_name)
+void BTGraphEditor::_on_node_deselected(const BTGraphNode* _graph_node)
 {
     ERR_FAIL_COND(this->behaviour_tree == nullptr);
 
     godot::EditorInterface* editor_interface = godot::EditorInterface::get_singleton();
     editor_interface->inspect_object(this->behaviour_tree);
+
+    ERR_FAIL_NULL(_graph_node);
 }
 
-void BTGraphEditor::_on_node_double_clicked(const godot::StringName& task_name)
+void BTGraphEditor::_on_node_double_clicked(BTGraphNode* clicked_node)
 {
+    ERR_FAIL_NULL(clicked_node);
+    const godot::StringName task_name = this->graph_view->get_task_name(clicked_node->get_name());
     ERR_FAIL_COND(!(this->graph_view->has_task_name(task_name)));
-    this->last_double_clicked_node = task_name;
-    BTGraphNode* clicked_node = this->graph_view->get_graph_node(task_name);
+    this->last_double_clicked_node = clicked_node;
+
     this->rename_edit->set_text(clicked_node->get_title());
     this->rename_edit->set_visible(true);
     /* grab_focus should be a deferred call. See:
@@ -574,19 +587,20 @@ void BTGraphEditor::_on_node_double_clicked(const godot::StringName& task_name)
         this->rename_edit->call_deferred("grab_focus");
     }
     this->rename_edit->set_size(godot::Size2(clicked_node->get_size().x, this->path_edit->get_size().y));
-    this->rename_edit->set_position(godot::Vector2(clicked_node->get_position().x, 
+    this->rename_edit->set_position(godot::Vector2(clicked_node->get_position().x,
                                                    clicked_node->get_position().y - this->rename_edit->get_size().y));
-    
+
     /* show up on front not behind */
     this->rename_edit->set_z_index(clicked_node->get_z_index() + 1);
 }
 
-void BTGraphEditor::_on_node_right_clicked(const godot::StringName& task_name)
+void BTGraphEditor::_on_node_right_clicked(BTGraphNode* clicked_node)
 {
+    ERR_FAIL_NULL(clicked_node);
+    const godot::StringName task_name = this->graph_view->get_task_name(clicked_node->get_name());
     ERR_FAIL_COND(!(this->graph_view->has_task_name(task_name)));
 
-    this->last_right_clicked_node = task_name;
-    BTGraphNode* clicked_node = this->graph_view->get_graph_node(task_name);
+    this->last_right_clicked_node = clicked_node;
 
     godot::Vector2 menu_position = clicked_node->get_global_position();
     int current_screen = clicked_node->get_viewport()->get_window()->get_current_screen();
@@ -598,8 +612,8 @@ void BTGraphEditor::_on_node_right_clicked(const godot::StringName& task_name)
     this->main_popup_menu->set_current_screen(current_screen);
     this->main_popup_menu->call_deferred("grab_focus");
 
-    this->_on_node_selected(task_name);
-    
+    this->_on_node_selected(clicked_node);
+
     /* TODO: find better solution. */
     int size = this->composite_names.size() + this->decorator_names.size();
     for (int i = 0; i < size; i++)
@@ -621,25 +635,29 @@ void BTGraphEditor::_on_node_right_clicked(const godot::StringName& task_name)
     }
 }
 
-void BTGraphEditor::_on_node_subtree_double_clicked(const godot::StringName& task_name)
+void BTGraphEditor::_on_node_subtree_double_clicked(BTGraphNode* graph_node)
 {
+    ERR_FAIL_NULL(graph_node);
+    const godot::StringName task_name = this->graph_view->get_task_name(graph_node->get_name());
     ERR_FAIL_COND(!(this->graph_view->has_task_name(task_name)));
     BTGraphNodeSubtree* clicked_node = godot::Object::cast_to<BTGraphNodeSubtree>(this->graph_view->get_graph_node(task_name));
     ERR_FAIL_NULL(clicked_node);
 
-    this->last_double_clicked_node = task_name;
+    this->last_double_clicked_node = graph_node;
     this->path_edit->set_text(clicked_node->get_file_path());
     this->path_edit->set_visible(true);
     this->path_edit->call_deferred("grab_focus");
     this->path_edit->set_size(godot::Size2(clicked_node->get_size().x, this->path_edit->get_size().y));
-    this->path_edit->set_position(godot::Vector2(clicked_node->get_position().x, 
+    this->path_edit->set_position(godot::Vector2(clicked_node->get_position().x,
                                                    clicked_node->get_position().y - this->path_edit->get_size().y));
-    
+
     this->path_edit->set_z_index(clicked_node->get_z_index() + 1);
 }
 
-void BTGraphEditor::_on_node_subtree_right_clicked(const godot::StringName& task_name)
+void BTGraphEditor::_on_node_subtree_right_clicked(const BTGraphNode* graph_node)
 {
+    ERR_FAIL_NULL(graph_node);
+    const godot::StringName task_name = this->graph_view->get_task_name(graph_node->get_name());
     //TODO?
 }
 
@@ -673,17 +691,19 @@ void BTGraphEditor::_on_task_type_popup_menu_item_selected(int id)
     }
     else
     {
-        this->_change_task_type(item_text, this->last_right_clicked_node);
+        ERR_FAIL_NULL(this->last_right_clicked_node);
+        const godot::StringName task_name = this->graph_view->get_task_name(this->last_right_clicked_node->get_name());
+        this->_change_task_type(item_text, task_name);
     }
 }
 
 
 void BTGraphEditor::_on_action_condition_type_popup_menu_show(const godot::StringName& action_condition)
 {
-    ERR_FAIL_COND(this->graph_view->has_task_name(this->last_right_clicked_node));
+    BTGraphNode* node = this->last_right_clicked_node;
+    ERR_FAIL_NULL(node);
     /* Refill every time because user might define new subclasses*/
     this->_fill_action_condition_type_popup_menu(action_condition);
-    BTGraphNode* node = this->graph_view->get_graph_node(this->last_right_clicked_node);
 
     godot::Vector2 menu_position = node->get_global_position();
     int current_screen = node->get_viewport()->get_window()->get_current_screen();
@@ -698,8 +718,10 @@ void BTGraphEditor::_on_action_condition_type_popup_menu_show(const godot::Strin
 
 void BTGraphEditor::_on_action_condition_type_popup_menu_item_selected(int id)
 {
-    godot::StringName item = this->action_condition_type_popup_menu->get_item_text(id);
-    this->_change_task_type(item, this->last_right_clicked_node);
+    godot::StringName item_text = this->action_condition_type_popup_menu->get_item_text(id);
+    ERR_FAIL_NULL(this->last_right_clicked_node);
+    const godot::StringName task_name = this->graph_view->get_task_name(this->last_right_clicked_node->get_name());
+    this->_change_task_type(item_text, task_name);
 }
 
 void BTGraphEditor::_delete_nodes_request(godot::TypedArray<godot::StringName> _node_names_to_delete)
@@ -726,7 +748,7 @@ void BTGraphEditor::_delete_nodes_request(godot::TypedArray<godot::StringName> _
     }
 
     this->delete_nodes(task_names_to_delete);
-    
+
 }
 
 
@@ -842,13 +864,13 @@ void BTGraphEditor::paste_nodes_request()
     {
         godot::Ref<BTTask> pasted = pasted_to_pasted_children.key;
         const godot::Vector<godot::Ref<BTTask>>& pasted_children = pasted_to_pasted_children.value;
-        
+
         for (int i = 0; i < pasted_children.size(); i++)
         {
             godot::Ref<BTTask> pasted_child = pasted_children[i];
             undo_redo_manager->add_do_method(this->behaviour_tree, "connect_tasks", pasted, pasted_child, i);
             undo_redo_manager->add_undo_method(this->behaviour_tree, "disconnect_tasks", pasted, pasted_child);
-        
+
             undo_redo_manager->add_do_method(this->graph_view, "connect_task_nodes", pasted->get_name(), pasted_child->get_name());
             undo_redo_manager->add_undo_method(this->graph_view, "disconnect_task_nodes", pasted->get_name(), pasted_child->get_name());
         }
@@ -866,7 +888,7 @@ void BTGraphEditor::paste_nodes_request()
     }
 
     undo_redo_manager->add_do_method(this, "color_root_node");
-    
+
     undo_redo_manager->commit_action();
 }
 
@@ -915,7 +937,7 @@ void BTGraphEditor::connection_request(godot::StringName _from_node, int from_po
     godot::EditorUndoRedoManager* undo_redo_manager = this->editor_plugin->get_undo_redo();
 
     undo_redo_manager->create_action("Create a connection.");
-    
+
     godot::Vector<StringName> current_children_names = BTGraphEditor::bttask_array_to_names(parent_task->get_children());
 
     int index = this->graph_view->find_insert_index_by_y(child_task_name, current_children_names);
@@ -976,9 +998,10 @@ void BTGraphEditor::_change_task_type(const godot::StringName& class_name, const
     BTGraphNode* node = this->graph_view->get_graph_node(task_name);
 
     godot::Ref<BTTask> new_task = godot::ClassDB::instantiate(class_name);
-    
+    new_task->set_default_name();
+
     ERR_FAIL_COND(new_task.is_null());
-    
+
     new_task->set_custom_name(old_task->get_custom_name());
     godot::EditorUndoRedoManager* undo_redo_manager = this->editor_plugin->get_undo_redo();
 
@@ -993,6 +1016,9 @@ void BTGraphEditor::_change_task_type(const godot::StringName& class_name, const
     undo_redo_manager->add_undo_method(this->behaviour_tree, "swap_task_in", new_task, old_task);
 
     undo_redo_manager->commit_action();
+
+    ERR_FAIL_COND(this->behaviour_tree->get_task_by_name(task_name).is_valid());
+    ERR_FAIL_COND(this->behaviour_tree->get_task_by_name(new_task->get_name()).is_null());
 }
 
 
