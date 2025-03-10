@@ -198,11 +198,14 @@ struct BTGraphEditorFixture
         REQUIRE_EQ(parent_task->get_child(0), child_task1);
         REQUIRE_EQ(parent_task->get_child(1), child_task2);
 
-        graph_view->set_node_position(child_task2->get_name(), godot::Vector2(0, -50));
-        graph_view->set_node_position(child_task1->get_name(), godot::Vector2(0, 50));
+        graph_view->set_node_position(child_task1->get_name(), godot::Vector2(0, -50));
+        graph_view->set_node_position(child_task2->get_name(), godot::Vector2(0, 50));
 
-        editor->_node_dragged(godot::Vector2(0, 50), godot::Vector2(0, -50), child_task2->get_name());
-        editor->_node_dragged(godot::Vector2(0, 0), godot::Vector2(0, 50), child_task1->get_name());
+        editor->_node_dragged(godot::Vector2(0, -50), godot::Vector2(0, 50), child1);
+        editor->_node_dragged(godot::Vector2(0, 50), godot::Vector2(0, -50), child2);
+        /* Simulate actual moving, because nodes are already moved from old to new pos */
+        graph_view->set_node_position(child_task1->get_name(), godot::Vector2(0, 50));
+        graph_view->set_node_position(child_task2->get_name(), godot::Vector2(0, -50));
 
         editor->_move_nodes();
 
@@ -267,7 +270,7 @@ struct BTGraphEditorFixture
         REQUIRE_EQ(tree->get_task_count(), 4);
         REQUIRE_EQ(graph_view->get_child_count(), initial_child_count + 4);
 
-        
+
         godot::Ref<BTTask> parent_task = tree->get_task(1);
         godot::Ref<BTTask> node1_task = tree->get_task(2);
         godot::Ref<BTTask> node11_task = tree->get_task(3);
@@ -347,7 +350,7 @@ struct BTGraphEditorReadyTreeFixture : public BTGraphEditorFixture
 
     void test_task_name_change()
     {
-        editor->_on_node_double_clicked(root_task->get_name());
+        editor->_on_node_double_clicked(root);
         editor->_on_rename_edit_text_submitted("root3K");
         CHECK_EQ(root_task->get_custom_name(), "root3K");
         CHECK_EQ(root->get_title(), "root3K");
@@ -442,7 +445,7 @@ struct BTGraphEditorReadyTreeFixture : public BTGraphEditorFixture
         graph_view->set_task_node_selected(child2_task->get_name(), true);
         editor->copy_nodes_request();
         editor->paste_nodes_request();
-        
+
         REQUIRE_EQ(graph_view->get_child_count(), initial_child_count + 7 + 2);
         REQUIRE_EQ(tree->get_task_count(), 7 + 2);
         godot::Ref<BTTask> new_task1 = this->tree->get_task(8);
@@ -474,7 +477,7 @@ struct BTGraphEditorReadyTreeFixture : public BTGraphEditorFixture
         graph_view->set_task_node_selected(child22_task->get_name(), true);
         editor->copy_nodes_request();
         editor->paste_nodes_request();
-        
+
         REQUIRE_EQ(graph_view->get_child_count(), initial_child_count + 7 + 7);
         REQUIRE_EQ(tree->get_task_count(), 7 + 7);
         REQUIRE_EQ(graph_view->get_connection_list().size(), 6 + 6);
@@ -553,7 +556,7 @@ TEST_SUITE("[editor]" "[plugin]" "BTGraphEditor")
             BTGraphNode* node = this->graph_view->get_graph_node(task->get_name());
             REQUIRE_NE(node, nullptr);
         }
-     
+
         REQUIRE_EQ(graph_view->get_connection_list().size(), 6);
         CHECK(graph_view->is_node_connected(root->get_name(), 0, child1->get_name(), 0));
         CHECK(graph_view->is_node_connected(root->get_name(), 0, child2->get_name(), 0));
@@ -562,7 +565,7 @@ TEST_SUITE("[editor]" "[plugin]" "BTGraphEditor")
         CHECK(graph_view->is_node_connected(child2->get_name(), 0, child21->get_name(), 0));
         CHECK(graph_view->is_node_connected(child2->get_name(), 0, child22->get_name(), 0));
     }
-    
+
     TEST_CASE_FIXTURE(BTGraphEditorReadyTreeFixture, "Default graph arranges the nodes properly")
     {
         godot::Ref<BTGraphSortAlgorithm> graph_sort_algorithm = memnew(BTGraphSortAlgorithm);
@@ -571,12 +574,12 @@ TEST_SUITE("[editor]" "[plugin]" "BTGraphEditor")
         parent_to_children_names[child1_task->get_name()] = {child11_task->get_name(), child12_task->get_name()};
         parent_to_children_names[child2_task->get_name()] = {child21_task->get_name(), child22_task->get_name()};
         godot::HashMap<BTGraphNode*, godot::Vector<BTGraphNode*>> parent_to_children = graph_view->get_node_tree_map(parent_to_children_names);
-        
+
         graph_sort_algorithm->set_root_node(this->graph_view->get_graph_node(root_task->get_name()));
         graph_sort_algorithm->set_parent_to_children(parent_to_children);
-    
+
         godot::HashMap<BTGraphNode*, godot::Vector2> result = graph_sort_algorithm->get_arranged_nodes_position();
-    
+
         for (const auto& key_value : result)
         {
             CHECK_VECTORS_EQ(key_value.key->get_position_offset(), key_value.value);
@@ -758,9 +761,9 @@ TEST_SUITE("[editor]" "[plugin]" "[undo_redo]" "BTGraphEditor")
         godot::UndoRedo* undo = get_undo(tree);
         undo->undo();
 
-        REQUIRE_EQ(parent->get_position_offset(),  godot::Vector2(0, 0));
-        REQUIRE_EQ(child1->get_position_offset(),  godot::Vector2(0, 0));
-        REQUIRE_EQ(child2->get_position_offset(),  godot::Vector2(0, 50));
+        REQUIRE_VECTORS_EQ(parent->get_position_offset(),  godot::Vector2(0, 0));
+        REQUIRE_VECTORS_EQ(child1->get_position_offset(),  godot::Vector2(0, -50));
+        REQUIRE_VECTORS_EQ(child2->get_position_offset(),  godot::Vector2(0, 50));
 
         REQUIRE_EQ(parent_task->get_child_count(), 2);
         REQUIRE_EQ(parent_task->get_child(0), child_task1);
@@ -785,7 +788,7 @@ TEST_SUITE("[editor]" "[plugin]" "[undo_redo]" "BTGraphEditor")
 
         godot::UndoRedo* undo = get_undo(tree);
         undo->undo();
-        
+
         CHECK_EQ(root_task->get_custom_name(), "");
         CHECK_EQ(root->get_title(), "");
 
@@ -804,7 +807,7 @@ TEST_SUITE("[editor]" "[plugin]" "[undo_redo]" "BTGraphEditor")
 
         godot::UndoRedo* undo = get_undo(tree);
         undo->undo();
-        
+
         assert_task_changed("BTTask", child1_task, new_task);
 
         godot::UndoRedo* redo = get_redo(tree);

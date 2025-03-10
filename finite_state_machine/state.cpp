@@ -11,11 +11,7 @@ void State::_process_state(double delta) const
     for (int i = 0; i < process_callables.size(); i++)
     {
         godot::Callable callable = process_callables[i];
-        if (!callable.is_valid())
-        {
-            /* TODO: error? remove? */
-            continue;
-        }
+        ERR_CONTINUE_MSG(!callable.is_valid(), vformat("State '%s' has invalid callable: '%s'", this->get_name(), callable));
         callable.call(delta);
     }
 }
