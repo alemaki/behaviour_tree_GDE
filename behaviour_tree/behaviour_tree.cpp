@@ -214,7 +214,7 @@ godot::Ref<BTTask> BehaviourTree::instantiate(Node* actor, godot::Ref<Blackboard
 {
     if (root_task.is_null())
     {
-        godot::UtilityFunctions::printerr("Behaviour tree is empty.");
+        godot::UtilityFunctions::push_error(vformat("%s: Behaviour tree is empty.", this->get_name()));
         return nullptr;
     }
     godot::Ref<BTTask> task = this->root_task->clone();

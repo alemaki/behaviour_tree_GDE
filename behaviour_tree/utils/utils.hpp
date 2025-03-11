@@ -17,34 +17,34 @@ T* load_scene_node(const godot::String& scene_path)
 {
     if(!scene_path.ends_with(".tscn") && !scene_path.ends_with(".scn"))
     {
-        godot::UtilityFunctions::printerr("File path is not a valid scene file: " + scene_path);
+        godot::UtilityFunctions::push_error("File path is not a valid scene file: " + scene_path);
         return nullptr;
     }
 
     godot::Ref<godot::PackedScene> packed_scene = godot::ResourceLoader::get_singleton()->load(scene_path);
     if (packed_scene.is_null())
     {
-        godot::UtilityFunctions::printerr("Failed to load scene: ", scene_path);
+        godot::UtilityFunctions::push_error("Failed to load scene: ", scene_path);
         return nullptr;
     }
 
     if(!(packed_scene->can_instantiate()))
     {
-        godot::UtilityFunctions::printerr("Cannot instantiate scene: ", scene_path);
+        godot::UtilityFunctions::push_error("Cannot instantiate scene: ", scene_path);
         return nullptr;
     }
 
     godot::Node* node = packed_scene->instantiate();
     if (node == nullptr)
     {
-        godot::UtilityFunctions::printerr("Failed to instantiate scene: ", scene_path);
+        godot::UtilityFunctions::push_error("Failed to instantiate scene: ", scene_path);
         return nullptr;
     }
 
     T* result_node = godot::Object::cast_to<T>(node);
     if (result_node == nullptr)
     {
-        godot::UtilityFunctions::printerr("Root node of scene is not of type ", T::get_class_static() ,": ", scene_path);
+        godot::UtilityFunctions::push_error("Root node of scene is not of type ", T::get_class_static() ,": ", scene_path);
         return nullptr;
     }
 

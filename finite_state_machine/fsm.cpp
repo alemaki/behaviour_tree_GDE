@@ -49,7 +49,7 @@ void FSM::initialize()
     }
     else
     {
-        godot::UtilityFunctions::printerr(this->get_name(), ": initial state is not child of FSM.");
+        godot::UtilityFunctions::push_error(vformat("%s: initial state \"%s\" is not child of FSM.", this->get_name(), initial_state->get_name()));
         ERR_FAIL_COND(this->states.size() == 0);
         this->current_state = this->states.begin().operator*();
     }

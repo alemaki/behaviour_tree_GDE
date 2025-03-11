@@ -33,7 +33,7 @@ void BTTask::_set_children(const godot::Array& children)
         godot::Ref<BTTask> child = children[index];
         if (child.is_null())
         {
-            godot::UtilityFunctions::printerr("Invalid child in children.");
+            godot::UtilityFunctions::push_error(vformat("%s: Invalid child in _set_children.", this->get_name()));
             invalid_refs++;
             continue;
         }

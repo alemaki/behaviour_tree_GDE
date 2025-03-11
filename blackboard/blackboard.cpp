@@ -10,7 +10,7 @@ Variant Blackboard::get_var(const StringName &name, const Variant &default_var, 
     }
     else if (complain)
     {
-        godot::UtilityFunctions::printerr(vformat("Blackboard variable \"%s\" not found.", name));
+        godot::UtilityFunctions::push_error(vformat("Blackboard variable \"%s\" not found.", name));
     }
 
     return default_var;

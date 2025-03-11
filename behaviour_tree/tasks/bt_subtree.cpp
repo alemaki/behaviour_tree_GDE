@@ -23,7 +23,7 @@ godot::Ref<BTTask> BTSubtree::clone() const
 
     if (temp_behaviour_tree->get_root_task() == nullptr)
     {
-        godot::UtilityFunctions::printerr("Behaviour tree doesn't have any tasks: ", this->file_path);
+        godot::UtilityFunctions::push_error(vformat("%s: Behaviour tree doesn't have any tasks:", this->get_name(), this->file_path));
         return nullptr;
     }
 
