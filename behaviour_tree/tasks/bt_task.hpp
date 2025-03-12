@@ -10,17 +10,38 @@
 
 #include "behaviour_tree/utils/macros.hpp"
 
+/**
+ * @class BTTask
+ * @brief Base class for Behaviour Tree tasks in the Demonless AI system.
+ *
+ * A BTTask represents a single node (or “task”) in a behaviour tree.
+ * Tasks define logic for AI agents to perform actions or make decisions.
+ * This class provides a foundation for all of the task types,
+ * handling execution flow, parent-child relationships, and lifecycle management.
+ *
+ * Each task follows a simple lifecycle of virtuals that can be overriden:
+ *   - `_setup()`  → Called once before the task is first used.
+ *   - `_enter()`  → Called when the task begins execution.
+ *   - `_tick()`   → Called repeatedly while the task runs; returns a Status.
+ *   - `_exit()`   → Called when the task finishes or is aborted.
+ *
+ * Tasks can maintain children (for composites like selectors or sequences),
+ * and a shared blackboard for communication between them.
+ */
 class BTTask : public godot::Resource
 {
     GDCLASS(BTTask, godot::Resource);
 
 public:
+    /**
+     * @brief Represents the current execution state of the task.
+     */
     enum Status
     {
-        FRESH,
-        RUNNING,
-        SUCCESS,
-        FAILURE,
+        FRESH,   ///< Task has not started yet.
+        RUNNING, ///< Task is currently running.
+        SUCCESS, ///< Task completed successfully.
+        FAILURE, ///< Task failed to complete.
     };
 
 private:
@@ -33,9 +54,35 @@ private:
     bool debugging = false;
 
 protected:
+    /**
+     * @brief Called once when the task is initialized.
+     *
+     * Use this to set up internal state, allocate resources, or link references.
+     */
     virtual void _setup();
+
+    /**
+     * @brief Called when the task starts execution.
+     *
+     * Use this for initialization specific to the beginning of an execution cycle.
+     */
     virtual void _enter();
+
+    /**
+     * @brief Called when the task stops executing, either through `_tick` - success or failure, or `abort`.
+     *
+     * Use this to clean up or reset temporary states.
+     */
     virtual void _exit();
+
+    /**
+     * @brief Called every frame while the task is running.
+     *
+     * Override this in derived classes to define the task's actual logic.
+     *
+     * @param delta Frame time delta.
+     * @return The current execution status (RUNNING, SUCCESS, or FAILURE).
+     */
     virtual Status _tick(double delta);
 
 public:
@@ -54,7 +101,7 @@ public:
     }
     godot::Array get_children() const;
     void _set_children(const godot::Array& children);
-    
+
     _FORCE_INLINE_ int get_child_count() const
     {
         return this->children.size();
@@ -64,7 +111,7 @@ public:
         return godot::Ref<BTTask>(this->children[index]);
     }
     bool is_root() const;
-    
+
 	godot::Ref<BTTask> get_root() const;
 
 	void add_child(godot::Ref<BTTask> child);
@@ -84,13 +131,41 @@ public:
     }
     bool has_running_child() const;
 
+    /**
+     * @brief Executes this task.
+     *
+     * This handles setup, ticking, and exit calls automatically.
+     *
+     * @param delta Frame time delta.
+     * @return The final task status after execution.
+     */
     BTTask::Status execute(double delta);
+
+    /**
+     * @brief Aborts this task’s current execution.
+     *
+     * Forces a stop and calls `_exit()`.
+     */
     void abort();
 
+    /**
+     * @brief Creates a shallow copy of this task and its data with no children.
+     * @return A reference to the copied BTTask.
+     */
     virtual godot::Ref<BTTask> copy() const;
+
+    /**
+     * @brief Clones this task, including its configuration and children.
+     * @return A cloned task reference.
+     */
     virtual godot::Ref<BTTask> clone() const;
 
-    void initialize(godot::Node* actor, godot::Ref<Blackboard> blackboard);
+    /**
+     * @brief Initializes this task with an actor and a shared blackboard.
+     * @param actor The actor node executing this task.
+     * @param blackboard Shared data store for the behaviour tree.
+     */
+    void initialize(godot::Node *actor, godot::Ref<Blackboard> blackboard);
 
     virtual void set_default_name();
 

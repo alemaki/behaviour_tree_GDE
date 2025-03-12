@@ -222,7 +222,7 @@ void BTTask::_setup()
 
 void BTTask::_enter()
 {
-    
+
 }
 
 void BTTask:: _exit()
@@ -308,7 +308,7 @@ void BTTask::_bind_methods()
     ADD_PROPERTY(PropertyInfo(Variant::STRING, "custom_name", PROPERTY_HINT_RESOURCE_TYPE, "", PROPERTY_USAGE_NO_EDITOR | PROPERTY_USAGE_INTERNAL), "set_custom_name", "get_custom_name");
     ADD_PROPERTY(PropertyInfo(Variant::ARRAY, "children", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NO_EDITOR | PROPERTY_USAGE_INTERNAL), "_set_children", "get_children");
     ADD_PROPERTY(PropertyInfo(Variant::INT, "status", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NONE), "", "get_status");
-    
+
     BIND_ENUM_CONSTANT(Status::FRESH);
     BIND_ENUM_CONSTANT(Status::RUNNING);
     BIND_ENUM_CONSTANT(Status::SUCCESS);
