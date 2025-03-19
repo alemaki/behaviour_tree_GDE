@@ -73,7 +73,7 @@ TEST_SUITE("BlackboardBasic")
     {
         blackboard->set_var("health", 100);
         blackboard->set_var("mana", 50);
-        
+
         TypedArray<StringName> vars = blackboard->list_vars();
         CHECK_EQ(vars.size(), 2);
         CHECK(vars.has("health"));
@@ -84,7 +84,7 @@ TEST_SUITE("BlackboardBasic")
     {
         blackboard->set_var("health", 100);
         blackboard->set_var("mana", 50);
-        
+
         Dictionary vars = blackboard->get_vars_as_dict();
         CHECK_EQ(vars.size(), 2);
         CHECK_EQ(vars["health"], godot::Variant(100));
