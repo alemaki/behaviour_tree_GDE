@@ -23,6 +23,8 @@ TEST_SUITE("BTTaskTests")
         CHECK_EQ(task->get_actor(), actor_node);
 
         CHECK_EQ(task->get_parent(), nullptr);
+
+        memdelete(actor_node);
     }
 
     TEST_CASE("Test child addition and array")
