@@ -615,7 +615,7 @@ void BTGraphEditor::_on_node_right_clicked(BTGraphNode* clicked_node)
     this->_on_node_selected(clicked_node);
 
     /* TODO: find better solution. */
-    int size = this->composite_names.size() + this->decorator_names.size();
+    int size = this->task_type_popup_menu->get_item_count();
     for (int i = 0; i < size; i++)
     {
         this->task_type_popup_menu->set_item_checked(i, false);
@@ -626,12 +626,13 @@ void BTGraphEditor::_on_node_right_clicked(BTGraphNode* clicked_node)
     int id2 = this->decorator_names.find(task->get_class());
     if (id1 != -1)
     {
-        this->task_type_popup_menu->set_item_checked(id1, true);
+        // TODO: seperators are counted towards items. fix this magic number
+        this->task_type_popup_menu->set_item_checked(id1 + 1, true);
     }
     else if (id2 != -1)
     {
         id2 += this->composite_names.size();
-        this->task_type_popup_menu->set_item_checked(id2, true);
+        this->task_type_popup_menu->set_item_checked(id2 + 2, true);
     }
 }
 

@@ -23,7 +23,7 @@ public:
 private:
     const godot::String plugin_name = "BTEditorPlugin";
     const godot::String bottom_panel_button_name = "Behaviour tree";
-    
+
     godot::VBoxContainer* button_continer;
     godot::Button* add_new_node_button;
     godot::Button* add_new_subtree_button;
