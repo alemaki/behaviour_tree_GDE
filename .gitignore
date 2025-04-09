@@ -34,3 +34,6 @@ mono_crash.*.json
 
 # Git ignores
 .gitconfig
+
+# Project specific ignores
+bin/
