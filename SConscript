@@ -10,20 +10,13 @@ env = SConscript(os.path.join('godot-cpp', 'SConstruct'))
 if 'target' not in ARGUMENTS:
     ARGUMENTS['target'] = 'template_debug'
 
-if 'debug_symbols' not in ARGUMENTS:
-    ARGUMENTS['debug_symbols'] = 'yes'
-
 target = ARGUMENTS.get('target', 'template_debug')
-debug_symbols = ARGUMENTS.get('debug_symbols', 'yes')
 
 # Godot doesn't like ".obj"
 env['OBJSUFFIX'] = '.o'
 
 if target == 'template_debug':
     env.Append(CPPDEFINES=['DEBUG'])
-    if debug_symbols == 'yes':
-        pass
-        #env.Append(CXXFLAGS=['-g', '-O0'])  # Debug flags: No optimization, include debug symbols
 else:
     env.Append(CPPDEFINES=['NDEBUG'])
 
