@@ -1,7 +1,7 @@
 [submodule "godot-cpp"]
 	path = godot-cpp
 	url = https://github.com/godotengine/godot-cpp.git
-	branch = 4.2
+	branch = master # TODO: make 4.7, when it comes out
 [submodule "tests/test_utils"]
 	path = tests/test_utils
 	url = https://github.com/alemaki/test_utils_GDE.git

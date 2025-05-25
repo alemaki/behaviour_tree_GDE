@@ -1,4 +1,5 @@
 #include "bt_graph_editor.hpp"
+#include <utility>
 #include <godot_cpp/templates/hash_set.hpp>
 #include <godot_cpp/variant/color.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
@@ -797,9 +798,9 @@ void BTGraphEditor::copy_nodes_request()
     this->clear_copied_tasks();
 
     this->copy_info = {
-        copied_tasks,
-        parent_to_children_copied_connections,
-        copied_positions
+        std::move(copied_tasks),
+        std::move(parent_to_children_copied_connections),
+        std::move(copied_positions)
     };
 }
 

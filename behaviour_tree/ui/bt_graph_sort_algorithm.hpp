@@ -43,7 +43,10 @@ public:
     //TODO: fix magic numbers.
 
     CREATE_GETTER_SETTER_DEFAULT(BTGraphNode*, root_node);
-    CREATE_GETTER_SETTER_DEFAULT(ParentToChildrenMap, parent_to_children);
+
+    void set_parent_to_children(const ParentToChildrenMap& value) { this->parent_to_children = value; }
+    _FORCE_INLINE_ const ParentToChildrenMap& get_parent_to_children() const { return this->parent_to_children; }
+
     CREATE_GETTER_SETTER_POSITIVE_DEFAULT(int, sibling_separation);
     CREATE_GETTER_SETTER_POSITIVE_DEFAULT(int, subtree_separation);
     CREATE_GETTER_SETTER_POSITIVE_DEFAULT(int, level_separation);

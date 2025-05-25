@@ -2,6 +2,9 @@ import os
 from SCons.Script import ARGUMENTS, SConscript, Return
 env = None
 
+if 'api_version' not in ARGUMENTS:
+    ARGUMENTS['api_version'] = '4.7'
+
 # Build own godot-cpp and hand back a fully configured env with itself already linked into env['LIBS']:
 #
 #   env = SConscript(os.path.join('path', 'to', 'behaviour_tree_GDE', 'SConscript'))
